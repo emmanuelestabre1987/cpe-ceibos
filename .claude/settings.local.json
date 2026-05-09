@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create *)",
+      "Bash(npx create-vite@latest . --template react-ts)",
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(dir /s /b src)",
+      "Bash(copy .env.example .env)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Emmanuel Estabre\\\\Desktop\\\\Cpe_ceibos\" -Recurse -Force)",
+      "Bash(Select-Object -Property FullName)",
+      "Bash(Format-Table -AutoSize)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Emmanuel Estabre\\\\Desktop\\\\Cpe_ceibos\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "Bash(findstr /V \"storage.ts\\\\|auth.ts\")",
+      "Bash(node -e \"const s = '33-50673744-9'; console.log\\(s.replace\\(/\\\\D/g, ''\\)\\); console.log\\(s.replace\\(/\\\\D/g, ''\\).length\\)\")",
+      "Bash(Select-String -NotMatch \"storage\\\\.ts|auth\\\\.ts\")",
+      "Bash(npm test *)",
+      "PowerShell(cd \"C:\\\\Users\\\\Emmanuel Estabre\\\\Desktop\\\\Cpe_ceibos\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -notmatch \"storage\\\\.ts|auth\\\\.ts\" })",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/@supabase/supabase-js/package.json'\\).version\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(python3 -)",
+      "Bash(npx vitest *)",
+      "Bash(npm list *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}
