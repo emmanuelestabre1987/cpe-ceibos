@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Save } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Save, MessageSquare } from 'lucide-react'
 import Header from '../components/layout/Header'
 import WizardProgress from '../components/layout/WizardProgress'
 import Button from '../components/ui/Button'
@@ -10,6 +10,7 @@ import GPSInput from '../components/forms/GPSInput'
 import SectionTitle from '../components/ui/SectionTitle'
 import { useToast } from '../components/ui/Toast'
 import { createRecord } from '../lib/storage'
+import { parseTransporteMsg } from '../lib/transporteParser'
 import { useAuth } from '../hooks/useAuth'
 import { CAMPOS, GRANOS, VARIEDADES, LOCALIDADES, type RecordFormData } from '../types'
 
@@ -42,6 +43,8 @@ export default function NewRecord() {
   const [saving, setSaving] = useState(false)
   const [hasDraft, setHasDraft] = useState(false)
   const [isDirty, setIsDirty] = useState(false)
+  const [parserOpen, setParserOpen] = useState(false)
+  const [parserText, setParserText] = useState('')
   const { show, ToastComponent } = useToast()
 
   // Detect existing draft on mount
@@ -86,6 +89,21 @@ export default function NewRecord() {
     }))
   }
 
+  const handleParseTransporte = () => {
+    const result = parseTransporteMsg(parserText)
+    if (result.transporte)      set('transporte')(result.transporte)
+    if (result.cuit_transporte) set('cuit_transporte')(result.cuit_transporte)
+    if (result.chofer)          set('chofer')(result.chofer)
+    if (result.cuil_chofer)     set('cuil_chofer')(result.cuil_chofer)
+    if (result.chasis)          set('chasis')(result.chasis)
+    if (result.acoplado)        set('acoplado')(result.acoplado)
+    setParserOpen(false)
+    setParserText('')
+    if (result.missing.length > 0) {
+      show(`No se detectaron: ${result.missing.join(', ')}. Completá manualmente.`, 'info')
+    }
+  }
+
   const next = () => setStep((s) => Math.min(s + 1, 6) as typeof step)
   const prev = () => setStep((s) => Math.max(s - 1, 1) as typeof step)
 
@@ -108,11 +126,12 @@ export default function NewRecord() {
       <WizardProgress currentStep={step} />
 
       {/* Step content */}
-      <div className="max-w-mobile mx-auto px-4 pt-32 pb-32 space-y-4">
+      <div className="max-w-mobile mx-auto px-4 pt-36 pb-32 space-y-4">
         {step === 1 && (
           <>
             <SectionTitle>Datos Generales</SectionTitle>
             <FormField label="Fecha de carga" value={str(form.fecha_carga)} onChange={set('fecha_carga')} type="date" required />
+            <FormField label="Cupo" value={str(form.cupo)} onChange={set('cupo')} required />
             <SelectField label="Campo" value={str(form.campo)} onChange={set('campo')} options={CAMPOS} required />
             <SelectField label="Localidad" value={str(form.localidad)} onChange={set('localidad')} options={LOCALIDADES} required />
             <SelectField label="Grano" value={str(form.grano)} onChange={set('grano')} options={GRANOS} required />
@@ -144,9 +163,9 @@ export default function NewRecord() {
             <FormField label="Km" value={str(form.km)} onChange={set('km')} type="number" />
             <FormField label="Tarifa" value={str(form.tarifa)} onChange={set('tarifa')} type="number" />
             <VoiceInput label="Pagador de Flete" value={str(form.pagador_flete)} onChange={set('pagador_flete')} />
-            <VoiceInput label="Cupo" value={str(form.cupo)} onChange={set('cupo')} />
             <VoiceInput label="Intermediario de Flete" value={str(form.intermediario_flete)} onChange={set('intermediario_flete')} />
             <FormField label="CUIL Intermediario" value={str(form.cuil_intermediario)} onChange={set('cuil_intermediario')} />
+            <FormField label="Nro. de Planta" value={str(form.nro_planta)} onChange={set('nro_planta')} />
             <VoiceInput label="Observaciones" value={str(form.observaciones)} onChange={set('observaciones')} multiline rows={4} />
           </>
         )}
@@ -154,6 +173,14 @@ export default function NewRecord() {
         {step === 4 && (
           <>
             <SectionTitle>Transporte</SectionTitle>
+            <button
+              type="button"
+              onClick={() => setParserOpen(true)}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-secondary text-secondary font-sans text-sm font-medium mb-4 active:bg-blue-50"
+            >
+              <MessageSquare className="w-4 h-4" />
+              Pegar mensaje WA
+            </button>
             <VoiceInput label="Transporte" value={str(form.transporte)} onChange={set('transporte')} />
             <FormField label="CUIT Transporte" value={str(form.cuit_transporte)} onChange={set('cuit_transporte')} />
             <VoiceInput label="Chofer" value={str(form.chofer)} onChange={set('chofer')} />
@@ -243,6 +270,41 @@ export default function NewRecord() {
           )}
         </div>
       </div>
+
+      {parserOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
+          onClick={() => { setParserOpen(false); setParserText('') }}
+        >
+          <div
+            className="bg-white rounded-t-2xl w-full max-w-mobile p-4 space-y-3 pb-safe"
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="font-mono text-xs text-text-muted uppercase tracking-widest px-1 pb-1">
+              Pegar mensaje WhatsApp
+            </p>
+            <textarea
+              value={parserText}
+              onChange={e => setParserText(e.target.value)}
+              placeholder="Pegá acá el mensaje de WhatsApp con los datos del transportista..."
+              className="w-full h-36 px-4 py-3 rounded-xl border border-gray-light font-sans text-sm resize-none focus:outline-none focus:border-secondary"
+            />
+            <Button
+              fullWidth
+              onClick={handleParseTransporte}
+              disabled={!parserText.trim()}
+            >
+              Extraer datos
+            </Button>
+            <button
+              className="w-full text-left px-4 py-3 rounded-xl font-sans text-sm text-text-muted hover:bg-gray-50 transition"
+              onClick={() => { setParserOpen(false); setParserText('') }}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
 
       {ToastComponent}
     </div>

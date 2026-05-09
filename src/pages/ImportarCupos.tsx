@@ -10,7 +10,7 @@ import { useToast } from '../components/ui/Toast'
 import { createImportBatch, createCuposEnLote } from '../lib/storage'
 import { useAuth } from '../hooks/useAuth'
 import { format } from '../lib/dateUtils'
-import { GRANOS, LOCALIDADES, type CpeRecord } from '../types'
+import { CAMPOS, GRANOS, VARIEDADES, LOCALIDADES, type CpeRecord } from '../types'
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -22,32 +22,48 @@ interface CupoParsed {
 }
 
 interface CamposComunes {
+  // General
+  campo: string
   grano: string
+  variedad: string
   localidad: string
+  // Comercial
   destinatario: string
   cuit_destinatario: string
   destino: string
   cuit_destino: string
-  vendedor: string
+  rte_venta_primaria: string
+  rte_venta_secundaria: string
+  rte_venta_secundaria2: string
+  mercado_termino: string
+  corredor_primario: string
+  corredor_secundario: string
+  repr_entregador: string
+  repr_recibidor: string
+  // Flete
+  km: string
+  tarifa: string
+  pagador_flete: string
+  intermediario_flete: string
+  cuil_intermediario: string
   nro_planta: string
+  observaciones: string
 }
 
 const CAMPOS_VACIOS: CamposComunes = {
-  grano: '',
-  localidad: '',
-  destinatario: '',
-  cuit_destinatario: '',
-  destino: '',
-  cuit_destino: '',
-  vendedor: '',
-  nro_planta: '',
+  campo: '', grano: '', variedad: '', localidad: '',
+  destinatario: '', cuit_destinatario: '', destino: '', cuit_destino: '',
+  rte_venta_primaria: '', rte_venta_secundaria: '', rte_venta_secundaria2: '',
+  mercado_termino: '', corredor_primario: '', corredor_secundario: '',
+  repr_entregador: '', repr_recibidor: '',
+  km: '', tarifa: '', pagador_flete: '', intermediario_flete: '',
+  cuil_intermediario: '', nro_planta: '', observaciones: '',
 }
 
 // ── Date parser ───────────────────────────────────────────────
 
 function parseDate(val: unknown): string | null {
   if (typeof val === 'number') {
-    // Excel serial date (epoch: Dec 30, 1899)
     const d = new Date((val - 25569) * 86400 * 1000)
     const y = d.getUTCFullYear()
     const mo = String(d.getUTCMonth() + 1).padStart(2, '0')
@@ -56,10 +72,8 @@ function parseDate(val: unknown): string | null {
   }
   if (typeof val === 'string') {
     const s = val.trim()
-    // DD.MM.YYYY or DD/MM/YYYY
     const m = s.match(/^(\d{1,2})[./](\d{1,2})[./](\d{4})$/)
     if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`
-    // Already ISO
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s
   }
   return null
@@ -84,7 +98,6 @@ export default function ImportarCupos() {
   const someChecked = selected.size > 0 && !allChecked
   const nSelected = selected.size
 
-  // Drive checkbox indeterminate imperatively
   useEffect(() => {
     if (selectAllRef.current) {
       selectAllRef.current.indeterminate = someChecked
@@ -185,11 +198,13 @@ export default function ImportarCupos() {
         parsed_data: {
           grano: campos.grano,
           localidad: campos.localidad,
+          campo: campos.campo,
+          variedad: campos.variedad,
           destinatario: campos.destinatario,
           cuit_destinatario: campos.cuit_destinatario,
           destino: campos.destino,
           cuit_destino: campos.cuit_destino,
-          rte_venta_primaria: campos.vendedor,
+          rte_venta_primaria: campos.rte_venta_primaria,
           nro_planta: campos.nro_planta,
           kg_estimados: 0,
           cupos: selectedCupos.map(c => ({ codigo: c.codigo, fecha: c.fechaISO })),
@@ -209,30 +224,33 @@ export default function ImportarCupos() {
           batch_id: batch.id,
           fecha_carga: c.fechaISO,
           cupo: c.codigo,
+          // General
+          campo: campos.campo || null,
           grano: campos.grano || null,
+          variedad: campos.variedad || null,
           localidad: campos.localidad || null,
+          // Comercial
           destinatario: campos.destinatario || null,
           cuit_destinatario: campos.cuit_destinatario || null,
           destino: campos.destino || null,
           cuit_destino: campos.cuit_destino || null,
-          rte_venta_primaria: campos.vendedor || null,
+          rte_venta_primaria: campos.rte_venta_primaria || null,
+          rte_venta_secundaria: campos.rte_venta_secundaria || null,
+          rte_venta_secundaria2: campos.rte_venta_secundaria2 || null,
+          mercado_termino: campos.mercado_termino || null,
+          corredor_primario: campos.corredor_primario || null,
+          corredor_secundario: campos.corredor_secundario || null,
+          repr_entregador: campos.repr_entregador || null,
+          repr_recibidor: campos.repr_recibidor || null,
+          // Flete
+          km: campos.km ? Number(campos.km) : null,
+          tarifa: campos.tarifa ? Number(campos.tarifa) : null,
+          pagador_flete: campos.pagador_flete || null,
+          intermediario_flete: campos.intermediario_flete || null,
+          cuil_intermediario: campos.cuil_intermediario || null,
           nro_planta: campos.nro_planta || null,
-          // remaining fields null
-          campo: null,
-          variedad: null,
-          rte_venta_secundaria: null,
-          rte_venta_secundaria2: null,
-          mercado_termino: null,
-          corredor_primario: null,
-          corredor_secundario: null,
-          repr_entregador: null,
-          repr_recibidor: null,
-          km: null,
-          tarifa: null,
-          pagador_flete: null,
-          intermediario_flete: null,
-          cuil_intermediario: null,
-          observaciones: null,
+          observaciones: campos.observaciones || null,
+          // Operational — filled per-cupo later
           transporte: null,
           cuit_transporte: null,
           chofer: null,
@@ -288,7 +306,6 @@ export default function ImportarCupos() {
             Descargar template
           </Button>
 
-          {/* Drop / tap zone */}
           <div
             role="button"
             tabIndex={0}
@@ -326,8 +343,6 @@ export default function ImportarCupos() {
 
           {/* Cupo list with checkboxes */}
           <div className="bg-white border border-gray-light rounded-2xl overflow-hidden">
-
-            {/* Select-all header */}
             <label className="flex items-center gap-3 px-4 py-3 border-b border-gray-light bg-gray-50 cursor-pointer">
               <input
                 ref={selectAllRef}
@@ -342,7 +357,6 @@ export default function ImportarCupos() {
               </span>
             </label>
 
-            {/* Scrollable cupo rows */}
             <div className="divide-y divide-gray-light max-h-64 overflow-y-auto">
               {cupos.map((cupo, i) => (
                 <label
@@ -371,7 +385,6 @@ export default function ImportarCupos() {
               ))}
             </div>
 
-            {/* Selection counter */}
             <div className="px-4 py-2 border-t border-gray-light bg-gray-50">
               <p className="font-mono text-xs text-text-muted">
                 {nSelected} de {cupos.length} seleccionados
@@ -379,51 +392,37 @@ export default function ImportarCupos() {
             </div>
           </div>
 
-          {/* Campos comunes */}
-          <SectionTitle>Datos para los cupos seleccionados</SectionTitle>
+          {/* ── General ── */}
+          <SectionTitle>Datos Generales</SectionTitle>
+          <SelectField label="Campo" value={campos.campo} onChange={set('campo')} options={CAMPOS} />
+          <SelectField label="Localidad" value={campos.localidad} onChange={set('localidad')} options={LOCALIDADES} />
+          <SelectField label="Grano" value={campos.grano} onChange={set('grano')} options={GRANOS} />
+          <SelectField label="Variedad" value={campos.variedad} onChange={set('variedad')} options={VARIEDADES} />
 
-          <SelectField
-            label="Grano"
-            value={campos.grano}
-            onChange={set('grano')}
-            options={GRANOS}
-          />
-          <SelectField
-            label="Localidad"
-            value={campos.localidad}
-            onChange={set('localidad')}
-            options={LOCALIDADES}
-          />
-          <FormField
-            label="Destinatario"
-            value={campos.destinatario}
-            onChange={set('destinatario')}
-          />
-          <FormField
-            label="CUIT Destinatario"
-            value={campos.cuit_destinatario}
-            onChange={set('cuit_destinatario')}
-          />
-          <FormField
-            label="Destino"
-            value={campos.destino}
-            onChange={set('destino')}
-          />
-          <FormField
-            label="CUIT Destino"
-            value={campos.cuit_destino}
-            onChange={set('cuit_destino')}
-          />
-          <FormField
-            label="Vendedor / Rte. Venta Primaria"
-            value={campos.vendedor}
-            onChange={set('vendedor')}
-          />
-          <FormField
-            label="Nro. de Planta"
-            value={campos.nro_planta}
-            onChange={set('nro_planta')}
-          />
+          {/* ── Comercial ── */}
+          <SectionTitle>Comercial</SectionTitle>
+          <FormField label="Destinatario" value={campos.destinatario} onChange={set('destinatario')} />
+          <FormField label="CUIT Destinatario" value={campos.cuit_destinatario} onChange={set('cuit_destinatario')} />
+          <FormField label="Destino" value={campos.destino} onChange={set('destino')} />
+          <FormField label="CUIT Destino" value={campos.cuit_destino} onChange={set('cuit_destino')} />
+          <FormField label="Rte. Venta Primaria" value={campos.rte_venta_primaria} onChange={set('rte_venta_primaria')} />
+          <FormField label="Rte. Venta Secundaria" value={campos.rte_venta_secundaria} onChange={set('rte_venta_secundaria')} />
+          <FormField label="Rte. Venta Secundaria 2" value={campos.rte_venta_secundaria2} onChange={set('rte_venta_secundaria2')} />
+          <FormField label="Mercado a Término" value={campos.mercado_termino} onChange={set('mercado_termino')} />
+          <FormField label="Corredor Primario" value={campos.corredor_primario} onChange={set('corredor_primario')} />
+          <FormField label="Corredor Secundario" value={campos.corredor_secundario} onChange={set('corredor_secundario')} />
+          <FormField label="Repr. Entregador" value={campos.repr_entregador} onChange={set('repr_entregador')} />
+          <FormField label="Repr. Recibidor" value={campos.repr_recibidor} onChange={set('repr_recibidor')} />
+
+          {/* ── Flete ── */}
+          <SectionTitle>Flete</SectionTitle>
+          <FormField label="Km" value={campos.km} onChange={set('km')} type="number" />
+          <FormField label="Tarifa" value={campos.tarifa} onChange={set('tarifa')} type="number" />
+          <FormField label="Pagador de Flete" value={campos.pagador_flete} onChange={set('pagador_flete')} />
+          <FormField label="Intermediario de Flete" value={campos.intermediario_flete} onChange={set('intermediario_flete')} />
+          <FormField label="CUIL Intermediario" value={campos.cuil_intermediario} onChange={set('cuil_intermediario')} />
+          <FormField label="Nro. de Planta" value={campos.nro_planta} onChange={set('nro_planta')} />
+          <FormField label="Observaciones" value={campos.observaciones} onChange={set('observaciones')} multiline rows={3} />
         </div>
       )}
 

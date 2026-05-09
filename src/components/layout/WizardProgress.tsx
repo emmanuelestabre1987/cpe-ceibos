@@ -11,13 +11,17 @@ export default function WizardProgress({ currentStep, totalSteps = 6 }: WizardPr
   const pct = ((currentStep - 1) / (totalSteps - 1)) * 100
 
   return (
-    <div className="fixed top-14 left-0 right-0 z-30 bg-primary px-4 pb-3">
-      <div className="flex justify-between mb-1">
+    <div className="fixed top-14 left-0 right-0 z-30 bg-primary px-4 pt-2 pb-3">
+      <div className="flex justify-between mb-2">
         {STEP_LABELS.map((label, i) => (
           <span
             key={label}
-            className={`text-[10px] font-mono font-medium transition-colors ${
-              i + 1 <= currentStep ? 'text-secondary' : 'text-white/40'
+            className={`text-xs font-mono font-semibold transition-colors ${
+              i + 1 === currentStep
+                ? 'text-white'
+                : i + 1 < currentStep
+                  ? 'text-secondary'
+                  : 'text-white/35'
             }`}
           >
             {label}

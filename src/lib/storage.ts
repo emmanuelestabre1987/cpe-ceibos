@@ -188,10 +188,27 @@ export async function createCuposEnLote(
     .select()
 
   if (error) {
-    // Unique violation en el campo `cupo` — código de negocio duplicado
     if (error.code === '23505') {
+      // Buscar cuáles cupos ya existen para informar al usuario
+      const codigosLote = cupos.map(c => c.cupo).filter(Boolean)
+      try {
+        const { data: existentes } = await supabase
+          .from('cpe_records')
+          .select('cupo, status')
+          .in('cupo', codigosLote as string[])
+        if (existentes && existentes.length > 0) {
+          const detalle = existentes
+            .map((r: { cupo: string; status: string }) => `${r.cupo} (${r.status})`)
+            .join(', ')
+          throw new Error(
+            `Los siguientes cupos ya existen en el sistema: ${detalle}. Cancelalos y eliminalos desde el panel antes de reimportar.`
+          )
+        }
+      } catch (innerErr) {
+        if (innerErr instanceof Error && innerErr.message.startsWith('Los siguientes')) throw innerErr
+      }
       throw new Error(
-        'Uno o más cupos de este lote ya existen en el sistema. Verificá que no estés importando el mismo archivo dos veces.'
+        'Uno o más cupos de este lote ya existen en el sistema. Cancelalos y eliminalos desde el panel antes de reimportar.'
       )
     }
     throw error

@@ -87,6 +87,8 @@ export interface AuthorizedEmail {
 export interface ParsedEmailData {
   grano: string
   localidad: string
+  campo?: string
+  variedad?: string
   destinatario: string
   cuit_destinatario: string
   destino: string
