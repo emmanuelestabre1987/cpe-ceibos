@@ -22,19 +22,27 @@ export interface CpeRecord {
   localidad: string | null
   grano: string | null
   variedad: string | null
+  renspa: string | null
+  campania: string | null
   // Comercial
   destinatario: string | null
   cuit_destinatario: string | null
   destino: string | null
   cuit_destino: string | null
   rte_venta_primaria: string | null
+  cuit_rte_venta_primaria: string | null
   rte_venta_secundaria: string | null
+  cuit_rte_venta_secundaria: string | null
   rte_venta_secundaria2: string | null
   mercado_termino: string | null
   corredor_primario: string | null
+  cuit_corredor_primario: string | null
   corredor_secundario: string | null
+  cuit_corredor_secundario: string | null
   repr_entregador: string | null
+  cuit_repr_entregador: string | null
   repr_recibidor: string | null
+  cuit_repr_recibidor: string | null
   // Flete
   km: number | null
   tarifa: number | null
@@ -43,6 +51,9 @@ export interface CpeRecord {
   intermediario_flete: string | null
   cuil_intermediario: string | null
   nro_planta: string | null
+  nro_turno: string | null
+  provincia_origen: string | null
+  provincia_destino: string | null
   observaciones: string | null
   // Transporte
   transporte: string | null
@@ -58,6 +69,8 @@ export interface CpeRecord {
   kg_reales: number | null
   kg_bruto_descargados: number | null
   kg_tara_descargados: number | null
+  humedad: number | null
+  proteina: number | null
   // Cierre
   nro_ruca: string | null
   ingeniero: string | null
@@ -245,18 +258,26 @@ export const FIELD_LABELS: Record<string, string> = {
   localidad: 'Localidad',
   grano: 'Grano',
   variedad: 'Variedad',
+  renspa: 'RENSPA',
+  campania: 'Campaña',
   destinatario: 'Destinatario',
   cuit_destinatario: 'CUIT Destinatario',
   destino: 'Destino',
   cuit_destino: 'CUIT Destino',
   rte_venta_primaria: 'Rte. venta primaria',
+  cuit_rte_venta_primaria: 'CUIT Rte. Venta Primaria',
   rte_venta_secundaria: 'Rte. venta secundaria',
+  cuit_rte_venta_secundaria: 'CUIT Rte. Venta Secundaria',
   rte_venta_secundaria2: 'Rte. venta secundaria 2',
   mercado_termino: 'Mercado a término',
   corredor_primario: 'Corredor primario',
+  cuit_corredor_primario: 'CUIT Corredor Primario',
   corredor_secundario: 'Corredor secundario',
+  cuit_corredor_secundario: 'CUIT Corredor Secundario',
   repr_entregador: 'Repr. entregador',
+  cuit_repr_entregador: 'CUIT Repr. Entregador',
   repr_recibidor: 'Repr. recibidor',
+  cuit_repr_recibidor: 'CUIT Repr. Recibidor',
   km: 'Kilómetros',
   tarifa: 'Tarifa',
   pagador_flete: 'Pagador de flete',
@@ -264,6 +285,9 @@ export const FIELD_LABELS: Record<string, string> = {
   intermediario_flete: 'Intermediario de flete',
   cuil_intermediario: 'CUIL Intermediario',
   nro_planta: 'N° de Planta',
+  nro_turno: 'Nro. de Turno',
+  provincia_origen: 'Provincia Origen',
+  provincia_destino: 'Provincia Destino',
   observaciones: 'Observaciones',
   transporte: 'Transporte',
   cuit_transporte: 'CUIT Transporte',
@@ -277,6 +301,8 @@ export const FIELD_LABELS: Record<string, string> = {
   kg_reales: 'Kg Reales',
   kg_bruto_descargados: 'Kg Bruto (descargados)',
   kg_tara_descargados: 'Kg Tara (descargados)',
+  humedad: 'Humedad (%)',
+  proteina: 'Proteína (%)',
   nro_ruca: 'N° RUCA',
   ingeniero: 'Ingeniero',
   contacto: 'Contacto',

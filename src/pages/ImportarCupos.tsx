@@ -27,22 +27,33 @@ interface CamposComunes {
   grano: string
   variedad: string
   localidad: string
+  campania: string
+  renspa: string
   // Comercial
   destinatario: string
   cuit_destinatario: string
   destino: string
   cuit_destino: string
   rte_venta_primaria: string
+  cuit_rte_venta_primaria: string
   rte_venta_secundaria: string
+  cuit_rte_venta_secundaria: string
   rte_venta_secundaria2: string
   mercado_termino: string
   corredor_primario: string
+  cuit_corredor_primario: string
   corredor_secundario: string
+  cuit_corredor_secundario: string
   repr_entregador: string
+  cuit_repr_entregador: string
   repr_recibidor: string
+  cuit_repr_recibidor: string
   // Flete
   km: string
   tarifa: string
+  nro_turno: string
+  provincia_origen: string
+  provincia_destino: string
   pagador_flete: string
   intermediario_flete: string
   cuil_intermediario: string
@@ -51,12 +62,17 @@ interface CamposComunes {
 }
 
 const CAMPOS_VACIOS: CamposComunes = {
-  campo: '', grano: '', variedad: '', localidad: '',
+  campo: '', grano: '', variedad: '', localidad: '', campania: '', renspa: '',
   destinatario: '', cuit_destinatario: '', destino: '', cuit_destino: '',
-  rte_venta_primaria: '', rte_venta_secundaria: '', rte_venta_secundaria2: '',
-  mercado_termino: '', corredor_primario: '', corredor_secundario: '',
-  repr_entregador: '', repr_recibidor: '',
-  km: '', tarifa: '', pagador_flete: '', intermediario_flete: '',
+  rte_venta_primaria: '', cuit_rte_venta_primaria: '',
+  rte_venta_secundaria: '', cuit_rte_venta_secundaria: '',
+  rte_venta_secundaria2: '', mercado_termino: '',
+  corredor_primario: '', cuit_corredor_primario: '',
+  corredor_secundario: '', cuit_corredor_secundario: '',
+  repr_entregador: '', cuit_repr_entregador: '',
+  repr_recibidor: '', cuit_repr_recibidor: '',
+  km: '', tarifa: '', nro_turno: '', provincia_origen: '', provincia_destino: '',
+  pagador_flete: '', intermediario_flete: '',
   cuil_intermediario: '', nro_planta: '', observaciones: '',
 }
 
@@ -249,7 +265,18 @@ export default function ImportarCupos() {
           intermediario_flete: campos.intermediario_flete || null,
           cuil_intermediario: campos.cuil_intermediario || null,
           nro_planta: campos.nro_planta || null,
+          nro_turno: campos.nro_turno || null,
+          provincia_origen: campos.provincia_origen || null,
+          provincia_destino: campos.provincia_destino || null,
           observaciones: campos.observaciones || null,
+          renspa: campos.renspa || null,
+          campania: campos.campania || null,
+          cuit_rte_venta_primaria: campos.cuit_rte_venta_primaria || null,
+          cuit_rte_venta_secundaria: campos.cuit_rte_venta_secundaria || null,
+          cuit_corredor_primario: campos.cuit_corredor_primario || null,
+          cuit_corredor_secundario: campos.cuit_corredor_secundario || null,
+          cuit_repr_entregador: campos.cuit_repr_entregador || null,
+          cuit_repr_recibidor: campos.cuit_repr_recibidor || null,
           // Operational — filled per-cupo later
           transporte: null,
           cuit_transporte: null,
@@ -263,6 +290,8 @@ export default function ImportarCupos() {
           kg_reales: null,
           kg_bruto_descargados: null,
           kg_tara_descargados: null,
+          humedad: null,
+          proteina: null,
           nro_ruca: null,
           ingeniero: null,
           contacto: null,
@@ -398,6 +427,8 @@ export default function ImportarCupos() {
           <SelectField label="Localidad" value={campos.localidad} onChange={set('localidad')} options={LOCALIDADES} />
           <SelectField label="Grano" value={campos.grano} onChange={set('grano')} options={GRANOS} />
           <SelectField label="Variedad" value={campos.variedad} onChange={set('variedad')} options={VARIEDADES} />
+          <FormField label="Campaña" value={campos.campania} onChange={set('campania')} />
+          <FormField label="RENSPA" value={campos.renspa} onChange={set('renspa')} />
 
           {/* ── Comercial ── */}
           <SectionTitle>Comercial</SectionTitle>
@@ -406,18 +437,27 @@ export default function ImportarCupos() {
           <FormField label="Destino" value={campos.destino} onChange={set('destino')} />
           <FormField label="CUIT Destino" value={campos.cuit_destino} onChange={set('cuit_destino')} />
           <FormField label="Rte. Venta Primaria" value={campos.rte_venta_primaria} onChange={set('rte_venta_primaria')} />
+          <FormField label="CUIT Rte. Venta Primaria" value={campos.cuit_rte_venta_primaria} onChange={set('cuit_rte_venta_primaria')} />
           <FormField label="Rte. Venta Secundaria" value={campos.rte_venta_secundaria} onChange={set('rte_venta_secundaria')} />
+          <FormField label="CUIT Rte. Venta Secundaria" value={campos.cuit_rte_venta_secundaria} onChange={set('cuit_rte_venta_secundaria')} />
           <FormField label="Rte. Venta Secundaria 2" value={campos.rte_venta_secundaria2} onChange={set('rte_venta_secundaria2')} />
           <FormField label="Mercado a Término" value={campos.mercado_termino} onChange={set('mercado_termino')} />
           <FormField label="Corredor Primario" value={campos.corredor_primario} onChange={set('corredor_primario')} />
+          <FormField label="CUIT Corredor Primario" value={campos.cuit_corredor_primario} onChange={set('cuit_corredor_primario')} />
           <FormField label="Corredor Secundario" value={campos.corredor_secundario} onChange={set('corredor_secundario')} />
+          <FormField label="CUIT Corredor Secundario" value={campos.cuit_corredor_secundario} onChange={set('cuit_corredor_secundario')} />
           <FormField label="Repr. Entregador" value={campos.repr_entregador} onChange={set('repr_entregador')} />
+          <FormField label="CUIT Repr. Entregador" value={campos.cuit_repr_entregador} onChange={set('cuit_repr_entregador')} />
           <FormField label="Repr. Recibidor" value={campos.repr_recibidor} onChange={set('repr_recibidor')} />
+          <FormField label="CUIT Repr. Recibidor" value={campos.cuit_repr_recibidor} onChange={set('cuit_repr_recibidor')} />
 
           {/* ── Flete ── */}
           <SectionTitle>Flete</SectionTitle>
           <FormField label="Km" value={campos.km} onChange={set('km')} type="number" />
           <FormField label="Tarifa" value={campos.tarifa} onChange={set('tarifa')} type="number" />
+          <FormField label="Nro. de Turno" value={campos.nro_turno} onChange={set('nro_turno')} />
+          <FormField label="Provincia Origen" value={campos.provincia_origen} onChange={set('provincia_origen')} />
+          <FormField label="Provincia Destino" value={campos.provincia_destino} onChange={set('provincia_destino')} />
           <FormField label="Pagador de Flete" value={campos.pagador_flete} onChange={set('pagador_flete')} />
           <FormField label="Intermediario de Flete" value={campos.intermediario_flete} onChange={set('intermediario_flete')} />
           <FormField label="CUIL Intermediario" value={campos.cuil_intermediario} onChange={set('cuil_intermediario')} />

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
-import { Lock, Clock, MoreVertical, MessageSquare } from 'lucide-react'
+import { Clock, MoreVertical, MessageSquare } from 'lucide-react'
 import Header from '../components/layout/Header'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
@@ -22,7 +22,9 @@ import { formatDateTime } from '../lib/dateUtils'
 import { validarCuit, formatearCuit, normalizarCuit } from '../lib/validarCuit'
 import { parseTransporteMsg } from '../lib/transporteParser'
 import {
+  CAMPOS,
   GRANOS,
+  VARIEDADES,
   LOCALIDADES,
   FIELD_LABELS,
   type CpeRecord,
@@ -48,15 +50,23 @@ const STATUS_CONFIG: Record<CupoStatus, { bg: string; label: string; text: strin
 
 // Which tabs are LOCKED per status (cumulative unlocking)
 const LOCKED_TABS: Record<CupoStatus, Set<TabId>> = {
-  IMPORTADO:  new Set(['transporte', 'pesaje', 'cierre']),
-  TRANSPORTE: new Set(['pesaje', 'cierre']),
-  CARGADO:    new Set(['cierre']),
+  IMPORTADO:  new Set(),
+  TRANSPORTE: new Set(),
+  CARGADO:    new Set(),
   CERRADO:    new Set(),
   ENVIADO:    new Set(),
   CANCELADO:  new Set(),
 }
 
 const VALID_TABS: TabId[] = ['datos', 'transporte', 'pesaje', 'cierre', 'historial']
+
+function ResponsableChip({ label }: { label: string }) {
+  return (
+    <p className="font-sans text-xs text-text-muted -mt-2 mb-1">
+      Carga: <span className="font-medium text-secondary">{label}</span>
+    </p>
+  )
+}
 
 function normalizeStatus(s: string): CupoStatus {
   const u = s.toUpperCase()
@@ -72,10 +82,26 @@ function str(v: string | number | null | undefined): string {
 // ── Form types ───────────────────────────────────────────────
 
 interface DatosForm {
-  fecha_carga: string; grano: string; localidad: string
+  // General
+  fecha_carga: string; campo: string; grano: string; variedad: string
+  localidad: string; campania: string; renspa: string
+  // Comercial
   destinatario: string; cuit_destinatario: string
   destino: string; cuit_destino: string
-  rte_venta_primaria: string; kg_estimados: string
+  rte_venta_primaria: string; cuit_rte_venta_primaria: string
+  rte_venta_secundaria: string; cuit_rte_venta_secundaria: string
+  rte_venta_secundaria2: string; mercado_termino: string
+  corredor_primario: string; cuit_corredor_primario: string
+  corredor_secundario: string; cuit_corredor_secundario: string
+  repr_entregador: string; cuit_repr_entregador: string
+  repr_recibidor: string; cuit_repr_recibidor: string
+  kg_estimados: string
+  // Flete
+  km: string; tarifa: string; pagador_flete: string
+  intermediario_flete: string; cuil_intermediario: string
+  nro_planta: string; nro_turno: string
+  provincia_origen: string; provincia_destino: string
+  observaciones: string
 }
 
 interface TransporteForm {
@@ -87,7 +113,7 @@ interface TransporteForm {
 interface PesajeForm {
   kg_bruto_cargados: string; kg_tara_cargados: string; kg_reales: string
   kg_bruto_descargados: string; kg_tara_descargados: string
-  kg_estimados: string
+  kg_estimados: string; humedad: string; proteina: string
 }
 
 interface CierreForm {
@@ -96,10 +122,24 @@ interface CierreForm {
 
 function initDatos(r: CpeRecord): DatosForm {
   return {
-    fecha_carga: str(r.fecha_carga), grano: str(r.grano), localidad: str(r.localidad),
+    fecha_carga: str(r.fecha_carga), campo: str(r.campo), grano: str(r.grano),
+    variedad: str(r.variedad), localidad: str(r.localidad),
+    campania: str(r.campania), renspa: str(r.renspa),
     destinatario: str(r.destinatario), cuit_destinatario: str(r.cuit_destinatario),
     destino: str(r.destino), cuit_destino: str(r.cuit_destino),
-    rte_venta_primaria: str(r.rte_venta_primaria), kg_estimados: str(r.kg_estimados),
+    rte_venta_primaria: str(r.rte_venta_primaria), cuit_rte_venta_primaria: str(r.cuit_rte_venta_primaria),
+    rte_venta_secundaria: str(r.rte_venta_secundaria), cuit_rte_venta_secundaria: str(r.cuit_rte_venta_secundaria),
+    rte_venta_secundaria2: str(r.rte_venta_secundaria2), mercado_termino: str(r.mercado_termino),
+    corredor_primario: str(r.corredor_primario), cuit_corredor_primario: str(r.cuit_corredor_primario),
+    corredor_secundario: str(r.corredor_secundario), cuit_corredor_secundario: str(r.cuit_corredor_secundario),
+    repr_entregador: str(r.repr_entregador), cuit_repr_entregador: str(r.cuit_repr_entregador),
+    repr_recibidor: str(r.repr_recibidor), cuit_repr_recibidor: str(r.cuit_repr_recibidor),
+    kg_estimados: str(r.kg_estimados),
+    km: str(r.km), tarifa: str(r.tarifa), pagador_flete: str(r.pagador_flete),
+    intermediario_flete: str(r.intermediario_flete), cuil_intermediario: str(r.cuil_intermediario),
+    nro_planta: str(r.nro_planta), nro_turno: str(r.nro_turno),
+    provincia_origen: str(r.provincia_origen), provincia_destino: str(r.provincia_destino),
+    observaciones: str(r.observaciones),
   }
 }
 function initTransporte(r: CpeRecord): TransporteForm {
@@ -114,6 +154,7 @@ function initPesaje(r: CpeRecord): PesajeForm {
     kg_bruto_cargados: str(r.kg_bruto_cargados), kg_tara_cargados: str(r.kg_tara_cargados),
     kg_reales: str(r.kg_reales), kg_bruto_descargados: str(r.kg_bruto_descargados),
     kg_tara_descargados: str(r.kg_tara_descargados), kg_estimados: str(r.kg_estimados),
+    humedad: str(r.humedad), proteina: str(r.proteina),
   }
 }
 function initCierre(r: CpeRecord): CierreForm {
@@ -255,7 +296,6 @@ function ConfirmModal({ code, saving, onConfirm, onCancel }: ConfirmModalProps) 
 
 interface TabBarProps {
   activeTab: TabId
-  lockedTabs: Set<TabId>
   onSelect: (tab: TabId) => void
 }
 
@@ -267,25 +307,23 @@ const TAB_LABELS: { id: TabId; label: string }[] = [
   { id: 'historial',  label: 'Historial'  },
 ]
 
-function TabBar({ activeTab, lockedTabs, onSelect }: TabBarProps) {
+function TabBar({ activeTab, onSelect }: TabBarProps) {
   return (
     <div className="fixed top-14 left-0 right-0 z-30 bg-white border-b border-gray-light flex overflow-x-auto scrollbar-hide">
       {TAB_LABELS.map(({ id, label }) => {
-        const locked = lockedTabs.has(id)
         const active = activeTab === id
         return (
           <button
             key={id}
             type="button"
             onClick={() => onSelect(id)}
-            className={`flex-shrink-0 flex items-center gap-1 px-4 py-3 font-mono text-xs font-medium transition-colors border-b-2 ${
+            className={`flex-shrink-0 px-4 py-3 font-mono text-xs font-medium transition-colors border-b-2 ${
               active
                 ? 'border-secondary text-secondary'
                 : 'border-transparent text-text-muted hover:text-primary'
             }`}
           >
             {label}
-            {locked && <Lock className="w-3 h-3 opacity-60" />}
           </button>
         )
       })}
@@ -329,6 +367,9 @@ export default function DetalleCupo() {
   const [userIsAdmin,   setUserIsAdmin]   = useState(false)
   const [parserOpen,    setParserOpen]    = useState(false)
   const [parserText,    setParserText]    = useState('')
+  const [cpModalOpen,   setCpModalOpen]   = useState(false)
+  const [cpMissing,     setCpMissing]     = useState<{ section: string; missing: string[] }[]>([])
+  const [generando,     setGenerando]     = useState(false)
 
   // ── Tab state — init from ?tab= query param ──────────────────
   const [activeTab, setActiveTab] = useState<TabId>(() => {
@@ -338,9 +379,18 @@ export default function DetalleCupo() {
 
   // ── Form state per tab ───────────────────────────────────────
   const [datosF,      setDatosF]      = useState<DatosForm>({
-    fecha_carga: '', grano: '', localidad: '', destinatario: '',
-    cuit_destinatario: '', destino: '', cuit_destino: '',
-    rte_venta_primaria: '', kg_estimados: '',
+    fecha_carga: '', campo: '', grano: '', variedad: '', localidad: '', campania: '', renspa: '',
+    destinatario: '', cuit_destinatario: '', destino: '', cuit_destino: '',
+    rte_venta_primaria: '', cuit_rte_venta_primaria: '',
+    rte_venta_secundaria: '', cuit_rte_venta_secundaria: '',
+    rte_venta_secundaria2: '', mercado_termino: '',
+    corredor_primario: '', cuit_corredor_primario: '',
+    corredor_secundario: '', cuit_corredor_secundario: '',
+    repr_entregador: '', cuit_repr_entregador: '',
+    repr_recibidor: '', cuit_repr_recibidor: '',
+    kg_estimados: '',
+    km: '', tarifa: '', pagador_flete: '', intermediario_flete: '', cuil_intermediario: '',
+    nro_planta: '', nro_turno: '', provincia_origen: '', provincia_destino: '', observaciones: '',
   })
   const [transporteF, setTransporteF] = useState<TransporteForm>({
     transporte: '', cuit_transporte: '', chofer: '', cuil_chofer: '', chasis: '', acoplado: '',
@@ -348,6 +398,7 @@ export default function DetalleCupo() {
   const [pesajeF,     setPesajeF]     = useState<PesajeForm>({
     kg_bruto_cargados: '', kg_tara_cargados: '', kg_reales: '',
     kg_bruto_descargados: '', kg_tara_descargados: '', kg_estimados: '',
+    humedad: '', proteina: '',
   })
   const [cierreF,     setCierreF]     = useState<CierreForm>({
     nro_ruca: '', ingeniero: '', contacto: '', gps: '',
@@ -447,10 +498,6 @@ export default function DetalleCupo() {
 
   // ── Tab selection with lock guard ────────────────────────────
   const handleTabSelect = (tab: TabId) => {
-    if (lockedTabs.has(tab)) {
-      show('Completá la etapa anterior primero.', 'info')
-      return
-    }
     setActiveTab(tab)
   }
 
@@ -515,6 +562,96 @@ export default function DetalleCupo() {
     }
   }
 
+  // ── Generar CP ───────────────────────────────────────────────
+
+  const CP_REQUIRED: { section: string; fields: (keyof CpeRecord)[]; labels: Record<string, string> }[] = [
+    {
+      section: 'General',
+      fields: ['fecha_carga', 'cupo', 'grano', 'localidad', 'renspa'],
+      labels: { fecha_carga: 'Fecha de carga', cupo: 'Cupo', grano: 'Grano', localidad: 'Localidad', renspa: 'RENSPA' },
+    },
+    {
+      section: 'Comercial',
+      fields: ['destinatario', 'cuit_destinatario', 'destino', 'cuit_destino'],
+      labels: { destinatario: 'Destinatario', cuit_destinatario: 'CUIT Destinatario', destino: 'Destino', cuit_destino: 'CUIT Destino' },
+    },
+    {
+      section: 'Flete',
+      fields: ['km', 'provincia_origen', 'provincia_destino'],
+      labels: { km: 'Km', provincia_origen: 'Provincia Origen', provincia_destino: 'Provincia Destino' },
+    },
+    {
+      section: 'Transporte',
+      fields: ['transporte', 'cuit_transporte', 'chofer', 'cuil_chofer', 'chasis'],
+      labels: { transporte: 'Transportista', cuit_transporte: 'CUIT Transporte', chofer: 'Chofer', cuil_chofer: 'CUIL Chofer', chasis: 'Patente Chasis' },
+    },
+    {
+      section: 'Pesaje',
+      fields: ['kg_estimados'],
+      labels: { kg_estimados: 'Kg Estimados' },
+    },
+  ]
+
+  function validateForCP(rec: CpeRecord): { section: string; missing: string[] }[] {
+    return CP_REQUIRED
+      .map(({ section, fields, labels }) => ({
+        section,
+        missing: fields.filter(f => !rec[f] && rec[f] !== 0).map(f => labels[f]),
+      }))
+      .filter(({ missing }) => missing.length > 0)
+  }
+
+  const handleGenerarCP = async () => {
+    if (!record) return
+    const errors = validateForCP(record)
+    if (errors.length > 0) {
+      setCpMissing(errors)
+      setCpModalOpen(true)
+      return
+    }
+    setGenerando(true)
+    try {
+      const webhookUrl = (import.meta.env.VITE_N8N_WEBHOOK_CP_URL as string | undefined)?.trim()
+      if (!webhookUrl) {
+        show('URL del webhook no configurada (VITE_N8N_WEBHOOK_CP_URL)', 'error')
+        return
+      }
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record),
+      })
+      show('Solicitud de CP enviada correctamente', 'success')
+    } catch {
+      show('Error al enviar la solicitud. Intentá de nuevo.', 'error')
+    } finally {
+      setGenerando(false)
+    }
+  }
+
+  const handleGenerarIgual = async () => {
+    setCpModalOpen(false)
+    if (!record) return
+    setGenerando(true)
+    try {
+      const webhookUrl = (import.meta.env.VITE_N8N_WEBHOOK_CP_URL as string | undefined)?.trim()
+      if (!webhookUrl) {
+        show('URL del webhook no configurada (VITE_N8N_WEBHOOK_CP_URL)', 'error')
+        return
+      }
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record),
+      })
+      show('Solicitud de CP enviada correctamente', 'success')
+    } catch {
+      show('Error al enviar la solicitud. Intentá de nuevo.', 'error')
+    } finally {
+      setGenerando(false)
+    }
+  }
+
   // ── Save handlers ─────────────────────────────────────────────
 
   const handleSaveDatos = async () => {
@@ -525,15 +662,42 @@ export default function DetalleCupo() {
         id,
         record.cpe_id,
         {
-          fecha_carga: datosF.fecha_carga || null,
-          grano: datosF.grano || null,
-          localidad: datosF.localidad || null,
-          destinatario: datosF.destinatario || null,
-          cuit_destinatario: datosF.cuit_destinatario || null,
-          destino: datosF.destino || null,
-          cuit_destino: datosF.cuit_destino || null,
-          rte_venta_primaria: datosF.rte_venta_primaria || null,
-          kg_estimados: numOrNull(datosF.kg_estimados),
+          fecha_carga:           datosF.fecha_carga || null,
+          campo:                 datosF.campo || null,
+          grano:                 datosF.grano || null,
+          variedad:              datosF.variedad || null,
+          localidad:             datosF.localidad || null,
+          campania:              datosF.campania || null,
+          renspa:                datosF.renspa || null,
+          destinatario:          datosF.destinatario || null,
+          cuit_destinatario:     datosF.cuit_destinatario || null,
+          destino:               datosF.destino || null,
+          cuit_destino:          datosF.cuit_destino || null,
+          rte_venta_primaria:         datosF.rte_venta_primaria || null,
+          cuit_rte_venta_primaria:    datosF.cuit_rte_venta_primaria || null,
+          rte_venta_secundaria:       datosF.rte_venta_secundaria || null,
+          cuit_rte_venta_secundaria:  datosF.cuit_rte_venta_secundaria || null,
+          rte_venta_secundaria2:      datosF.rte_venta_secundaria2 || null,
+          mercado_termino:            datosF.mercado_termino || null,
+          corredor_primario:          datosF.corredor_primario || null,
+          cuit_corredor_primario:     datosF.cuit_corredor_primario || null,
+          corredor_secundario:        datosF.corredor_secundario || null,
+          cuit_corredor_secundario:   datosF.cuit_corredor_secundario || null,
+          repr_entregador:            datosF.repr_entregador || null,
+          cuit_repr_entregador:       datosF.cuit_repr_entregador || null,
+          repr_recibidor:             datosF.repr_recibidor || null,
+          cuit_repr_recibidor:        datosF.cuit_repr_recibidor || null,
+          kg_estimados:          numOrNull(datosF.kg_estimados),
+          km:                    numOrNull(datosF.km),
+          tarifa:                numOrNull(datosF.tarifa),
+          pagador_flete:         datosF.pagador_flete || null,
+          intermediario_flete:   datosF.intermediario_flete || null,
+          cuil_intermediario:    datosF.cuil_intermediario || null,
+          nro_planta:            datosF.nro_planta || null,
+          nro_turno:             datosF.nro_turno || null,
+          provincia_origen:      datosF.provincia_origen || null,
+          provincia_destino:     datosF.provincia_destino || null,
+          observaciones:         datosF.observaciones || null,
         },
         record,
         user.email
@@ -600,6 +764,8 @@ export default function DetalleCupo() {
           kg_bruto_descargados: numOrNull(pesajeF.kg_bruto_descargados),
           kg_tara_descargados:  numOrNull(pesajeF.kg_tara_descargados),
           kg_estimados:         numOrNull(pesajeF.kg_estimados),
+          humedad:              numOrNull(pesajeF.humedad),
+          proteina:             numOrNull(pesajeF.proteina),
         },
         record,
         user.email
@@ -701,7 +867,6 @@ export default function DetalleCupo() {
       {/* ── Tab bar ──────────────────────────────────────────── */}
       <TabBar
         activeTab={activeTab}
-        lockedTabs={lockedTabs}
         onSelect={handleTabSelect}
       />
 
@@ -711,16 +876,48 @@ export default function DetalleCupo() {
         {/* ── Tab: DATOS ────────────────────────────────────── */}
         {activeTab === 'datos' && (
           <>
-            <SectionTitle>Datos del cupo</SectionTitle>
+            <SectionTitle>General</SectionTitle>
+            <ResponsableChip label="Comercial / Log Central" />
             <FormField label="Fecha de carga" value={datosF.fecha_carga} onChange={setD('fecha_carga')} type="date" />
-            <SelectField label="Grano" value={datosF.grano} onChange={setD('grano')} options={GRANOS} />
+            <SelectField label="Campo"    value={datosF.campo}    onChange={setD('campo')}    options={CAMPOS} />
+            <SelectField label="Grano"    value={datosF.grano}    onChange={setD('grano')}    options={GRANOS} />
+            <SelectField label="Variedad" value={datosF.variedad} onChange={setD('variedad')} options={VARIEDADES} />
             <SelectField label="Localidad" value={datosF.localidad} onChange={setD('localidad')} options={LOCALIDADES} />
-            <FormField label="Destinatario" value={datosF.destinatario} onChange={setD('destinatario')} />
-            <FormField label="CUIT Destinatario" value={datosF.cuit_destinatario} onChange={setD('cuit_destinatario')} />
-            <FormField label="Destino" value={datosF.destino} onChange={setD('destino')} />
-            <FormField label="CUIT Destino" value={datosF.cuit_destino} onChange={setD('cuit_destino')} />
-            <FormField label="Vendedor" value={datosF.rte_venta_primaria} onChange={setD('rte_venta_primaria')} />
+            <FormField label="Campaña" value={datosF.campania} onChange={setD('campania')} />
+            <FormField label="RENSPA"  value={datosF.renspa}   onChange={setD('renspa')} />
+
+            <SectionTitle className="mt-2">Comercial</SectionTitle>
+            <FormField label="Destinatario"       value={datosF.destinatario}      onChange={setD('destinatario')} />
+            <FormField label="CUIT Destinatario"  value={datosF.cuit_destinatario} onChange={setD('cuit_destinatario')} />
+            <FormField label="Destino"            value={datosF.destino}           onChange={setD('destino')} />
+            <FormField label="CUIT Destino"       value={datosF.cuit_destino}      onChange={setD('cuit_destino')} />
+            <VoiceInput label="Rte. Venta Primaria"    value={datosF.rte_venta_primaria}    onChange={setD('rte_venta_primaria')} />
+            <FormField  label="CUIT Rte. Venta Primaria" value={datosF.cuit_rte_venta_primaria} onChange={setD('cuit_rte_venta_primaria')} />
+            <VoiceInput label="Rte. Venta Secundaria"  value={datosF.rte_venta_secundaria}  onChange={setD('rte_venta_secundaria')} />
+            <FormField  label="CUIT Rte. Venta Secundaria" value={datosF.cuit_rte_venta_secundaria} onChange={setD('cuit_rte_venta_secundaria')} />
+            <VoiceInput label="Rte. Venta Secundaria 2" value={datosF.rte_venta_secundaria2} onChange={setD('rte_venta_secundaria2')} />
+            <VoiceInput label="Mercado a Término"      value={datosF.mercado_termino}       onChange={setD('mercado_termino')} />
+            <VoiceInput label="Corredor Primario"      value={datosF.corredor_primario}     onChange={setD('corredor_primario')} />
+            <FormField  label="CUIT Corredor Primario" value={datosF.cuit_corredor_primario} onChange={setD('cuit_corredor_primario')} />
+            <VoiceInput label="Corredor Secundario"    value={datosF.corredor_secundario}   onChange={setD('corredor_secundario')} />
+            <FormField  label="CUIT Corredor Secundario" value={datosF.cuit_corredor_secundario} onChange={setD('cuit_corredor_secundario')} />
+            <VoiceInput label="Repr. Entregador"       value={datosF.repr_entregador}       onChange={setD('repr_entregador')} />
+            <FormField  label="CUIT Repr. Entregador"  value={datosF.cuit_repr_entregador}  onChange={setD('cuit_repr_entregador')} />
+            <VoiceInput label="Repr. Recibidor"        value={datosF.repr_recibidor}        onChange={setD('repr_recibidor')} />
+            <FormField  label="CUIT Repr. Recibidor"   value={datosF.cuit_repr_recibidor}   onChange={setD('cuit_repr_recibidor')} />
             <FormField label="Kg Estimados" value={datosF.kg_estimados} onChange={setD('kg_estimados')} type="number" />
+
+            <SectionTitle className="mt-2">Flete</SectionTitle>
+            <FormField label="Km"      value={datosF.km}     onChange={setD('km')}     type="number" />
+            <FormField label="Tarifa"  value={datosF.tarifa} onChange={setD('tarifa')} type="number" />
+            <VoiceInput label="Pagador de Flete"        value={datosF.pagador_flete}       onChange={setD('pagador_flete')} />
+            <VoiceInput label="Intermediario de Flete"  value={datosF.intermediario_flete} onChange={setD('intermediario_flete')} />
+            <FormField  label="CUIL Intermediario"      value={datosF.cuil_intermediario}  onChange={setD('cuil_intermediario')} />
+            <FormField  label="Nro. de Planta"          value={datosF.nro_planta}          onChange={setD('nro_planta')} />
+            <FormField  label="Nro. de Turno"           value={datosF.nro_turno}           onChange={setD('nro_turno')} />
+            <FormField  label="Provincia Origen"        value={datosF.provincia_origen}    onChange={setD('provincia_origen')} />
+            <FormField  label="Provincia Destino"       value={datosF.provincia_destino}   onChange={setD('provincia_destino')} />
+            <VoiceInput label="Observaciones"           value={datosF.observaciones}       onChange={setD('observaciones')} multiline rows={3} />
           </>
         )}
 
@@ -728,6 +925,7 @@ export default function DetalleCupo() {
         {activeTab === 'transporte' && (
           <>
             <SectionTitle>Transporte</SectionTitle>
+            <ResponsableChip label="Admin Zonal" />
             <button
               type="button"
               onClick={() => setParserOpen(true)}
@@ -761,6 +959,7 @@ export default function DetalleCupo() {
         {activeTab === 'pesaje' && (
           <>
             <SectionTitle>Cargados</SectionTitle>
+            <ResponsableChip label="Agro / Producción" />
             <FormField label="Kg Bruto" value={pesajeF.kg_bruto_cargados} onChange={setP('kg_bruto_cargados')} type="number" />
             <FormField label="Kg Tara" value={pesajeF.kg_tara_cargados} onChange={setP('kg_tara_cargados')} type="number" />
             <KgNetoField bruto={pesajeF.kg_bruto_cargados} tara={pesajeF.kg_tara_cargados} />
@@ -770,6 +969,9 @@ export default function DetalleCupo() {
             <FormField label="Kg Tara" value={pesajeF.kg_tara_descargados} onChange={setP('kg_tara_descargados')} type="number" />
             <SectionTitle className="mt-2">Referencia</SectionTitle>
             <FormField label="Kg Estimados (email)" value={pesajeF.kg_estimados} onChange={setP('kg_estimados')} type="number" />
+            <SectionTitle className="mt-2">Calidad</SectionTitle>
+            <FormField label="Humedad (%)"  value={pesajeF.humedad}  onChange={setP('humedad')}  type="number" />
+            <FormField label="Proteína (%)" value={pesajeF.proteina} onChange={setP('proteina')} type="number" />
           </>
         )}
 
@@ -777,6 +979,7 @@ export default function DetalleCupo() {
         {activeTab === 'cierre' && (
           <>
             <SectionTitle>Cierre de cupo</SectionTitle>
+            <ResponsableChip label="Admin Zonal / Ingeniero" />
             {cierreReadOnly ? (
               <>
                 <ReadOnlyField label="N° RUCA"    value={cierreF.nro_ruca}  />
@@ -788,6 +991,14 @@ export default function DetalleCupo() {
                     Cupo cerrado — solo lectura
                   </span>
                 </div>
+                <Button
+                  fullWidth
+                  loading={generando}
+                  onClick={handleGenerarCP}
+                  style={{ backgroundColor: '#1E3252' }}
+                >
+                  Generar CP
+                </Button>
               </>
             ) : (
               <>
@@ -795,6 +1006,14 @@ export default function DetalleCupo() {
                 <FormField label="Ingeniero" value={cierreF.ingeniero} onChange={setC('ingeniero')} />
                 <FormField label="Contacto"  value={cierreF.contacto}  onChange={setC('contacto')}  />
                 <GPSInput value={cierreF.gps} onChange={setC('gps')} />
+                <Button
+                  fullWidth
+                  loading={generando}
+                  onClick={() => void handleGenerarCP()}
+                  style={{ backgroundColor: '#1E3252' }}
+                >
+                  {generando ? 'Enviando…' : 'Generar CP'}
+                </Button>
               </>
             )}
           </>
@@ -1052,6 +1271,49 @@ export default function DetalleCupo() {
             >
               Cancelar
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── CP campos faltantes ────────────────────────────────── */}
+      {cpModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 px-4 pb-safe">
+          <div className="w-full max-w-mobile bg-white rounded-2xl p-5 space-y-4 mb-4">
+            <p className="font-sans font-semibold text-primary text-base">
+              Faltan datos para generar la CP
+            </p>
+            <div className="space-y-3">
+              {cpMissing.map(({ section, missing }) => (
+                <div key={section}>
+                  <p className="font-mono text-xs font-bold text-text-muted uppercase tracking-wide mb-1">
+                    {section}
+                  </p>
+                  <ul className="space-y-0.5">
+                    {missing.map(label => (
+                      <li key={label} className="font-sans text-sm text-primary flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
+                        {label}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-col gap-2 pt-1">
+              <button
+                onClick={() => void handleGenerarIgual()}
+                className="w-full h-12 rounded-xl font-sans font-semibold text-white text-sm active:opacity-80 transition"
+                style={{ backgroundColor: '#1E3252' }}
+              >
+                Generar CP igual
+              </button>
+              <button
+                onClick={() => setCpModalOpen(false)}
+                className="w-full h-11 rounded-xl font-sans text-sm font-medium border border-gray-200 text-primary active:bg-gray-50"
+              >
+                Seguir completando
+              </button>
+            </div>
           </div>
         </div>
       )}

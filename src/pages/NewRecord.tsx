@@ -19,15 +19,23 @@ const DRAFT_KEY = 'draft_new_record'
 const empty: RecordFormData = {
   fecha_carga: new Date().toISOString().slice(0, 10),
   campo: '', localidad: '', grano: '', variedad: '',
+  renspa: null, campania: null,
   destinatario: '', cuit_destinatario: '', destino: '', cuit_destino: '',
-  rte_venta_primaria: '', rte_venta_secundaria: '', rte_venta_secundaria2: '',
-  mercado_termino: '', corredor_primario: '', corredor_secundario: '',
-  repr_entregador: '', repr_recibidor: '',
+  rte_venta_primaria: '', cuit_rte_venta_primaria: null,
+  rte_venta_secundaria: '', cuit_rte_venta_secundaria: null,
+  rte_venta_secundaria2: '',
+  mercado_termino: '', corredor_primario: '', cuit_corredor_primario: null,
+  corredor_secundario: '', cuit_corredor_secundario: null,
+  repr_entregador: '', cuit_repr_entregador: null,
+  repr_recibidor: '', cuit_repr_recibidor: null,
   km: null, tarifa: null,
-  pagador_flete: '', cupo: '', intermediario_flete: '', cuil_intermediario: '', nro_planta: '', observaciones: '',
+  pagador_flete: '', cupo: '', intermediario_flete: '', cuil_intermediario: '',
+  nro_planta: '', nro_turno: null, provincia_origen: null, provincia_destino: null,
+  observaciones: '',
   transporte: '', cuit_transporte: '', chofer: '', cuil_chofer: '', chasis: '', acoplado: '',
   kg_bruto_cargados: null, kg_tara_cargados: null, kg_estimados: null, kg_reales: null,
   kg_bruto_descargados: null, kg_tara_descargados: null,
+  humedad: null, proteina: null,
   nro_ruca: '', ingeniero: '', contacto: '', gps: '',
 }
 
@@ -84,7 +92,7 @@ export default function NewRecord() {
     setIsDirty(true)
     setForm((prev) => ({
       ...prev,
-      [field]: field === 'km' || field === 'tarifa' ||
+      [field]: field === 'km' || field === 'tarifa' || field === 'humedad' || field === 'proteina' ||
         field.startsWith('kg_') ? (val === '' ? null : Number(val)) : val,
     }))
   }
@@ -136,6 +144,8 @@ export default function NewRecord() {
             <SelectField label="Localidad" value={str(form.localidad)} onChange={set('localidad')} options={LOCALIDADES} required />
             <SelectField label="Grano" value={str(form.grano)} onChange={set('grano')} options={GRANOS} required />
             <SelectField label="Variedad" value={str(form.variedad)} onChange={set('variedad')} options={VARIEDADES} />
+            <FormField label="Campaña" value={str(form.campania)} onChange={set('campania')} />
+            <FormField label="RENSPA" value={str(form.renspa)} onChange={set('renspa')} />
           </>
         )}
 
@@ -147,13 +157,19 @@ export default function NewRecord() {
             <VoiceInput label="Destino" value={str(form.destino)} onChange={set('destino')} />
             <FormField label="CUIT Destino" value={str(form.cuit_destino)} onChange={set('cuit_destino')} />
             <VoiceInput label="Rte. Venta Primaria" value={str(form.rte_venta_primaria)} onChange={set('rte_venta_primaria')} />
+            <FormField label="CUIT Rte. Venta Primaria" value={str(form.cuit_rte_venta_primaria)} onChange={set('cuit_rte_venta_primaria')} />
             <VoiceInput label="Rte. Venta Secundaria" value={str(form.rte_venta_secundaria)} onChange={set('rte_venta_secundaria')} />
+            <FormField label="CUIT Rte. Venta Secundaria" value={str(form.cuit_rte_venta_secundaria)} onChange={set('cuit_rte_venta_secundaria')} />
             <VoiceInput label="Rte. Venta Secundaria 2" value={str(form.rte_venta_secundaria2)} onChange={set('rte_venta_secundaria2')} />
             <VoiceInput label="Mercado a Término" value={str(form.mercado_termino)} onChange={set('mercado_termino')} />
             <VoiceInput label="Corredor Primario" value={str(form.corredor_primario)} onChange={set('corredor_primario')} />
+            <FormField label="CUIT Corredor Primario" value={str(form.cuit_corredor_primario)} onChange={set('cuit_corredor_primario')} />
             <VoiceInput label="Corredor Secundario" value={str(form.corredor_secundario)} onChange={set('corredor_secundario')} />
+            <FormField label="CUIT Corredor Secundario" value={str(form.cuit_corredor_secundario)} onChange={set('cuit_corredor_secundario')} />
             <VoiceInput label="Repr. Entregador" value={str(form.repr_entregador)} onChange={set('repr_entregador')} />
+            <FormField label="CUIT Repr. Entregador" value={str(form.cuit_repr_entregador)} onChange={set('cuit_repr_entregador')} />
             <VoiceInput label="Repr. Recibidor" value={str(form.repr_recibidor)} onChange={set('repr_recibidor')} />
+            <FormField label="CUIT Repr. Recibidor" value={str(form.cuit_repr_recibidor)} onChange={set('cuit_repr_recibidor')} />
           </>
         )}
 
@@ -162,6 +178,9 @@ export default function NewRecord() {
             <SectionTitle>Flete</SectionTitle>
             <FormField label="Km" value={str(form.km)} onChange={set('km')} type="number" />
             <FormField label="Tarifa" value={str(form.tarifa)} onChange={set('tarifa')} type="number" />
+            <FormField label="Nro. de Turno" value={str(form.nro_turno)} onChange={set('nro_turno')} />
+            <FormField label="Provincia Origen" value={str(form.provincia_origen)} onChange={set('provincia_origen')} />
+            <FormField label="Provincia Destino" value={str(form.provincia_destino)} onChange={set('provincia_destino')} />
             <VoiceInput label="Pagador de Flete" value={str(form.pagador_flete)} onChange={set('pagador_flete')} />
             <VoiceInput label="Intermediario de Flete" value={str(form.intermediario_flete)} onChange={set('intermediario_flete')} />
             <FormField label="CUIL Intermediario" value={str(form.cuil_intermediario)} onChange={set('cuil_intermediario')} />
@@ -200,6 +219,8 @@ export default function NewRecord() {
             <SectionTitle className="mt-4">Pesaje — Descargados</SectionTitle>
             <FormField label="Kg Bruto" value={str(form.kg_bruto_descargados)} onChange={set('kg_bruto_descargados')} type="number" />
             <FormField label="Kg Tara" value={str(form.kg_tara_descargados)} onChange={set('kg_tara_descargados')} type="number" />
+            <FormField label="Humedad (%)" value={str(form.humedad)} onChange={set('humedad')} type="number" />
+            <FormField label="Proteína (%)" value={str(form.proteina)} onChange={set('proteina')} type="number" />
           </>
         )}
 
