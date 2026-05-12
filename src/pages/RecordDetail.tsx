@@ -18,10 +18,15 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
 }
 
 const SECTIONS: { title: string; fields: (keyof CpeRecord)[] }[] = [
-  { title: 'General', fields: ['fecha_carga', 'campo', 'localidad', 'grano', 'variedad'] },
+  {
+    title: 'General',
+    fields: ['fecha_carga', 'campo', 'localidad', 'grano', 'variedad', 'declaracion_calidad', 'es_campo_origen', 'descripcion_origen'],
+  },
   {
     title: 'Comercial',
     fields: [
+      'titular_nombre', 'titular_cuit',
+      'remitente_comercial_nombre', 'remitente_comercial_cuit',
       'destinatario', 'cuit_destinatario', 'destino', 'cuit_destino',
       'rte_venta_primaria', 'rte_venta_secundaria', 'rte_venta_secundaria2',
       'mercado_termino', 'corredor_primario', 'corredor_secundario',
@@ -30,20 +35,21 @@ const SECTIONS: { title: string; fields: (keyof CpeRecord)[] }[] = [
   },
   {
     title: 'Flete',
-    fields: ['km', 'tarifa', 'pagador_flete', 'cupo', 'intermediario_flete', 'cuil_intermediario', 'observaciones'],
+    fields: ['km', 'tarifa', 'pagador_flete', 'cupo', 'intermediario_flete', 'cuil_intermediario',
+      'provincia_origen', 'provincia_destino', 'es_campo_destino', 'direccion_destino', 'observaciones'],
   },
   {
     title: 'Transporte',
-    fields: ['transporte', 'cuit_transporte', 'chofer', 'cuil_chofer', 'chasis', 'acoplado'],
+    fields: ['transporte', 'cuit_transporte', 'chofer', 'cuil_chofer', 'chasis', 'acoplado', 'fecha_partida'],
   },
   {
     title: 'Pesaje',
     fields: [
-      'kg_bruto_cargados', 'kg_tara_cargados', 'kg_estimados', 'kg_reales',
+      'kg_bruto_cargados', 'kg_tara_cargados', 'kg_estimados',
       'kg_bruto_descargados', 'kg_tara_descargados',
     ],
   },
-  { title: 'Cierre', fields: ['nro_ruca', 'ingeniero', 'contacto', 'gps'] },
+  { title: 'Cierre', fields: ['nro_ruca', 'gps'] },
 ]
 
 function DataTab({ record }: { record: CpeRecord }) {

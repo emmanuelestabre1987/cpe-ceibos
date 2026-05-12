@@ -84,8 +84,11 @@ function str(v: string | number | null | undefined): string {
 interface DatosForm {
   // General
   fecha_carga: string; campo: string; grano: string; variedad: string
+  declaracion_calidad: string; es_campo_origen: boolean; descripcion_origen: string
   localidad: string; campania: string; renspa: string
   // Comercial
+  titular_nombre: string; titular_cuit: string
+  remitente_comercial_nombre: string; remitente_comercial_cuit: string
   destinatario: string; cuit_destinatario: string
   destino: string; cuit_destino: string
   rte_venta_primaria: string; cuit_rte_venta_primaria: string
@@ -101,6 +104,7 @@ interface DatosForm {
   intermediario_flete: string; cuil_intermediario: string
   nro_planta: string; nro_turno: string
   provincia_origen: string; provincia_destino: string
+  es_campo_destino: boolean; direccion_destino: string
   observaciones: string
 }
 
@@ -108,23 +112,30 @@ interface TransporteForm {
   transporte: string; cuit_transporte: string
   chofer: string; cuil_chofer: string
   chasis: string; acoplado: string
+  fecha_partida: string
 }
 
 interface PesajeForm {
-  kg_bruto_cargados: string; kg_tara_cargados: string; kg_reales: string
+  kg_bruto_cargados: string; kg_tara_cargados: string
   kg_bruto_descargados: string; kg_tara_descargados: string
-  kg_estimados: string; humedad: string; proteina: string
+  kg_estimados: string
 }
 
 interface CierreForm {
-  nro_ruca: string; ingeniero: string; contacto: string; gps: string
+  nro_ruca: string; gps: string
 }
 
 function initDatos(r: CpeRecord): DatosForm {
   return {
     fecha_carga: str(r.fecha_carga), campo: str(r.campo), grano: str(r.grano),
     variedad: str(r.variedad), localidad: str(r.localidad),
+    declaracion_calidad: str(r.declaracion_calidad),
+    es_campo_origen: r.es_campo_origen ?? false,
+    descripcion_origen: str(r.descripcion_origen),
     campania: str(r.campania), renspa: str(r.renspa),
+    titular_nombre: str(r.titular_nombre), titular_cuit: str(r.titular_cuit),
+    remitente_comercial_nombre: str(r.remitente_comercial_nombre),
+    remitente_comercial_cuit: str(r.remitente_comercial_cuit),
     destinatario: str(r.destinatario), cuit_destinatario: str(r.cuit_destinatario),
     destino: str(r.destino), cuit_destino: str(r.cuit_destino),
     rte_venta_primaria: str(r.rte_venta_primaria), cuit_rte_venta_primaria: str(r.cuit_rte_venta_primaria),
@@ -139,6 +150,8 @@ function initDatos(r: CpeRecord): DatosForm {
     intermediario_flete: str(r.intermediario_flete), cuil_intermediario: str(r.cuil_intermediario),
     nro_planta: str(r.nro_planta), nro_turno: str(r.nro_turno),
     provincia_origen: str(r.provincia_origen), provincia_destino: str(r.provincia_destino),
+    es_campo_destino: r.es_campo_destino ?? false,
+    direccion_destino: str(r.direccion_destino),
     observaciones: str(r.observaciones),
   }
 }
@@ -147,20 +160,19 @@ function initTransporte(r: CpeRecord): TransporteForm {
     transporte: str(r.transporte), cuit_transporte: str(r.cuit_transporte),
     chofer: str(r.chofer), cuil_chofer: str(r.cuil_chofer),
     chasis: str(r.chasis), acoplado: str(r.acoplado),
+    fecha_partida: str(r.fecha_partida),
   }
 }
 function initPesaje(r: CpeRecord): PesajeForm {
   return {
     kg_bruto_cargados: str(r.kg_bruto_cargados), kg_tara_cargados: str(r.kg_tara_cargados),
-    kg_reales: str(r.kg_reales), kg_bruto_descargados: str(r.kg_bruto_descargados),
+    kg_bruto_descargados: str(r.kg_bruto_descargados),
     kg_tara_descargados: str(r.kg_tara_descargados), kg_estimados: str(r.kg_estimados),
-    humedad: str(r.humedad), proteina: str(r.proteina),
   }
 }
 function initCierre(r: CpeRecord): CierreForm {
   return {
-    nro_ruca: str(r.nro_ruca), ingeniero: str(r.ingeniero),
-    contacto: str(r.contacto), gps: str(r.gps),
+    nro_ruca: str(r.nro_ruca), gps: str(r.gps),
   }
 }
 
@@ -380,6 +392,9 @@ export default function DetalleCupo() {
   // ── Form state per tab ───────────────────────────────────────
   const [datosF,      setDatosF]      = useState<DatosForm>({
     fecha_carga: '', campo: '', grano: '', variedad: '', localidad: '', campania: '', renspa: '',
+    declaracion_calidad: '', es_campo_origen: false, descripcion_origen: '',
+    titular_nombre: '', titular_cuit: '',
+    remitente_comercial_nombre: '', remitente_comercial_cuit: '',
     destinatario: '', cuit_destinatario: '', destino: '', cuit_destino: '',
     rte_venta_primaria: '', cuit_rte_venta_primaria: '',
     rte_venta_secundaria: '', cuit_rte_venta_secundaria: '',
@@ -390,18 +405,20 @@ export default function DetalleCupo() {
     repr_recibidor: '', cuit_repr_recibidor: '',
     kg_estimados: '',
     km: '', tarifa: '', pagador_flete: '', intermediario_flete: '', cuil_intermediario: '',
-    nro_planta: '', nro_turno: '', provincia_origen: '', provincia_destino: '', observaciones: '',
+    nro_planta: '', nro_turno: '', provincia_origen: '', provincia_destino: '',
+    es_campo_destino: false, direccion_destino: '',
+    observaciones: '',
   })
   const [transporteF, setTransporteF] = useState<TransporteForm>({
     transporte: '', cuit_transporte: '', chofer: '', cuil_chofer: '', chasis: '', acoplado: '',
+    fecha_partida: '',
   })
   const [pesajeF,     setPesajeF]     = useState<PesajeForm>({
-    kg_bruto_cargados: '', kg_tara_cargados: '', kg_reales: '',
+    kg_bruto_cargados: '', kg_tara_cargados: '',
     kg_bruto_descargados: '', kg_tara_descargados: '', kg_estimados: '',
-    humedad: '', proteina: '',
   })
   const [cierreF,     setCierreF]     = useState<CierreForm>({
-    nro_ruca: '', ingeniero: '', contacto: '', gps: '',
+    nro_ruca: '', gps: '',
   })
 
   // ── Draft dirty tracking ──────────────────────────────────────
@@ -666,9 +683,16 @@ export default function DetalleCupo() {
           campo:                 datosF.campo || null,
           grano:                 datosF.grano || null,
           variedad:              datosF.variedad || null,
+          declaracion_calidad:   (datosF.declaracion_calidad as 'conforme' | 'condicional' | null) || null,
+          es_campo_origen:       datosF.es_campo_origen,
+          descripcion_origen:    datosF.descripcion_origen || null,
           localidad:             datosF.localidad || null,
           campania:              datosF.campania || null,
           renspa:                datosF.renspa || null,
+          titular_nombre:        datosF.titular_nombre || null,
+          titular_cuit:          datosF.titular_cuit || null,
+          remitente_comercial_nombre: datosF.remitente_comercial_nombre || null,
+          remitente_comercial_cuit:   datosF.remitente_comercial_cuit || null,
           destinatario:          datosF.destinatario || null,
           cuit_destinatario:     datosF.cuit_destinatario || null,
           destino:               datosF.destino || null,
@@ -697,6 +721,8 @@ export default function DetalleCupo() {
           nro_turno:             datosF.nro_turno || null,
           provincia_origen:      datosF.provincia_origen || null,
           provincia_destino:     datosF.provincia_destino || null,
+          es_campo_destino:      datosF.es_campo_destino,
+          direccion_destino:     datosF.direccion_destino || null,
           observaciones:         datosF.observaciones || null,
         },
         record,
@@ -734,6 +760,7 @@ export default function DetalleCupo() {
           cuil_chofer: cuil,
           chasis: transporteF.chasis || null,
           acoplado: transporteF.acoplado || null,
+          fecha_partida: transporteF.fecha_partida || null,
         },
         record,
         user.email
@@ -760,12 +787,9 @@ export default function DetalleCupo() {
         {
           kg_bruto_cargados:    numOrNull(pesajeF.kg_bruto_cargados),
           kg_tara_cargados:     numOrNull(pesajeF.kg_tara_cargados),
-          kg_reales:            numOrNull(pesajeF.kg_reales),
           kg_bruto_descargados: numOrNull(pesajeF.kg_bruto_descargados),
           kg_tara_descargados:  numOrNull(pesajeF.kg_tara_descargados),
           kg_estimados:         numOrNull(pesajeF.kg_estimados),
-          humedad:              numOrNull(pesajeF.humedad),
-          proteina:             numOrNull(pesajeF.proteina),
         },
         record,
         user.email
@@ -791,8 +815,6 @@ export default function DetalleCupo() {
         record.cpe_id,
         {
           nro_ruca:  cierreF.nro_ruca  || null,
-          ingeniero: cierreF.ingeniero || null,
-          contacto:  cierreF.contacto  || null,
           gps:       cierreF.gps       || null,
         },
         record,
@@ -882,41 +904,79 @@ export default function DetalleCupo() {
             <SelectField label="Campo"    value={datosF.campo}    onChange={setD('campo')}    options={CAMPOS} />
             <SelectField label="Grano"    value={datosF.grano}    onChange={setD('grano')}    options={GRANOS} />
             <SelectField label="Variedad" value={datosF.variedad} onChange={setD('variedad')} options={VARIEDADES} />
+            <SelectField
+              label="Declaración de Calidad"
+              value={datosF.declaracion_calidad}
+              onChange={setD('declaracion_calidad')}
+              options={['conforme', 'condicional']}
+            />
             <SelectField label="Localidad" value={datosF.localidad} onChange={setD('localidad')} options={LOCALIDADES} />
             <FormField label="Campaña" value={datosF.campania} onChange={setD('campania')} />
             <FormField label="RENSPA"  value={datosF.renspa}   onChange={setD('renspa')} />
+            <div className="flex items-center gap-3 px-1">
+              <input
+                type="checkbox"
+                id="es_campo_origen"
+                checked={datosF.es_campo_origen}
+                onChange={e => { tabDirtyRef.current.add('datos'); setDatosF(p => ({ ...p, es_campo_origen: e.target.checked })) }}
+                className="w-4 h-4 rounded cursor-pointer"
+                style={{ accentColor: '#2C9FC0' }}
+              />
+              <label htmlFor="es_campo_origen" className="font-mono text-xs font-medium text-primary uppercase tracking-wide cursor-pointer">
+                Es un campo
+              </label>
+            </div>
+            <FormField label="Descripción" value={datosF.descripcion_origen} onChange={setD('descripcion_origen')} />
 
             <SectionTitle className="mt-2">Comercial</SectionTitle>
+            <VoiceInput label="Titular Carta de Porte"       value={datosF.titular_nombre}             onChange={setD('titular_nombre')} />
+            <FormField  label="CUIT Titular"                 value={datosF.titular_cuit}               onChange={setD('titular_cuit')} />
+            <VoiceInput label="Remitente Comercial Productor" value={datosF.remitente_comercial_nombre} onChange={setD('remitente_comercial_nombre')} />
+            <FormField  label="CUIT Remitente Comercial"     value={datosF.remitente_comercial_cuit}   onChange={setD('remitente_comercial_cuit')} />
             <FormField label="Destinatario"       value={datosF.destinatario}      onChange={setD('destinatario')} />
             <FormField label="CUIT Destinatario"  value={datosF.cuit_destinatario} onChange={setD('cuit_destinatario')} />
             <FormField label="Destino"            value={datosF.destino}           onChange={setD('destino')} />
             <FormField label="CUIT Destino"       value={datosF.cuit_destino}      onChange={setD('cuit_destino')} />
-            <VoiceInput label="Rte. Venta Primaria"    value={datosF.rte_venta_primaria}    onChange={setD('rte_venta_primaria')} />
-            <FormField  label="CUIT Rte. Venta Primaria" value={datosF.cuit_rte_venta_primaria} onChange={setD('cuit_rte_venta_primaria')} />
-            <VoiceInput label="Rte. Venta Secundaria"  value={datosF.rte_venta_secundaria}  onChange={setD('rte_venta_secundaria')} />
-            <FormField  label="CUIT Rte. Venta Secundaria" value={datosF.cuit_rte_venta_secundaria} onChange={setD('cuit_rte_venta_secundaria')} />
-            <VoiceInput label="Rte. Venta Secundaria 2" value={datosF.rte_venta_secundaria2} onChange={setD('rte_venta_secundaria2')} />
+            <VoiceInput label="Rte. Comercial Venta Primaria"    value={datosF.rte_venta_primaria}    onChange={setD('rte_venta_primaria')} />
+            <FormField  label="CUIT Rte. Comercial Venta Primaria" value={datosF.cuit_rte_venta_primaria} onChange={setD('cuit_rte_venta_primaria')} />
+            <VoiceInput label="Rte. Comercial Venta Secundaria"  value={datosF.rte_venta_secundaria}  onChange={setD('rte_venta_secundaria')} />
+            <FormField  label="CUIT Rte. Comercial Venta Secundaria" value={datosF.cuit_rte_venta_secundaria} onChange={setD('cuit_rte_venta_secundaria')} />
+            <VoiceInput label="Rte. Comercial Venta Secundaria 2" value={datosF.rte_venta_secundaria2} onChange={setD('rte_venta_secundaria2')} />
             <VoiceInput label="Mercado a Término"      value={datosF.mercado_termino}       onChange={setD('mercado_termino')} />
-            <VoiceInput label="Corredor Primario"      value={datosF.corredor_primario}     onChange={setD('corredor_primario')} />
-            <FormField  label="CUIT Corredor Primario" value={datosF.cuit_corredor_primario} onChange={setD('cuit_corredor_primario')} />
-            <VoiceInput label="Corredor Secundario"    value={datosF.corredor_secundario}   onChange={setD('corredor_secundario')} />
-            <FormField  label="CUIT Corredor Secundario" value={datosF.cuit_corredor_secundario} onChange={setD('cuit_corredor_secundario')} />
-            <VoiceInput label="Repr. Entregador"       value={datosF.repr_entregador}       onChange={setD('repr_entregador')} />
-            <FormField  label="CUIT Repr. Entregador"  value={datosF.cuit_repr_entregador}  onChange={setD('cuit_repr_entregador')} />
-            <VoiceInput label="Repr. Recibidor"        value={datosF.repr_recibidor}        onChange={setD('repr_recibidor')} />
-            <FormField  label="CUIT Repr. Recibidor"   value={datosF.cuit_repr_recibidor}   onChange={setD('cuit_repr_recibidor')} />
+            <VoiceInput label="Corredor Venta Primaria"      value={datosF.corredor_primario}     onChange={setD('corredor_primario')} />
+            <FormField  label="CUIT Corredor Venta Primaria" value={datosF.cuit_corredor_primario} onChange={setD('cuit_corredor_primario')} />
+            <VoiceInput label="Corredor Venta Secundaria"    value={datosF.corredor_secundario}   onChange={setD('corredor_secundario')} />
+            <FormField  label="CUIT Corredor Venta Secundaria" value={datosF.cuit_corredor_secundario} onChange={setD('cuit_corredor_secundario')} />
+            <VoiceInput label="Representante Entregador"       value={datosF.repr_entregador}       onChange={setD('repr_entregador')} />
+            <FormField  label="CUIT Representante Entregador"  value={datosF.cuit_repr_entregador}  onChange={setD('cuit_repr_entregador')} />
+            <VoiceInput label="Representante Recibidor"        value={datosF.repr_recibidor}        onChange={setD('repr_recibidor')} />
+            <FormField  label="CUIT Representante Recibidor"   value={datosF.cuit_repr_recibidor}   onChange={setD('cuit_repr_recibidor')} />
             <FormField label="Kg Estimados" value={datosF.kg_estimados} onChange={setD('kg_estimados')} type="number" />
 
             <SectionTitle className="mt-2">Flete</SectionTitle>
-            <FormField label="Km"      value={datosF.km}     onChange={setD('km')}     type="number" />
-            <FormField label="Tarifa"  value={datosF.tarifa} onChange={setD('tarifa')} type="number" />
-            <VoiceInput label="Pagador de Flete"        value={datosF.pagador_flete}       onChange={setD('pagador_flete')} />
-            <VoiceInput label="Intermediario de Flete"  value={datosF.intermediario_flete} onChange={setD('intermediario_flete')} />
-            <FormField  label="CUIL Intermediario"      value={datosF.cuil_intermediario}  onChange={setD('cuil_intermediario')} />
-            <FormField  label="Nro. de Planta"          value={datosF.nro_planta}          onChange={setD('nro_planta')} />
-            <FormField  label="Nro. de Turno"           value={datosF.nro_turno}           onChange={setD('nro_turno')} />
-            <FormField  label="Provincia Origen"        value={datosF.provincia_origen}    onChange={setD('provincia_origen')} />
-            <FormField  label="Provincia Destino"       value={datosF.provincia_destino}   onChange={setD('provincia_destino')} />
+            <FormField label="Kms. a recorrer" value={datosF.km}     onChange={setD('km')}     type="number" />
+            <FormField label="Tarifa"          value={datosF.tarifa} onChange={setD('tarifa')} type="number" />
+            <VoiceInput label="Flete Pagador"            value={datosF.pagador_flete}       onChange={setD('pagador_flete')} />
+            <VoiceInput label="Intermediario de Flete"   value={datosF.intermediario_flete} onChange={setD('intermediario_flete')} />
+            <FormField  label="CUIL Intermediario"       value={datosF.cuil_intermediario}  onChange={setD('cuil_intermediario')} />
+            <FormField  label="Nro. de Planta"           value={datosF.nro_planta}          onChange={setD('nro_planta')} />
+            <FormField  label="Nro. de Turno"            value={datosF.nro_turno}           onChange={setD('nro_turno')} />
+            <FormField  label="Provincia Origen"         value={datosF.provincia_origen}    onChange={setD('provincia_origen')} />
+            <FormField  label="Provincia Destino"        value={datosF.provincia_destino}   onChange={setD('provincia_destino')} />
+            <div className="flex items-center gap-3 px-1">
+              <input
+                type="checkbox"
+                id="es_campo_destino"
+                checked={datosF.es_campo_destino}
+                onChange={e => { tabDirtyRef.current.add('datos'); setDatosF(p => ({ ...p, es_campo_destino: e.target.checked })) }}
+                className="w-4 h-4 rounded cursor-pointer"
+                style={{ accentColor: '#2C9FC0' }}
+              />
+              <label htmlFor="es_campo_destino" className="font-mono text-xs font-medium text-primary uppercase tracking-wide cursor-pointer">
+                Es un campo (Destino)
+              </label>
+            </div>
+            <FormField  label="Dirección"               value={datosF.direccion_destino}   onChange={setD('direccion_destino')} />
             <VoiceInput label="Observaciones"           value={datosF.observaciones}       onChange={setD('observaciones')} multiline rows={3} />
           </>
         )}
@@ -934,9 +994,9 @@ export default function DetalleCupo() {
               <MessageSquare className="w-4 h-4" />
               Pegar mensaje WA
             </button>
-            <VoiceInput label="Transporte" value={transporteF.transporte} onChange={setT('transporte')} />
+            <VoiceInput label="Empresa Transportista" value={transporteF.transporte} onChange={setT('transporte')} />
             <FormField
-              label="CUIT Transporte"
+              label="CUIT Empresa Transportista"
               value={transporteF.cuit_transporte}
               onChange={setT('cuit_transporte')}
               onBlur={validateCuitTransporte}
@@ -952,6 +1012,7 @@ export default function DetalleCupo() {
             />
             <VoiceInput label="Chasis / Patente" value={transporteF.chasis} onChange={setT('chasis')} />
             <VoiceInput label="Acoplado / Patente" value={transporteF.acoplado} onChange={setT('acoplado')} />
+            <FormField label="Fecha Partida" value={transporteF.fecha_partida} onChange={setT('fecha_partida')} type="datetime-local" />
           </>
         )}
 
@@ -963,15 +1024,11 @@ export default function DetalleCupo() {
             <FormField label="Kg Bruto" value={pesajeF.kg_bruto_cargados} onChange={setP('kg_bruto_cargados')} type="number" />
             <FormField label="Kg Tara" value={pesajeF.kg_tara_cargados} onChange={setP('kg_tara_cargados')} type="number" />
             <KgNetoField bruto={pesajeF.kg_bruto_cargados} tara={pesajeF.kg_tara_cargados} />
-            <FormField label="Kg Reales" value={pesajeF.kg_reales} onChange={setP('kg_reales')} type="number" />
             <SectionTitle className="mt-2">Descargados</SectionTitle>
             <FormField label="Kg Bruto" value={pesajeF.kg_bruto_descargados} onChange={setP('kg_bruto_descargados')} type="number" />
             <FormField label="Kg Tara" value={pesajeF.kg_tara_descargados} onChange={setP('kg_tara_descargados')} type="number" />
             <SectionTitle className="mt-2">Referencia</SectionTitle>
             <FormField label="Kg Estimados (email)" value={pesajeF.kg_estimados} onChange={setP('kg_estimados')} type="number" />
-            <SectionTitle className="mt-2">Calidad</SectionTitle>
-            <FormField label="Humedad (%)"  value={pesajeF.humedad}  onChange={setP('humedad')}  type="number" />
-            <FormField label="Proteína (%)" value={pesajeF.proteina} onChange={setP('proteina')} type="number" />
           </>
         )}
 
@@ -983,8 +1040,6 @@ export default function DetalleCupo() {
             {cierreReadOnly ? (
               <>
                 <ReadOnlyField label="N° RUCA"    value={cierreF.nro_ruca}  />
-                <ReadOnlyField label="Ingeniero"  value={cierreF.ingeniero} />
-                <ReadOnlyField label="Contacto"   value={cierreF.contacto}  />
                 <ReadOnlyField label="GPS"        value={cierreF.gps}       />
                 <div className="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl">
                   <span className="font-sans text-sm text-green-700 font-medium">
@@ -1003,8 +1058,6 @@ export default function DetalleCupo() {
             ) : (
               <>
                 <FormField label="N° RUCA"   value={cierreF.nro_ruca}  onChange={setC('nro_ruca')}  />
-                <FormField label="Ingeniero" value={cierreF.ingeniero} onChange={setC('ingeniero')} />
-                <FormField label="Contacto"  value={cierreF.contacto}  onChange={setC('contacto')}  />
                 <GPSInput value={cierreF.gps} onChange={setC('gps')} />
                 <Button
                   fullWidth

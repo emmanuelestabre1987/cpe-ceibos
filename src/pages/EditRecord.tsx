@@ -56,6 +56,13 @@ export default function EditRecord() {
     })
   }
 
+  const setBool = (field: keyof RecordFormData) => (val: boolean) => {
+    setForm((prev) => {
+      if (!prev) return prev
+      return { ...prev, [field]: val }
+    })
+  }
+
   const handleSave = async () => {
     if (!user?.email || !original || !form || !id) return
     setSaving(true)
@@ -105,43 +112,83 @@ export default function EditRecord() {
         <SelectField label="Localidad" value={str(form.localidad)} onChange={set('localidad')} options={LOCALIDADES} />
         <SelectField label="Grano" value={str(form.grano)} onChange={set('grano')} options={GRANOS} />
         <SelectField label="Variedad" value={str(form.variedad)} onChange={set('variedad')} options={VARIEDADES} />
+        <SelectField
+          label="Declaración de Calidad"
+          value={str(form.declaracion_calidad)}
+          onChange={set('declaracion_calidad')}
+          options={['conforme', 'condicional']}
+        />
+        <div className="flex items-center gap-3 px-1">
+          <input
+            type="checkbox"
+            id="edit_es_campo_origen"
+            checked={form.es_campo_origen ?? false}
+            onChange={e => setBool('es_campo_origen')(e.target.checked)}
+            className="w-4 h-4 rounded cursor-pointer"
+            style={{ accentColor: '#2C9FC0' }}
+          />
+          <label htmlFor="edit_es_campo_origen" className="font-mono text-xs font-medium text-primary uppercase tracking-wide cursor-pointer">
+            Es un campo
+          </label>
+        </div>
+        <FormField label="Descripción" value={str(form.descripcion_origen)} onChange={set('descripcion_origen')} />
 
         <SectionTitle className="mt-4">Comercial</SectionTitle>
+        <VoiceInput label="Titular Carta de Porte" value={str(form.titular_nombre)} onChange={set('titular_nombre')} />
+        <FormField label="CUIT Titular" value={str(form.titular_cuit)} onChange={set('titular_cuit')} />
+        <VoiceInput label="Remitente Comercial Productor" value={str(form.remitente_comercial_nombre)} onChange={set('remitente_comercial_nombre')} />
+        <FormField label="CUIT Remitente Comercial" value={str(form.remitente_comercial_cuit)} onChange={set('remitente_comercial_cuit')} />
         <VoiceInput label="Destinatario" value={str(form.destinatario)} onChange={set('destinatario')} />
         <FormField label="CUIT Destinatario" value={str(form.cuit_destinatario)} onChange={set('cuit_destinatario')} />
         <VoiceInput label="Destino" value={str(form.destino)} onChange={set('destino')} />
         <FormField label="CUIT Destino" value={str(form.cuit_destino)} onChange={set('cuit_destino')} />
-        <VoiceInput label="Rte. Venta Primaria" value={str(form.rte_venta_primaria)} onChange={set('rte_venta_primaria')} />
-        <VoiceInput label="Rte. Venta Secundaria" value={str(form.rte_venta_secundaria)} onChange={set('rte_venta_secundaria')} />
-        <VoiceInput label="Rte. Venta Secundaria 2" value={str(form.rte_venta_secundaria2)} onChange={set('rte_venta_secundaria2')} />
+        <VoiceInput label="Rte. Comercial Venta Primaria" value={str(form.rte_venta_primaria)} onChange={set('rte_venta_primaria')} />
+        <VoiceInput label="Rte. Comercial Venta Secundaria" value={str(form.rte_venta_secundaria)} onChange={set('rte_venta_secundaria')} />
+        <VoiceInput label="Rte. Comercial Venta Secundaria 2" value={str(form.rte_venta_secundaria2)} onChange={set('rte_venta_secundaria2')} />
         <VoiceInput label="Mercado a Término" value={str(form.mercado_termino)} onChange={set('mercado_termino')} />
-        <VoiceInput label="Corredor Primario" value={str(form.corredor_primario)} onChange={set('corredor_primario')} />
-        <VoiceInput label="Corredor Secundario" value={str(form.corredor_secundario)} onChange={set('corredor_secundario')} />
-        <VoiceInput label="Repr. Entregador" value={str(form.repr_entregador)} onChange={set('repr_entregador')} />
-        <VoiceInput label="Repr. Recibidor" value={str(form.repr_recibidor)} onChange={set('repr_recibidor')} />
+        <VoiceInput label="Corredor Venta Primaria" value={str(form.corredor_primario)} onChange={set('corredor_primario')} />
+        <VoiceInput label="Corredor Venta Secundaria" value={str(form.corredor_secundario)} onChange={set('corredor_secundario')} />
+        <VoiceInput label="Representante Entregador" value={str(form.repr_entregador)} onChange={set('repr_entregador')} />
+        <VoiceInput label="Representante Recibidor" value={str(form.repr_recibidor)} onChange={set('repr_recibidor')} />
 
         <SectionTitle className="mt-4">Flete</SectionTitle>
-        <FormField label="Km" value={str(form.km)} onChange={set('km')} type="number" />
+        <FormField label="Kms. a recorrer" value={str(form.km)} onChange={set('km')} type="number" />
         <FormField label="Tarifa" value={str(form.tarifa)} onChange={set('tarifa')} type="number" />
-        <VoiceInput label="Pagador de Flete" value={str(form.pagador_flete)} onChange={set('pagador_flete')} />
+        <VoiceInput label="Flete Pagador" value={str(form.pagador_flete)} onChange={set('pagador_flete')} />
         <VoiceInput label="Cupo" value={str(form.cupo)} onChange={set('cupo')} />
         <VoiceInput label="Intermediario de Flete" value={str(form.intermediario_flete)} onChange={set('intermediario_flete')} />
         <FormField label="CUIL Intermediario" value={str(form.cuil_intermediario)} onChange={set('cuil_intermediario')} />
+        <FormField label="Provincia Origen" value={str(form.provincia_origen)} onChange={set('provincia_origen')} />
+        <FormField label="Provincia Destino" value={str(form.provincia_destino)} onChange={set('provincia_destino')} />
+        <div className="flex items-center gap-3 px-1">
+          <input
+            type="checkbox"
+            id="edit_es_campo_destino"
+            checked={form.es_campo_destino ?? false}
+            onChange={e => setBool('es_campo_destino')(e.target.checked)}
+            className="w-4 h-4 rounded cursor-pointer"
+            style={{ accentColor: '#2C9FC0' }}
+          />
+          <label htmlFor="edit_es_campo_destino" className="font-mono text-xs font-medium text-primary uppercase tracking-wide cursor-pointer">
+            Es un campo (Destino)
+          </label>
+        </div>
+        <FormField label="Dirección" value={str(form.direccion_destino)} onChange={set('direccion_destino')} />
         <VoiceInput label="Observaciones" value={str(form.observaciones)} onChange={set('observaciones')} multiline rows={4} />
 
         <SectionTitle className="mt-4">Transporte</SectionTitle>
-        <VoiceInput label="Transporte" value={str(form.transporte)} onChange={set('transporte')} />
-        <FormField label="CUIT Transporte" value={str(form.cuit_transporte)} onChange={set('cuit_transporte')} />
+        <VoiceInput label="Empresa Transportista" value={str(form.transporte)} onChange={set('transporte')} />
+        <FormField label="CUIT Empresa Transportista" value={str(form.cuit_transporte)} onChange={set('cuit_transporte')} />
         <VoiceInput label="Chofer" value={str(form.chofer)} onChange={set('chofer')} />
         <FormField label="CUIL Chofer" value={str(form.cuil_chofer)} onChange={set('cuil_chofer')} />
         <VoiceInput label="Chasis / Patente" value={str(form.chasis)} onChange={set('chasis')} />
         <VoiceInput label="Acoplado / Patente" value={str(form.acoplado)} onChange={set('acoplado')} />
+        <FormField label="Fecha Partida" value={str(form.fecha_partida)} onChange={set('fecha_partida')} type="datetime-local" />
 
         <SectionTitle className="mt-4">Pesaje — Cargados</SectionTitle>
         <FormField label="Kg Bruto" value={str(form.kg_bruto_cargados)} onChange={set('kg_bruto_cargados')} type="number" />
         <FormField label="Kg Tara" value={str(form.kg_tara_cargados)} onChange={set('kg_tara_cargados')} type="number" />
         <FormField label="Kg Estimados" value={str(form.kg_estimados)} onChange={set('kg_estimados')} type="number" />
-        <FormField label="Kg Reales" value={str(form.kg_reales)} onChange={set('kg_reales')} type="number" />
 
         <SectionTitle className="mt-4">Pesaje — Descargados</SectionTitle>
         <FormField label="Kg Bruto" value={str(form.kg_bruto_descargados)} onChange={set('kg_bruto_descargados')} type="number" />
@@ -149,8 +196,6 @@ export default function EditRecord() {
 
         <SectionTitle className="mt-4">Cierre</SectionTitle>
         <VoiceInput label="N° RUCA" value={str(form.nro_ruca)} onChange={set('nro_ruca')} />
-        <VoiceInput label="Ingeniero" value={str(form.ingeniero)} onChange={set('ingeniero')} />
-        <VoiceInput label="Contacto" value={str(form.contacto)} onChange={set('contacto')} />
         <GPSInput value={str(form.gps)} onChange={set('gps')} />
       </div>
 

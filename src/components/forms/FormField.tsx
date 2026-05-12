@@ -6,7 +6,7 @@ interface FormFieldProps {
   value: string | number
   onChange: (val: string) => void
   onBlur?: () => void
-  type?: 'text' | 'number' | 'date' | 'email' | 'tel'
+  type?: 'text' | 'number' | 'date' | 'datetime-local' | 'email' | 'tel'
   placeholder?: string
   required?: boolean
   multiline?: boolean

@@ -22,9 +22,16 @@ export interface CpeRecord {
   localidad: string | null
   grano: string | null
   variedad: string | null
+  declaracion_calidad: 'conforme' | 'condicional' | null
+  es_campo_origen: boolean | null
+  descripcion_origen: string | null
   renspa: string | null
   campania: string | null
   // Comercial
+  titular_nombre: string | null
+  titular_cuit: string | null
+  remitente_comercial_nombre: string | null
+  remitente_comercial_cuit: string | null
   destinatario: string | null
   cuit_destinatario: string | null
   destino: string | null
@@ -54,6 +61,8 @@ export interface CpeRecord {
   nro_turno: string | null
   provincia_origen: string | null
   provincia_destino: string | null
+  es_campo_destino: boolean | null
+  direccion_destino: string | null
   observaciones: string | null
   // Transporte
   transporte: string | null
@@ -62,19 +71,15 @@ export interface CpeRecord {
   cuil_chofer: string | null
   chasis: string | null
   acoplado: string | null
+  fecha_partida: string | null
   // Pesaje
   kg_bruto_cargados: number | null
   kg_tara_cargados: number | null
   kg_estimados: number | null
-  kg_reales: number | null
   kg_bruto_descargados: number | null
   kg_tara_descargados: number | null
-  humedad: number | null
-  proteina: number | null
   // Cierre
   nro_ruca: string | null
-  ingeniero: string | null
-  contacto: string | null
   gps: string | null
 }
 
@@ -258,29 +263,36 @@ export const FIELD_LABELS: Record<string, string> = {
   localidad: 'Localidad',
   grano: 'Grano',
   variedad: 'Variedad',
+  declaracion_calidad: 'Declaración de Calidad',
+  es_campo_origen: 'Es un campo',
+  descripcion_origen: 'Descripción',
   renspa: 'RENSPA',
   campania: 'Campaña',
+  titular_nombre: 'Titular Carta de Porte',
+  titular_cuit: 'CUIT Titular',
+  remitente_comercial_nombre: 'Remitente Comercial Productor',
+  remitente_comercial_cuit: 'CUIT Remitente Comercial',
   destinatario: 'Destinatario',
   cuit_destinatario: 'CUIT Destinatario',
   destino: 'Destino',
   cuit_destino: 'CUIT Destino',
-  rte_venta_primaria: 'Rte. venta primaria',
-  cuit_rte_venta_primaria: 'CUIT Rte. Venta Primaria',
-  rte_venta_secundaria: 'Rte. venta secundaria',
-  cuit_rte_venta_secundaria: 'CUIT Rte. Venta Secundaria',
-  rte_venta_secundaria2: 'Rte. venta secundaria 2',
+  rte_venta_primaria: 'Rte. Comercial Venta Primaria',
+  cuit_rte_venta_primaria: 'CUIT Rte. Comercial Venta Primaria',
+  rte_venta_secundaria: 'Rte. Comercial Venta Secundaria',
+  cuit_rte_venta_secundaria: 'CUIT Rte. Comercial Venta Secundaria',
+  rte_venta_secundaria2: 'Rte. Comercial Venta Secundaria 2',
   mercado_termino: 'Mercado a término',
-  corredor_primario: 'Corredor primario',
-  cuit_corredor_primario: 'CUIT Corredor Primario',
-  corredor_secundario: 'Corredor secundario',
-  cuit_corredor_secundario: 'CUIT Corredor Secundario',
-  repr_entregador: 'Repr. entregador',
-  cuit_repr_entregador: 'CUIT Repr. Entregador',
-  repr_recibidor: 'Repr. recibidor',
-  cuit_repr_recibidor: 'CUIT Repr. Recibidor',
-  km: 'Kilómetros',
+  corredor_primario: 'Corredor Venta Primaria',
+  cuit_corredor_primario: 'CUIT Corredor Venta Primaria',
+  corredor_secundario: 'Corredor Venta Secundaria',
+  cuit_corredor_secundario: 'CUIT Corredor Venta Secundaria',
+  repr_entregador: 'Representante Entregador',
+  cuit_repr_entregador: 'CUIT Representante Entregador',
+  repr_recibidor: 'Representante Recibidor',
+  cuit_repr_recibidor: 'CUIT Representante Recibidor',
+  km: 'Kms. a recorrer',
   tarifa: 'Tarifa',
-  pagador_flete: 'Pagador de flete',
+  pagador_flete: 'Flete Pagador',
   cupo: 'Cupo',
   intermediario_flete: 'Intermediario de flete',
   cuil_intermediario: 'CUIL Intermediario',
@@ -288,23 +300,21 @@ export const FIELD_LABELS: Record<string, string> = {
   nro_turno: 'Nro. de Turno',
   provincia_origen: 'Provincia Origen',
   provincia_destino: 'Provincia Destino',
+  es_campo_destino: 'Es un campo (Destino)',
+  direccion_destino: 'Dirección',
   observaciones: 'Observaciones',
-  transporte: 'Transporte',
-  cuit_transporte: 'CUIT Transporte',
+  transporte: 'Empresa Transportista',
+  cuit_transporte: 'CUIT Empresa Transportista',
   chofer: 'Chofer',
   cuil_chofer: 'CUIL Chofer',
   chasis: 'Chasis / Patente',
   acoplado: 'Acoplado / Patente',
+  fecha_partida: 'Fecha Partida',
   kg_bruto_cargados: 'Kg Bruto (cargados)',
   kg_tara_cargados: 'Kg Tara (cargados)',
   kg_estimados: 'Kg Estimados',
-  kg_reales: 'Kg Reales',
   kg_bruto_descargados: 'Kg Bruto (descargados)',
   kg_tara_descargados: 'Kg Tara (descargados)',
-  humedad: 'Humedad (%)',
-  proteina: 'Proteína (%)',
   nro_ruca: 'N° RUCA',
-  ingeniero: 'Ingeniero',
-  contacto: 'Contacto',
   gps: 'GPS',
 }
