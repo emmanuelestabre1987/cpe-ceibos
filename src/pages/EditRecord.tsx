@@ -63,6 +63,18 @@ export default function EditRecord() {
     })
   }
 
+  const setGps = (lat: number, lng: number) => {
+    setForm((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        latitud: lat,
+        longitud: lng,
+        gps: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+      }
+    })
+  }
+
   const handleSave = async () => {
     if (!user?.email || !original || !form || !id) return
     setSaving(true)
@@ -196,7 +208,7 @@ export default function EditRecord() {
 
         <SectionTitle className="mt-4">Cierre</SectionTitle>
         <VoiceInput label="N° RUCA" value={str(form.nro_ruca)} onChange={set('nro_ruca')} />
-        <GPSInput value={str(form.gps)} onChange={set('gps')} />
+        <GPSInput latitud={form.latitud ?? null} longitud={form.longitud ?? null} onChangeCoords={setGps} />
       </div>
 
       {/* Fixed save button */}

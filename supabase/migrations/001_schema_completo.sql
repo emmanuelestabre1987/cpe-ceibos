@@ -89,14 +89,29 @@ CREATE TABLE IF NOT EXISTS cpe_records (
   kg_bruto_cargados    NUMERIC,
   kg_tara_cargados     NUMERIC,
   kg_estimados         NUMERIC,
-  kg_reales            NUMERIC,
   kg_bruto_descargados NUMERIC,
   kg_tara_descargados  NUMERIC,
   -- Sección Cierre
   nro_ruca   TEXT,
-  ingeniero  TEXT,
-  contacto   TEXT,
-  gps        TEXT
+  gps        TEXT,
+  -- Sección A: Intervinientes (Sprint 14+)
+  titular_nombre                TEXT,
+  titular_cuit                  TEXT,
+  remitente_comercial_nombre    TEXT,
+  remitente_comercial_cuit      TEXT,
+  -- Sección B: Grano (Sprint 14+)
+  declaracion_calidad           TEXT CHECK (declaracion_calidad IN ('conforme', 'condicional')),
+  -- Sección C: Procedencia (Sprint 14+)
+  es_campo_origen               BOOLEAN DEFAULT TRUE,
+  descripcion_origen            TEXT,
+  -- Sección D: Destino (Sprint 14+)
+  es_campo_destino              BOOLEAN DEFAULT FALSE,
+  direccion_destino             TEXT,
+  -- Sección E: Transporte (Sprint 14+)
+  fecha_partida                 TIMESTAMPTZ,
+  -- GPS descompuesto (Sprint 14+; gps TEXT se mantiene para compatibilidad)
+  latitud                       NUMERIC,
+  longitud                      NUMERIC
 );
 
 -- Log de auditoría

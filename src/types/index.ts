@@ -81,6 +81,8 @@ export interface CpeRecord {
   // Cierre
   nro_ruca: string | null
   gps: string | null
+  latitud: number | null
+  longitud: number | null
 }
 
 export interface AuditEntry {
@@ -317,4 +319,6 @@ export const FIELD_LABELS: Record<string, string> = {
   kg_tara_descargados: 'Kg Tara (descargados)',
   nro_ruca: 'N° RUCA',
   gps: 'GPS',
+  latitud: 'Latitud',
+  longitud: 'Longitud',
 }

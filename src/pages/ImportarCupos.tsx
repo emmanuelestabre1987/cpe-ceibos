@@ -311,6 +311,8 @@ export default function ImportarCupos() {
           kg_tara_descargados: null,
           nro_ruca: null,
           gps: null,
+          latitud: null,
+          longitud: null,
         }))
 
       await createCuposEnLote(batch.id, records, email)

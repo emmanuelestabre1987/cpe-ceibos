@@ -10,7 +10,5 @@ ALTER TABLE cpe_records
   ADD COLUMN IF NOT EXISTS cuit_repr_recibidor TEXT,
   ADD COLUMN IF NOT EXISTS cuit_rte_venta_primaria TEXT,
   ADD COLUMN IF NOT EXISTS cuit_rte_venta_secundaria TEXT,
-  ADD COLUMN IF NOT EXISTS humedad NUMERIC,
-  ADD COLUMN IF NOT EXISTS proteina NUMERIC,
   ADD COLUMN IF NOT EXISTS provincia_origen TEXT,
   ADD COLUMN IF NOT EXISTS provincia_destino TEXT;

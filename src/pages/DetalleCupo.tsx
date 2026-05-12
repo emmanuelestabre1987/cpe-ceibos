@@ -123,6 +123,7 @@ interface PesajeForm {
 
 interface CierreForm {
   nro_ruca: string; gps: string
+  latitud: number | null; longitud: number | null
 }
 
 function initDatos(r: CpeRecord): DatosForm {
@@ -172,7 +173,10 @@ function initPesaje(r: CpeRecord): PesajeForm {
 }
 function initCierre(r: CpeRecord): CierreForm {
   return {
-    nro_ruca: str(r.nro_ruca), gps: str(r.gps),
+    nro_ruca: str(r.nro_ruca),
+    gps: str(r.gps),
+    latitud: r.latitud ?? null,
+    longitud: r.longitud ?? null,
   }
 }
 
@@ -418,7 +422,7 @@ export default function DetalleCupo() {
     kg_bruto_descargados: '', kg_tara_descargados: '', kg_estimados: '',
   })
   const [cierreF,     setCierreF]     = useState<CierreForm>({
-    nro_ruca: '', gps: '',
+    nro_ruca: '', gps: '', latitud: null, longitud: null,
   })
 
   // ── Draft dirty tracking ──────────────────────────────────────
@@ -429,6 +433,16 @@ export default function DetalleCupo() {
   const setT = (f: keyof TransporteForm) => (v: string) => { tabDirtyRef.current.add('transporte'); setTransporteF(p => ({ ...p, [f]: v })) }
   const setP = (f: keyof PesajeForm)     => (v: string) => { tabDirtyRef.current.add('pesaje');     setPesajeF(p => ({ ...p, [f]: v })) }
   const setC = (f: keyof CierreForm)     => (v: string) => { tabDirtyRef.current.add('cierre');     setCierreF(p => ({ ...p, [f]: v })) }
+
+  const setGpsC = (lat: number, lng: number) => {
+    tabDirtyRef.current.add('cierre')
+    setCierreF(p => ({
+      ...p,
+      latitud: lat,
+      longitud: lng,
+      gps: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+    }))
+  }
 
   // ── Fetch record + audit ─────────────────────────────────────
   const reload = async () => {
@@ -816,6 +830,8 @@ export default function DetalleCupo() {
         {
           nro_ruca:  cierreF.nro_ruca  || null,
           gps:       cierreF.gps       || null,
+          latitud:   cierreF.latitud   ?? null,
+          longitud:  cierreF.longitud  ?? null,
         },
         record,
         user.email
@@ -1058,7 +1074,7 @@ export default function DetalleCupo() {
             ) : (
               <>
                 <FormField label="N° RUCA"   value={cierreF.nro_ruca}  onChange={setC('nro_ruca')}  />
-                <GPSInput value={cierreF.gps} onChange={setC('gps')} />
+                <GPSInput latitud={cierreF.latitud} longitud={cierreF.longitud} onChangeCoords={setGpsC} />
                 <Button
                   fullWidth
                   loading={generando}

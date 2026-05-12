@@ -43,6 +43,7 @@ const empty: RecordFormData = {
   kg_bruto_cargados: null, kg_tara_cargados: null, kg_estimados: null,
   kg_bruto_descargados: null, kg_tara_descargados: null,
   nro_ruca: '', gps: '',
+  latitud: null, longitud: null,
 }
 
 function str(val: string | number | null | undefined) {
@@ -106,6 +107,16 @@ export default function NewRecord() {
   const setBool = (field: keyof RecordFormData) => (val: boolean) => {
     setIsDirty(true)
     setForm((prev) => ({ ...prev, [field]: val }))
+  }
+
+  const setGps = (lat: number, lng: number) => {
+    setIsDirty(true)
+    setForm((prev) => ({
+      ...prev,
+      latitud: lat,
+      longitud: lng,
+      gps: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+    }))
   }
 
   const handleParseTransporte = () => {
@@ -275,7 +286,7 @@ export default function NewRecord() {
           <>
             <SectionTitle>Cierre</SectionTitle>
             <VoiceInput label="N° RUCA" value={str(form.nro_ruca)} onChange={set('nro_ruca')} />
-            <GPSInput value={str(form.gps)} onChange={set('gps')} />
+            <GPSInput latitud={form.latitud ?? null} longitud={form.longitud ?? null} onChangeCoords={setGps} />
 
             {/* Summary */}
             <div className="bg-white border border-gray-light rounded-2xl p-4 mt-4 space-y-2">
