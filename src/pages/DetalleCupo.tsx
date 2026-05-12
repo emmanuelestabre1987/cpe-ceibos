@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
-import { Clock, MoreVertical, MessageSquare } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Clock, MoreVertical, MessageSquare } from 'lucide-react'
 import Header from '../components/layout/Header'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
@@ -49,6 +49,9 @@ const STATUS_CONFIG: Record<CupoStatus, { bg: string; label: string; text: strin
 }
 
 const VALID_TABS: TabId[] = ['transporte', 'intervinientes', 'grano', 'procedencia', 'contingencias', 'descarga', 'historial']
+
+type EditableTabId = 'transporte' | 'intervinientes' | 'grano' | 'procedencia' | 'contingencias' | 'descarga'
+const EDITABLE_TABS: EditableTabId[] = ['transporte', 'intervinientes', 'grano', 'procedencia', 'contingencias', 'descarga']
 
 function ResponsableChip({ label }: { label: string }) {
   return (
@@ -935,6 +938,22 @@ export default function DetalleCupo() {
     }
   }
 
+  // ── Guardar y continuar (navegación wizard unificada) ─────────
+  const handleGuardarYContinuar = async () => {
+    switch (activeTab) {
+      case 'transporte':     await handleSaveTransporte();     break
+      case 'intervinientes': await handleSaveIntervinientes(); break
+      case 'grano':          await handleSaveGrano();          break
+      case 'procedencia':    await handleSaveProcedencia();    break
+      case 'contingencias':  await handleSaveContingencias();  break
+      case 'descarga':       await handleSaveDescarga();       break
+    }
+    const idx = EDITABLE_TABS.indexOf(activeTab as EditableTabId)
+    if (idx >= 0 && idx < EDITABLE_TABS.length - 1) {
+      setActiveTab(EDITABLE_TABS[idx + 1])
+    }
+  }
+
   // ── Loading state ─────────────────────────────────────────────
   if (loading) {
     return (
@@ -1210,64 +1229,34 @@ export default function DetalleCupo() {
         )}
       </div>
 
-      {/* ── Bottom action buttons ────────────────────────────── */}
-      {activeTab === 'transporte' && (
+      {/* ── Bottom action bar (wizard unificado) ─────────────── */}
+      {activeTab !== 'historial' && !descargaReadOnly && (
         <BottomBar>
-          <Button
-            fullWidth size="lg" loading={saving}
-            disabled={hasTransporteErrors}
-            onClick={handleSaveTransporte}
-            style={{ backgroundColor: '#2C9FC0' }}
-          >
-            Guardar → Transporte Asignado
-          </Button>
-        </BottomBar>
-      )}
-
-      {activeTab === 'intervinientes' && (
-        <BottomBar>
-          <Button fullWidth size="lg" loading={saving} onClick={handleSaveIntervinientes}>
-            Guardar cambios
-          </Button>
-        </BottomBar>
-      )}
-
-      {activeTab === 'grano' && (
-        <BottomBar>
-          <Button
-            fullWidth size="lg" loading={saving}
-            onClick={handleSaveGrano}
-            style={{ backgroundColor: '#FF6C02' }}
-          >
-            Guardar → Cargado
-          </Button>
-        </BottomBar>
-      )}
-
-      {activeTab === 'procedencia' && (
-        <BottomBar>
-          <Button fullWidth size="lg" loading={saving} onClick={handleSaveProcedencia}>
-            Guardar cambios
-          </Button>
-        </BottomBar>
-      )}
-
-      {activeTab === 'contingencias' && (
-        <BottomBar>
-          <Button fullWidth size="lg" loading={saving} onClick={handleSaveContingencias}>
-            Guardar cambios
-          </Button>
-        </BottomBar>
-      )}
-
-      {activeTab === 'descarga' && !descargaReadOnly && (
-        <BottomBar>
-          <Button
-            fullWidth size="lg" loading={saving}
-            onClick={() => setShowConfirm(true)}
-          >
-            Cerrar cupo
-          </Button>
+          <div className="flex gap-3">
+            {activeTab !== 'transporte' && (
+              <Button
+                variant="ghost"
+                className="flex-1"
+                onClick={() => {
+                  const idx = EDITABLE_TABS.indexOf(activeTab as EditableTabId)
+                  if (idx > 0) setActiveTab(EDITABLE_TABS[idx - 1])
+                }}
+              >
+                <ChevronLeft className="w-4 h-4" /> Anterior
+              </Button>
+            )}
+            <Button
+              className="flex-1 whitespace-nowrap text-sm"
+              loading={saving}
+              disabled={activeTab === 'transporte' && hasTransporteErrors}
+              onClick={() => void handleGuardarYContinuar()}
+            >
+              {activeTab === 'descarga'
+                ? 'Guardar'
+                : <span className="flex items-center gap-1">Guardar y continuar <ChevronRight className="w-4 h-4 inline-block" /></span>
+              }
+            </Button>
+          </div>
         </BottomBar>
       )}
 
