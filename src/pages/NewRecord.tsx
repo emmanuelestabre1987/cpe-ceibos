@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Save, MessageSquare } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MessageSquare } from 'lucide-react'
 import Header from '../components/layout/Header'
 import WizardProgress from '../components/layout/WizardProgress'
 import Button from '../components/ui/Button'
@@ -9,10 +9,10 @@ import VoiceInput from '../components/forms/VoiceInput'
 import GPSInput from '../components/forms/GPSInput'
 import SectionTitle from '../components/ui/SectionTitle'
 import { useToast } from '../components/ui/Toast'
-import { createRecord } from '../lib/storage'
+import { createRecord, updateRecord } from '../lib/storage'
 import { parseTransporteMsg } from '../lib/transporteParser'
 import { useAuth } from '../hooks/useAuth'
-import { CAMPOS, GRANOS, VARIEDADES, LOCALIDADES, type RecordFormData } from '../types'
+import { CAMPOS, GRANOS, VARIEDADES, LOCALIDADES, FIELD_LABELS, type CpeRecord, type RecordFormData } from '../types'
 
 const DRAFT_KEY = 'draft_new_record'
 
@@ -72,13 +72,21 @@ function KgNetoDisplay({ label, bruto, tara }: { label: string; bruto: string; t
 export default function NewRecord() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const [step, setStep] = useState(1)
-  const [form, setForm] = useState<RecordFormData>(empty)
-  const [saving, setSaving] = useState(false)
-  const [hasDraft, setHasDraft] = useState(false)
-  const [isDirty, setIsDirty] = useState(false)
+  const [step, setStep]           = useState(1)
+  const [form, setForm]           = useState<RecordFormData>(empty)
+  const [saving, setSaving]       = useState(false)
+  const [hasDraft, setHasDraft]   = useState(false)
+  const [isDirty, setIsDirty]     = useState(false)
   const [parserOpen, setParserOpen] = useState(false)
   const [parserText, setParserText] = useState('')
+  // Record identity — set once step 1 creates the record
+  const [recordId,   setRecordId]   = useState<string | null>(null)
+  const [cpeId,      setCpeId]      = useState<string | null>(null)
+  const [recordSnap, setRecordSnap] = useState<CpeRecord | null>(null)
+  // Generar CP
+  const [generando,   setGenerando]   = useState(false)
+  const [cpModalOpen, setCpModalOpen] = useState(false)
+  const [cpMissing,   setCpMissing]   = useState<{ section: string; missing: string[] }[]>([])
   const { show, ToastComponent } = useToast()
 
   // Detect existing draft on mount
@@ -151,20 +159,124 @@ export default function NewRecord() {
   }
 
   const TOTAL_STEPS = 7
-  const next = () => setStep((s) => Math.min(s + 1, TOTAL_STEPS) as typeof step)
-  const prev = () => setStep((s) => Math.max(s - 1, 1) as typeof step)
 
-  const handleSave = async () => {
+  function getCamposDePaso(s: number): (keyof RecordFormData)[] {
+    switch (s) {
+      case 1: return ['transporte','cuit_transporte','chofer','cuil_chofer','chasis','acoplado',
+                      'fecha_partida','km','tarifa','nro_ruca']
+      case 2: return ['titular_nombre','titular_cuit','remitente_comercial_nombre','remitente_comercial_cuit',
+                      'rte_venta_primaria','cuit_rte_venta_primaria','rte_venta_secundaria','cuit_rte_venta_secundaria',
+                      'rte_venta_secundaria2','cuit_rte_venta_secundaria2','mercado_termino',
+                      'corredor_primario','cuit_corredor_primario','corredor_secundario','cuit_corredor_secundario',
+                      'repr_entregador','cuit_repr_entregador','repr_recibidor','cuit_repr_recibidor',
+                      'destinatario','cuit_destinatario','destino','cuit_destino',
+                      'pagador_flete','cuit_pagador_flete','intermediario_flete','cuit_intermediario']
+      case 3: return ['grano','variedad','declaracion_calidad','campania',
+                      'kg_bruto_cargados','kg_tara_cargados','kg_estimados','observaciones']
+      case 4: return ['fecha_carga','es_campo_origen','localidad','provincia_origen','descripcion_origen',
+                      'renspa','campo','nro_planta','direccion_destino','localidad_destino',
+                      'provincia_destino','es_campo_destino','latitud','longitud','gps']
+      case 5: return ['contingencia','contingencia_otro','desactivacion','desactivacion_otro']
+      case 6: return ['fecha_arribo','fecha_descarga','nro_turno',
+                      'kg_bruto_descargados','kg_tara_descargados','localidad_descarga','provincia_descarga']
+      default: return []
+    }
+  }
+
+  const handleGuardarPaso = async () => {
     if (!user?.email) return
     setSaving(true)
     try {
-      const record = await createRecord(form, user.email)
-      try { localStorage.removeItem(DRAFT_KEY) } catch { /* ignore */ }
-      navigate(`/registro/${record.id}`, { replace: true })
+      if (step === 1) {
+        const record = await createRecord(form, user.email)
+        setRecordId(record.id)
+        setCpeId(record.cpe_id)
+        setRecordSnap(record)
+        try { localStorage.removeItem(DRAFT_KEY) } catch { /* ignore */ }
+        setHasDraft(false)
+        setStep(2)
+      } else if (recordId && cpeId && recordSnap) {
+        const campos = getCamposDePaso(step)
+        const changes = Object.fromEntries(
+          campos.map(k => [k, (form as Record<string, unknown>)[k] ?? null])
+        ) as Partial<CpeRecord>
+        await updateRecord(recordId, cpeId, changes, recordSnap, user.email)
+        setRecordSnap(prev => prev ? { ...prev, ...changes } : prev)
+        if (step < 6) setStep(s => (s + 1) as typeof step)
+        else setStep(7)
+      }
     } catch (e) {
       show((e as Error).message, 'error')
+    } finally {
       setSaving(false)
     }
+  }
+
+  // ── Generar CP ────────────────────────────────────────────────
+
+  const CP_REQUIRED: { section: string; fields: (keyof CpeRecord)[]; labels: Record<string, string> }[] = [
+    {
+      section: 'General',
+      fields: ['fecha_carga', 'cupo', 'grano', 'localidad', 'renspa'],
+      labels: { fecha_carga: 'Fecha de carga', cupo: 'Cupo', grano: 'Grano', localidad: 'Localidad', renspa: 'RENSPA' },
+    },
+    {
+      section: 'Comercial',
+      fields: ['destinatario', 'cuit_destinatario', 'destino', 'cuit_destino'],
+      labels: { destinatario: 'Destinatario', cuit_destinatario: 'CUIT Destinatario', destino: 'Destino', cuit_destino: 'CUIT Destino' },
+    },
+    {
+      section: 'Flete',
+      fields: ['km', 'provincia_origen', 'provincia_destino'],
+      labels: { km: FIELD_LABELS.km, provincia_origen: FIELD_LABELS.provincia_origen, provincia_destino: FIELD_LABELS.provincia_destino },
+    },
+    {
+      section: 'Transporte',
+      fields: ['transporte', 'cuit_transporte', 'chofer', 'cuil_chofer', 'chasis'],
+      labels: { transporte: 'Transportista', cuit_transporte: 'CUIT Transporte', chofer: 'Chofer', cuil_chofer: 'CUIL Chofer', chasis: 'Patente Chasis' },
+    },
+  ]
+
+  const validateForCP = (rec: CpeRecord) =>
+    CP_REQUIRED
+      .map(({ section, fields, labels }) => ({
+        section,
+        missing: fields.filter(f => !rec[f] && rec[f] !== 0).map(f => labels[f]),
+      }))
+      .filter(({ missing }) => missing.length > 0)
+
+  const dispararWebhook = async (snap: CpeRecord) => {
+    const webhookUrl = (import.meta.env.VITE_N8N_WEBHOOK_CP_URL as string | undefined)?.trim()
+    if (!webhookUrl) { show('URL del webhook no configurada', 'error'); return }
+    setGenerando(true)
+    try {
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(snap),
+      })
+      show('Solicitud de CP enviada correctamente', 'success')
+    } catch {
+      show('Error al enviar la solicitud. Intentá de nuevo.', 'error')
+    } finally {
+      setGenerando(false)
+    }
+  }
+
+  const handleGenerarCP = () => {
+    if (!recordSnap) return
+    const errors = validateForCP(recordSnap)
+    if (errors.length > 0) {
+      setCpMissing(errors)
+      setCpModalOpen(true)
+      return
+    }
+    void dispararWebhook(recordSnap)
+  }
+
+  const handleGenerarIgual = () => {
+    setCpModalOpen(false)
+    if (recordSnap) void dispararWebhook(recordSnap)
   }
 
   return (
@@ -332,6 +444,12 @@ export default function NewRecord() {
         {step === 7 && (
           <>
             <SectionTitle>Resumen</SectionTitle>
+            {cpeId && (
+              <div className="px-1 pb-1">
+                <span className="font-mono text-xs text-text-muted uppercase tracking-wide">CPE </span>
+                <span className="font-mono text-sm font-semibold text-secondary">{cpeId}</span>
+              </div>
+            )}
             <div className="bg-white border border-gray-light rounded-2xl p-4 space-y-2">
               {([
                 ['Cupo', form.cupo],
@@ -349,12 +467,26 @@ export default function NewRecord() {
                 </div>
               ))}
             </div>
+            <button
+              onClick={() => void handleGenerarCP()}
+              disabled={generando || !recordSnap}
+              className="w-full h-12 rounded-xl font-sans font-semibold text-white text-sm active:opacity-80 transition mt-2 disabled:opacity-50"
+              style={{ backgroundColor: '#1E3252' }}
+            >
+              {generando ? 'Enviando…' : 'Generar CP'}
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="w-full h-12 rounded-xl font-sans text-sm text-text-muted border border-gray-light active:bg-gray-50 transition"
+            >
+              Ir al inicio
+            </button>
           </>
         )}
       </div>
 
-      {/* Draft restore bar */}
-      {hasDraft && (
+      {/* Draft restore bar — only before record is created */}
+      {hasDraft && !recordId && (
         <div className="fixed bottom-20 left-0 right-0 z-50 px-4">
           <div className="max-w-mobile mx-auto flex items-center justify-between gap-3 rounded-2xl px-4 py-3 shadow-lg text-white"
             style={{ backgroundColor: '#FF6C02' }}>
@@ -375,17 +507,13 @@ export default function NewRecord() {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-light px-4 py-3 pb-safe z-40">
         <div className="max-w-mobile mx-auto flex gap-3">
           {step > 1 && (
-            <Button variant="ghost" onClick={prev} className="flex-1">
+            <Button variant="ghost" onClick={() => setStep(s => (s - 1) as typeof s)} className="flex-1">
               <ChevronLeft className="w-4 h-4" /> Anterior
             </Button>
           )}
-          {step < TOTAL_STEPS ? (
-            <Button onClick={next} className="flex-1">
-              Siguiente <ChevronRight className="w-4 h-4" />
-            </Button>
-          ) : (
-            <Button onClick={handleSave} loading={saving} className="flex-1">
-              <Save className="w-4 h-4" /> Guardar CPE
+          {step <= 6 && (
+            <Button onClick={handleGuardarPaso} loading={saving} className="flex-1">
+              Guardar y continuar <ChevronRight className="w-4 h-4" />
             </Button>
           )}
         </div>
@@ -418,6 +546,51 @@ export default function NewRecord() {
             >
               Cancelar
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* CP missing fields modal */}
+      {cpModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
+          onClick={() => setCpModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-t-2xl w-full max-w-mobile p-5 space-y-4 pb-safe"
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="font-mono text-xs text-text-muted uppercase tracking-widest">
+              Campos faltantes para el CP
+            </p>
+            <div className="space-y-3 max-h-60 overflow-y-auto">
+              {cpMissing.map(({ section, missing }) => (
+                <div key={section}>
+                  <p className="font-mono text-xs font-semibold text-primary uppercase tracking-wide mb-1">{section}</p>
+                  <ul className="space-y-0.5 pl-2">
+                    {missing.map(m => (
+                      <li key={m} className="font-sans text-sm text-text-muted">• {m}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-3 pt-1">
+              <button
+                onClick={() => setCpModalOpen(false)}
+                className="flex-1 h-12 rounded-xl font-sans text-sm font-medium border border-gray-light text-text-muted active:bg-gray-50"
+              >
+                Seguir completando
+              </button>
+              <button
+                onClick={handleGenerarIgual}
+                disabled={generando}
+                className="flex-1 h-12 rounded-xl font-sans text-sm font-semibold text-white active:opacity-80 disabled:opacity-50"
+                style={{ backgroundColor: '#1E3252' }}
+              >
+                {generando ? 'Enviando…' : 'Generar igual'}
+              </button>
+            </div>
           </div>
         </div>
       )}
