@@ -455,7 +455,7 @@ export default function ImportarCupos() {
           </div>
 
           {/* ── General ── */}
-          <SectionTitle>Datos Generales</SectionTitle>
+          <SectionTitle>Grano / Especie</SectionTitle>
           <SelectField label="Campo" value={campos.campo} onChange={set('campo')} options={CAMPOS} />
           <SelectField label="Localidad" value={campos.localidad} onChange={set('localidad')} options={LOCALIDADES} />
           <SelectField label="Grano" value={campos.grano} onChange={set('grano')} options={GRANOS} />
@@ -470,7 +470,7 @@ export default function ImportarCupos() {
           <FormField label="RENSPA" value={campos.renspa} onChange={set('renspa')} />
 
           {/* ── Comercial ── */}
-          <SectionTitle>Comercial</SectionTitle>
+          <SectionTitle>Intervinientes</SectionTitle>
           <FormField label="Titular Carta de Porte" value={campos.titular_nombre} onChange={set('titular_nombre')} />
           <FormField label="CUIT Titular" value={campos.titular_cuit} onChange={set('titular_cuit')} />
           <FormField label="Remitente Comercial Productor" value={campos.remitente_comercial_nombre} onChange={set('remitente_comercial_nombre')} />
@@ -495,7 +495,7 @@ export default function ImportarCupos() {
           <FormField label="CUIT Representante Recibidor" value={campos.cuit_repr_recibidor} onChange={set('cuit_repr_recibidor')} />
 
           {/* ── Flete ── */}
-          <SectionTitle>Flete</SectionTitle>
+          <SectionTitle>Procedencia</SectionTitle>
           <FormField label="Kms. a recorrer" value={campos.km} onChange={set('km')} type="number" />
           <FormField label="Tarifa" value={campos.tarifa} onChange={set('tarifa')} type="number" />
           <FormField label="N° Turno" value={campos.nro_turno} onChange={set('nro_turno')} />

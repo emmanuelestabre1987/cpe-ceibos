@@ -644,29 +644,24 @@ export default function DetalleCupo() {
 
   const CP_REQUIRED: { section: string; fields: (keyof CpeRecord)[]; labels: Record<string, string> }[] = [
     {
-      section: 'General',
-      fields: ['fecha_carga', 'cupo', 'grano', 'localidad', 'renspa'],
-      labels: { fecha_carga: 'Fecha de carga', cupo: 'Cupo', grano: 'Grano', localidad: 'Localidad', renspa: 'RENSPA' },
+      section: 'Transporte',
+      fields: ['cupo', 'transporte', 'cuit_transporte', 'chofer', 'cuil_chofer', 'chasis'],
+      labels: { cupo: 'Cupo', transporte: 'Empresa Transportista', cuit_transporte: 'CUIT Empresa Transportista', chofer: 'Chofer', cuil_chofer: 'CUIL Chofer', chasis: 'Patente Chasis' },
     },
     {
-      section: 'Comercial',
+      section: 'Intervinientes',
       fields: ['destinatario', 'cuit_destinatario', 'destino', 'cuit_destino'],
       labels: { destinatario: 'Destinatario', cuit_destinatario: 'CUIT Destinatario', destino: 'Destino', cuit_destino: 'CUIT Destino' },
     },
     {
-      section: 'Flete',
-      fields: ['km', 'provincia_origen', 'provincia_destino'],
-      labels: { km: 'Km', provincia_origen: 'Provincia Origen', provincia_destino: 'Provincia Destino' },
+      section: 'Grano',
+      fields: ['grano', 'campania', 'kg_estimados'],
+      labels: { grano: 'Grano', campania: 'Campaña', kg_estimados: 'Kg Estimados' },
     },
     {
-      section: 'Transporte',
-      fields: ['transporte', 'cuit_transporte', 'chofer', 'cuil_chofer', 'chasis'],
-      labels: { transporte: 'Transportista', cuit_transporte: 'CUIT Transporte', chofer: 'Chofer', cuil_chofer: 'CUIL Chofer', chasis: 'Patente Chasis' },
-    },
-    {
-      section: 'Pesaje',
-      fields: ['kg_estimados'],
-      labels: { kg_estimados: 'Kg Estimados' },
+      section: 'Procedencia',
+      fields: ['localidad', 'provincia_origen', 'renspa', 'provincia_destino'],
+      labels: { localidad: 'Localidad', provincia_origen: 'Provincia Origen', renspa: 'RENSPA', provincia_destino: 'Provincia Destino' },
     },
   ]
 
