@@ -41,6 +41,7 @@ export interface CpeRecord {
   rte_venta_secundaria: string | null
   cuit_rte_venta_secundaria: string | null
   rte_venta_secundaria2: string | null
+  cuit_rte_venta_secundaria2: string | null
   mercado_termino: string | null
   corredor_primario: string | null
   cuit_corredor_primario: string | null
@@ -56,13 +57,15 @@ export interface CpeRecord {
   pagador_flete: string | null
   cupo: string | null
   intermediario_flete: string | null
-  cuil_intermediario: string | null
+  cuit_intermediario: string | null
+  cuit_pagador_flete: string | null
   nro_planta: string | null
   nro_turno: string | null
   provincia_origen: string | null
   provincia_destino: string | null
   es_campo_destino: boolean | null
   direccion_destino: string | null
+  localidad_destino: string | null
   observaciones: string | null
   // Transporte
   transporte: string | null
@@ -78,6 +81,16 @@ export interface CpeRecord {
   kg_estimados: number | null
   kg_bruto_descargados: number | null
   kg_tara_descargados: number | null
+  // Cierre / Contingencias
+  contingencia: string | null
+  contingencia_otro: string | null
+  desactivacion: string | null
+  desactivacion_otro: string | null
+  // Descarga
+  fecha_arribo: string | null
+  fecha_descarga: string | null
+  localidad_descarga: string | null
+  provincia_descarga: string | null
   // Cierre
   nro_ruca: string | null
   gps: string | null
@@ -131,7 +144,7 @@ export interface ImportBatch {
   destino: string
 }
 
-export type WizardStep = 1 | 2 | 3 | 4 | 5 | 6
+export type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
 // Campos del formulario: excluye todos los campos de metadata gestionados internamente
 export type RecordFormData = Omit<
@@ -283,7 +296,8 @@ export const FIELD_LABELS: Record<string, string> = {
   rte_venta_secundaria: 'Rte. Comercial Venta Secundaria',
   cuit_rte_venta_secundaria: 'CUIT Rte. Comercial Venta Secundaria',
   rte_venta_secundaria2: 'Rte. Comercial Venta Secundaria 2',
-  mercado_termino: 'Mercado a término',
+  cuit_rte_venta_secundaria2: 'CUIT Rte. Comercial Venta Secundaria 2',
+  mercado_termino: 'Mercado a Término',
   corredor_primario: 'Corredor Venta Primaria',
   cuit_corredor_primario: 'CUIT Corredor Venta Primaria',
   corredor_secundario: 'Corredor Venta Secundaria',
@@ -296,14 +310,16 @@ export const FIELD_LABELS: Record<string, string> = {
   tarifa: 'Tarifa',
   pagador_flete: 'Flete Pagador',
   cupo: 'Cupo',
-  intermediario_flete: 'Intermediario de flete',
-  cuil_intermediario: 'CUIL Intermediario',
-  nro_planta: 'N° de Planta',
-  nro_turno: 'Nro. de Turno',
+  intermediario_flete: 'Intermediario de Flete',
+  cuit_intermediario: 'CUIT Intermediario de Flete',
+  cuit_pagador_flete: 'CUIT Flete Pagador',
+  nro_planta: 'N° Planta',
+  nro_turno: 'N° Turno',
   provincia_origen: 'Provincia Origen',
   provincia_destino: 'Provincia Destino',
   es_campo_destino: 'Es un campo (Destino)',
   direccion_destino: 'Dirección',
+  localidad_destino: 'Localidad (Destino)',
   observaciones: 'Observaciones',
   transporte: 'Empresa Transportista',
   cuit_transporte: 'CUIT Empresa Transportista',
@@ -312,11 +328,19 @@ export const FIELD_LABELS: Record<string, string> = {
   chasis: 'Chasis / Patente',
   acoplado: 'Acoplado / Patente',
   fecha_partida: 'Fecha Partida',
-  kg_bruto_cargados: 'Kg Bruto (cargados)',
-  kg_tara_cargados: 'Kg Tara (cargados)',
+  kg_bruto_cargados: 'Peso Bruto',
+  kg_tara_cargados: 'Peso Tara',
   kg_estimados: 'Kg Estimados',
-  kg_bruto_descargados: 'Kg Bruto (descargados)',
-  kg_tara_descargados: 'Kg Tara (descargados)',
+  kg_bruto_descargados: 'Peso Bruto (kg)',
+  kg_tara_descargados: 'Peso Tara (kg)',
+  contingencia: 'Contingencia',
+  contingencia_otro: 'Otro',
+  desactivacion: 'Desactivación',
+  desactivacion_otro: 'Otro',
+  fecha_arribo: 'Fecha Arribo',
+  fecha_descarga: 'Fecha Descarga',
+  localidad_descarga: 'Localidad (Descarga)',
+  provincia_descarga: 'Provincia (Descarga)',
   nro_ruca: 'N° RUCA',
   gps: 'GPS',
   latitud: 'Latitud',

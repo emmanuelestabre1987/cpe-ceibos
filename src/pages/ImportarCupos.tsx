@@ -62,10 +62,13 @@ interface CamposComunes {
   es_campo_destino: boolean
   direccion_destino: string
   pagador_flete: string
+  cuit_pagador_flete: string
   intermediario_flete: string
-  cuil_intermediario: string
+  cuit_intermediario: string
   nro_planta: string
   observaciones: string
+  cuit_rte_venta_secundaria2: string
+  localidad_destino: string
 }
 
 const CAMPOS_VACIOS: CamposComunes = {
@@ -82,8 +85,10 @@ const CAMPOS_VACIOS: CamposComunes = {
   repr_recibidor: '', cuit_repr_recibidor: '',
   km: '', tarifa: '', nro_turno: '', provincia_origen: '', provincia_destino: '',
   es_campo_destino: false, direccion_destino: '',
-  pagador_flete: '', intermediario_flete: '',
-  cuil_intermediario: '', nro_planta: '', observaciones: '',
+  pagador_flete: '', cuit_pagador_flete: '',
+  intermediario_flete: '', cuit_intermediario: '',
+  nro_planta: '', observaciones: '',
+  cuit_rte_venta_secundaria2: '', localidad_destino: '',
 }
 
 // ── Date parser ───────────────────────────────────────────────
@@ -280,7 +285,8 @@ export default function ImportarCupos() {
           tarifa: campos.tarifa ? Number(campos.tarifa) : null,
           pagador_flete: campos.pagador_flete || null,
           intermediario_flete: campos.intermediario_flete || null,
-          cuil_intermediario: campos.cuil_intermediario || null,
+          cuit_intermediario: campos.cuit_intermediario || null,
+          cuit_pagador_flete: campos.cuit_pagador_flete || null,
           nro_planta: campos.nro_planta || null,
           nro_turno: campos.nro_turno || null,
           provincia_origen: campos.provincia_origen || null,
@@ -296,6 +302,8 @@ export default function ImportarCupos() {
           cuit_corredor_secundario: campos.cuit_corredor_secundario || null,
           cuit_repr_entregador: campos.cuit_repr_entregador || null,
           cuit_repr_recibidor: campos.cuit_repr_recibidor || null,
+          cuit_rte_venta_secundaria2: campos.cuit_rte_venta_secundaria2 || null,
+          localidad_destino: campos.localidad_destino || null,
           // Operational — filled per-cupo later
           transporte: null,
           cuit_transporte: null,
@@ -309,6 +317,14 @@ export default function ImportarCupos() {
           kg_estimados: null,
           kg_bruto_descargados: null,
           kg_tara_descargados: null,
+          contingencia: null,
+          contingencia_otro: null,
+          desactivacion: null,
+          desactivacion_otro: null,
+          fecha_arribo: null,
+          fecha_descarga: null,
+          localidad_descarga: null,
+          provincia_descarga: null,
           nro_ruca: null,
           gps: null,
           latitud: null,
@@ -482,7 +498,7 @@ export default function ImportarCupos() {
           <SectionTitle>Flete</SectionTitle>
           <FormField label="Kms. a recorrer" value={campos.km} onChange={set('km')} type="number" />
           <FormField label="Tarifa" value={campos.tarifa} onChange={set('tarifa')} type="number" />
-          <FormField label="Nro. de Turno" value={campos.nro_turno} onChange={set('nro_turno')} />
+          <FormField label="N° Turno" value={campos.nro_turno} onChange={set('nro_turno')} />
           <FormField label="Provincia Origen" value={campos.provincia_origen} onChange={set('provincia_origen')} />
           <FormField label="Provincia Destino" value={campos.provincia_destino} onChange={set('provincia_destino')} />
           <div className="flex items-center gap-3 px-1">
@@ -500,9 +516,12 @@ export default function ImportarCupos() {
           </div>
           <FormField label="Dirección" value={campos.direccion_destino} onChange={set('direccion_destino')} />
           <FormField label="Flete Pagador" value={campos.pagador_flete} onChange={set('pagador_flete')} />
-          <FormField label="Intermediario de Flete" value={campos.intermediario_flete} onChange={set('intermediario_flete')} />
-          <FormField label="CUIL Intermediario" value={campos.cuil_intermediario} onChange={set('cuil_intermediario')} />
-          <FormField label="Nro. de Planta" value={campos.nro_planta} onChange={set('nro_planta')} />
+          <FormField label="Intermediario de Flete"     value={campos.intermediario_flete}    onChange={set('intermediario_flete')} />
+          <FormField label="CUIT Intermediario de Flete" value={campos.cuit_intermediario}     onChange={set('cuit_intermediario')} />
+          <FormField label="CUIT Flete Pagador"          value={campos.cuit_pagador_flete}     onChange={set('cuit_pagador_flete')} />
+          <FormField label="CUIT Rte. Venta Secundaria 2" value={campos.cuit_rte_venta_secundaria2} onChange={set('cuit_rte_venta_secundaria2')} />
+          <FormField label="Localidad (Destino)"         value={campos.localidad_destino}      onChange={set('localidad_destino')} />
+          <FormField label="N° Planta" value={campos.nro_planta} onChange={set('nro_planta')} />
           <FormField label="Observaciones" value={campos.observaciones} onChange={set('observaciones')} multiline rows={3} />
         </div>
       )}

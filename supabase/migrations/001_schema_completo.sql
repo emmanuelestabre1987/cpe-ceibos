@@ -62,8 +62,9 @@ CREATE TABLE IF NOT EXISTS cpe_records (
   destino               TEXT,
   cuit_destino          TEXT,
   rte_venta_primaria    TEXT,
-  rte_venta_secundaria  TEXT,
-  rte_venta_secundaria2 TEXT,
+  rte_venta_secundaria         TEXT,
+  rte_venta_secundaria2        TEXT,
+  cuit_rte_venta_secundaria2   TEXT,
   mercado_termino       TEXT,
   corredor_primario     TEXT,
   corredor_secundario   TEXT,
@@ -72,10 +73,11 @@ CREATE TABLE IF NOT EXISTS cpe_records (
   -- Sección Flete
   km                  NUMERIC,
   tarifa              NUMERIC,
-  pagador_flete       TEXT,
-  cupo                TEXT,
+  pagador_flete        TEXT,
+  cuit_pagador_flete   TEXT,
+  cupo                 TEXT,
   intermediario_flete TEXT,
-  cuil_intermediario  TEXT,
+  cuit_intermediario  TEXT,
   nro_planta          TEXT,
   observaciones       TEXT,
   -- Sección Transporte
@@ -107,11 +109,22 @@ CREATE TABLE IF NOT EXISTS cpe_records (
   -- Sección D: Destino (Sprint 14+)
   es_campo_destino              BOOLEAN DEFAULT FALSE,
   direccion_destino             TEXT,
+  localidad_destino             TEXT,
   -- Sección E: Transporte (Sprint 14+)
   fecha_partida                 TIMESTAMPTZ,
   -- GPS descompuesto (Sprint 14+; gps TEXT se mantiene para compatibilidad)
   latitud                       NUMERIC,
-  longitud                      NUMERIC
+  longitud                      NUMERIC,
+  -- Sección F: Contingencias (Sprint 15)
+  contingencia                  TEXT,
+  contingencia_otro             TEXT,
+  desactivacion                 TEXT,
+  desactivacion_otro            TEXT,
+  -- Sección G: Descarga (Sprint 15)
+  fecha_arribo                  TIMESTAMPTZ,
+  fecha_descarga                TIMESTAMPTZ,
+  localidad_descarga            TEXT,
+  provincia_descarga            TEXT
 );
 
 -- Log de auditoría

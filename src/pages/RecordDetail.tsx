@@ -19,37 +19,49 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
 
 const SECTIONS: { title: string; fields: (keyof CpeRecord)[] }[] = [
   {
-    title: 'General',
-    fields: ['fecha_carga', 'campo', 'localidad', 'grano', 'variedad', 'declaracion_calidad', 'es_campo_origen', 'descripcion_origen'],
+    title: 'Transporte',
+    fields: ['cupo', 'transporte', 'cuit_transporte', 'chofer', 'cuil_chofer', 'chasis', 'acoplado',
+      'fecha_partida', 'km', 'tarifa', 'nro_ruca'],
   },
   {
-    title: 'Comercial',
+    title: 'Intervinientes',
     fields: [
       'titular_nombre', 'titular_cuit',
       'remitente_comercial_nombre', 'remitente_comercial_cuit',
+      'rte_venta_primaria', 'cuit_rte_venta_primaria',
+      'rte_venta_secundaria', 'cuit_rte_venta_secundaria',
+      'rte_venta_secundaria2', 'cuit_rte_venta_secundaria2',
+      'mercado_termino',
+      'corredor_primario', 'cuit_corredor_primario',
+      'corredor_secundario', 'cuit_corredor_secundario',
+      'repr_entregador', 'cuit_repr_entregador',
+      'repr_recibidor', 'cuit_repr_recibidor',
       'destinatario', 'cuit_destinatario', 'destino', 'cuit_destino',
-      'rte_venta_primaria', 'rte_venta_secundaria', 'rte_venta_secundaria2',
-      'mercado_termino', 'corredor_primario', 'corredor_secundario',
-      'repr_entregador', 'repr_recibidor',
+      'pagador_flete', 'cuit_pagador_flete',
+      'intermediario_flete', 'cuit_intermediario',
     ],
   },
   {
-    title: 'Flete',
-    fields: ['km', 'tarifa', 'pagador_flete', 'cupo', 'intermediario_flete', 'cuil_intermediario',
-      'provincia_origen', 'provincia_destino', 'es_campo_destino', 'direccion_destino', 'observaciones'],
+    title: 'Grano / Especie',
+    fields: ['grano', 'variedad', 'declaracion_calidad', 'campania',
+      'kg_bruto_cargados', 'kg_tara_cargados', 'kg_estimados', 'observaciones'],
   },
   {
-    title: 'Transporte',
-    fields: ['transporte', 'cuit_transporte', 'chofer', 'cuil_chofer', 'chasis', 'acoplado', 'fecha_partida'],
+    title: 'Procedencia',
+    fields: ['es_campo_origen', 'localidad', 'provincia_origen', 'latitud', 'longitud',
+      'descripcion_origen', 'renspa', 'campo',
+      'es_campo_destino', 'nro_planta', 'direccion_destino', 'localidad_destino', 'provincia_destino'],
   },
   {
-    title: 'Pesaje',
-    fields: [
-      'kg_bruto_cargados', 'kg_tara_cargados', 'kg_estimados',
+    title: 'Contingencias',
+    fields: ['contingencia', 'contingencia_otro', 'desactivacion', 'desactivacion_otro'],
+  },
+  {
+    title: 'Descarga',
+    fields: ['fecha_arribo', 'fecha_descarga', 'nro_turno',
       'kg_bruto_descargados', 'kg_tara_descargados',
-    ],
+      'localidad_descarga', 'provincia_descarga'],
   },
-  { title: 'Cierre', fields: ['nro_ruca', 'gps'] },
 ]
 
 function DataTab({ record }: { record: CpeRecord }) {

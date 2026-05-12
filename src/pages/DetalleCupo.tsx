@@ -34,10 +34,10 @@ import {
 
 // ── Types ────────────────────────────────────────────────────
 
-type TabId = 'datos' | 'transporte' | 'pesaje' | 'cierre' | 'historial'
+type TabId = 'transporte' | 'intervinientes' | 'grano' | 'procedencia' | 'contingencias' | 'descarga' | 'historial'
 type CupoStatus = 'IMPORTADO' | 'TRANSPORTE' | 'CARGADO' | 'CERRADO' | 'ENVIADO' | 'CANCELADO'
 
-// ── Status config (mirrors CupoCard) ─────────────────────────
+// ── Status config ─────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<CupoStatus, { bg: string; label: string; text: string }> = {
   IMPORTADO:  { bg: '#2C9FC0', label: 'IMPORTADO',  text: '#ffffff' },
@@ -45,20 +45,10 @@ const STATUS_CONFIG: Record<CupoStatus, { bg: string; label: string; text: strin
   CARGADO:    { bg: '#FF6C02', label: 'CARGADO',    text: '#ffffff' },
   CERRADO:    { bg: '#16A34A', label: 'CERRADO',    text: '#ffffff' },
   ENVIADO:    { bg: '#15803D', label: 'ENVIADO',    text: '#ffffff' },
-  CANCELADO:  { bg: '#9CA3AF', label: 'CANCELADO', text: '#ffffff' },
+  CANCELADO:  { bg: '#9CA3AF', label: 'CANCELADO',  text: '#ffffff' },
 }
 
-// Which tabs are LOCKED per status (cumulative unlocking)
-const LOCKED_TABS: Record<CupoStatus, Set<TabId>> = {
-  IMPORTADO:  new Set(),
-  TRANSPORTE: new Set(),
-  CARGADO:    new Set(),
-  CERRADO:    new Set(),
-  ENVIADO:    new Set(),
-  CANCELADO:  new Set(),
-}
-
-const VALID_TABS: TabId[] = ['datos', 'transporte', 'pesaje', 'cierre', 'historial']
+const VALID_TABS: TabId[] = ['transporte', 'intervinientes', 'grano', 'procedencia', 'contingencias', 'descarga', 'historial']
 
 function ResponsableChip({ label }: { label: string }) {
   return (
@@ -81,108 +71,144 @@ function str(v: string | number | null | undefined): string {
 
 // ── Form types ───────────────────────────────────────────────
 
-interface DatosForm {
-  // General
-  fecha_carga: string; campo: string; grano: string; variedad: string
-  declaracion_calidad: string; es_campo_origen: boolean; descripcion_origen: string
-  localidad: string; campania: string; renspa: string
-  // Comercial
-  titular_nombre: string; titular_cuit: string
-  remitente_comercial_nombre: string; remitente_comercial_cuit: string
-  destinatario: string; cuit_destinatario: string
-  destino: string; cuit_destino: string
-  rte_venta_primaria: string; cuit_rte_venta_primaria: string
-  rte_venta_secundaria: string; cuit_rte_venta_secundaria: string
-  rte_venta_secundaria2: string; mercado_termino: string
-  corredor_primario: string; cuit_corredor_primario: string
-  corredor_secundario: string; cuit_corredor_secundario: string
-  repr_entregador: string; cuit_repr_entregador: string
-  repr_recibidor: string; cuit_repr_recibidor: string
-  kg_estimados: string
-  // Flete
-  km: string; tarifa: string; pagador_flete: string
-  intermediario_flete: string; cuil_intermediario: string
-  nro_planta: string; nro_turno: string
-  provincia_origen: string; provincia_destino: string
-  es_campo_destino: boolean; direccion_destino: string
-  observaciones: string
-}
-
 interface TransporteForm {
+  cupo: string
   transporte: string; cuit_transporte: string
   chofer: string; cuil_chofer: string
   chasis: string; acoplado: string
   fecha_partida: string
+  km: string; tarifa: string
+  nro_ruca: string
 }
 
-interface PesajeForm {
+interface IntervinientesForm {
+  titular_nombre: string; titular_cuit: string
+  remitente_comercial_nombre: string; remitente_comercial_cuit: string
+  rte_venta_primaria: string; cuit_rte_venta_primaria: string
+  rte_venta_secundaria: string; cuit_rte_venta_secundaria: string
+  rte_venta_secundaria2: string; cuit_rte_venta_secundaria2: string
+  mercado_termino: string
+  corredor_primario: string; cuit_corredor_primario: string
+  corredor_secundario: string; cuit_corredor_secundario: string
+  repr_entregador: string; cuit_repr_entregador: string
+  repr_recibidor: string; cuit_repr_recibidor: string
+  destinatario: string; cuit_destinatario: string
+  destino: string; cuit_destino: string
+  pagador_flete: string; cuit_pagador_flete: string
+  intermediario_flete: string; cuit_intermediario: string
+}
+
+interface GranoForm {
+  grano: string; variedad: string
+  declaracion_calidad: string
+  campania: string
   kg_bruto_cargados: string; kg_tara_cargados: string
-  kg_bruto_descargados: string; kg_tara_descargados: string
   kg_estimados: string
+  observaciones: string
 }
 
-interface CierreForm {
-  nro_ruca: string; gps: string
+interface ProcedenciaForm {
+  // C — Procedencia
+  es_campo_origen: boolean
+  localidad: string; provincia_origen: string
   latitud: number | null; longitud: number | null
+  gps: string
+  descripcion_origen: string; renspa: string
+  campo: string
+  // D — Destino
+  es_campo_destino: boolean
+  nro_planta: string; direccion_destino: string
+  localidad_destino: string; provincia_destino: string
 }
 
-function initDatos(r: CpeRecord): DatosForm {
-  return {
-    fecha_carga: str(r.fecha_carga), campo: str(r.campo), grano: str(r.grano),
-    variedad: str(r.variedad), localidad: str(r.localidad),
-    declaracion_calidad: str(r.declaracion_calidad),
-    es_campo_origen: r.es_campo_origen ?? false,
-    descripcion_origen: str(r.descripcion_origen),
-    campania: str(r.campania), renspa: str(r.renspa),
-    titular_nombre: str(r.titular_nombre), titular_cuit: str(r.titular_cuit),
-    remitente_comercial_nombre: str(r.remitente_comercial_nombre),
-    remitente_comercial_cuit: str(r.remitente_comercial_cuit),
-    destinatario: str(r.destinatario), cuit_destinatario: str(r.cuit_destinatario),
-    destino: str(r.destino), cuit_destino: str(r.cuit_destino),
-    rte_venta_primaria: str(r.rte_venta_primaria), cuit_rte_venta_primaria: str(r.cuit_rte_venta_primaria),
-    rte_venta_secundaria: str(r.rte_venta_secundaria), cuit_rte_venta_secundaria: str(r.cuit_rte_venta_secundaria),
-    rte_venta_secundaria2: str(r.rte_venta_secundaria2), mercado_termino: str(r.mercado_termino),
-    corredor_primario: str(r.corredor_primario), cuit_corredor_primario: str(r.cuit_corredor_primario),
-    corredor_secundario: str(r.corredor_secundario), cuit_corredor_secundario: str(r.cuit_corredor_secundario),
-    repr_entregador: str(r.repr_entregador), cuit_repr_entregador: str(r.cuit_repr_entregador),
-    repr_recibidor: str(r.repr_recibidor), cuit_repr_recibidor: str(r.cuit_repr_recibidor),
-    kg_estimados: str(r.kg_estimados),
-    km: str(r.km), tarifa: str(r.tarifa), pagador_flete: str(r.pagador_flete),
-    intermediario_flete: str(r.intermediario_flete), cuil_intermediario: str(r.cuil_intermediario),
-    nro_planta: str(r.nro_planta), nro_turno: str(r.nro_turno),
-    provincia_origen: str(r.provincia_origen), provincia_destino: str(r.provincia_destino),
-    es_campo_destino: r.es_campo_destino ?? false,
-    direccion_destino: str(r.direccion_destino),
-    observaciones: str(r.observaciones),
-  }
+interface ContingenciasForm {
+  contingencia: string; contingencia_otro: string
+  desactivacion: string; desactivacion_otro: string
 }
+
+interface DescargaForm {
+  fecha_arribo: string; fecha_descarga: string
+  nro_turno: string
+  kg_bruto_descargados: string; kg_tara_descargados: string
+  localidad_descarga: string; provincia_descarga: string
+}
+
+// ── Init helpers ─────────────────────────────────────────────
+
 function initTransporte(r: CpeRecord): TransporteForm {
   return {
+    cupo: str(r.cupo),
     transporte: str(r.transporte), cuit_transporte: str(r.cuit_transporte),
     chofer: str(r.chofer), cuil_chofer: str(r.cuil_chofer),
     chasis: str(r.chasis), acoplado: str(r.acoplado),
     fecha_partida: str(r.fecha_partida),
-  }
-}
-function initPesaje(r: CpeRecord): PesajeForm {
-  return {
-    kg_bruto_cargados: str(r.kg_bruto_cargados), kg_tara_cargados: str(r.kg_tara_cargados),
-    kg_bruto_descargados: str(r.kg_bruto_descargados),
-    kg_tara_descargados: str(r.kg_tara_descargados), kg_estimados: str(r.kg_estimados),
-  }
-}
-function initCierre(r: CpeRecord): CierreForm {
-  return {
+    km: str(r.km), tarifa: str(r.tarifa),
     nro_ruca: str(r.nro_ruca),
+  }
+}
+function initIntervinientes(r: CpeRecord): IntervinientesForm {
+  return {
+    titular_nombre: str(r.titular_nombre), titular_cuit: str(r.titular_cuit),
+    remitente_comercial_nombre: str(r.remitente_comercial_nombre),
+    remitente_comercial_cuit: str(r.remitente_comercial_cuit),
+    rte_venta_primaria: str(r.rte_venta_primaria), cuit_rte_venta_primaria: str(r.cuit_rte_venta_primaria),
+    rte_venta_secundaria: str(r.rte_venta_secundaria), cuit_rte_venta_secundaria: str(r.cuit_rte_venta_secundaria),
+    rte_venta_secundaria2: str(r.rte_venta_secundaria2), cuit_rte_venta_secundaria2: str(r.cuit_rte_venta_secundaria2),
+    mercado_termino: str(r.mercado_termino),
+    corredor_primario: str(r.corredor_primario), cuit_corredor_primario: str(r.cuit_corredor_primario),
+    corredor_secundario: str(r.corredor_secundario), cuit_corredor_secundario: str(r.cuit_corredor_secundario),
+    repr_entregador: str(r.repr_entregador), cuit_repr_entregador: str(r.cuit_repr_entregador),
+    repr_recibidor: str(r.repr_recibidor), cuit_repr_recibidor: str(r.cuit_repr_recibidor),
+    destinatario: str(r.destinatario), cuit_destinatario: str(r.cuit_destinatario),
+    destino: str(r.destino), cuit_destino: str(r.cuit_destino),
+    pagador_flete: str(r.pagador_flete), cuit_pagador_flete: str(r.cuit_pagador_flete),
+    intermediario_flete: str(r.intermediario_flete), cuit_intermediario: str(r.cuit_intermediario),
+  }
+}
+function initGrano(r: CpeRecord): GranoForm {
+  return {
+    grano: str(r.grano), variedad: str(r.variedad),
+    declaracion_calidad: str(r.declaracion_calidad),
+    campania: str(r.campania),
+    kg_bruto_cargados: str(r.kg_bruto_cargados),
+    kg_tara_cargados: str(r.kg_tara_cargados),
+    kg_estimados: str(r.kg_estimados),
+    observaciones: str(r.observaciones),
+  }
+}
+function initProcedencia(r: CpeRecord): ProcedenciaForm {
+  return {
+    es_campo_origen: r.es_campo_origen ?? false,
+    localidad: str(r.localidad), provincia_origen: str(r.provincia_origen),
+    latitud: r.latitud ?? null, longitud: r.longitud ?? null,
     gps: str(r.gps),
-    latitud: r.latitud ?? null,
-    longitud: r.longitud ?? null,
+    descripcion_origen: str(r.descripcion_origen), renspa: str(r.renspa),
+    campo: str(r.campo),
+    es_campo_destino: r.es_campo_destino ?? false,
+    nro_planta: str(r.nro_planta), direccion_destino: str(r.direccion_destino),
+    localidad_destino: str(r.localidad_destino), provincia_destino: str(r.provincia_destino),
+  }
+}
+function initContingencias(r: CpeRecord): ContingenciasForm {
+  return {
+    contingencia: str(r.contingencia), contingencia_otro: str(r.contingencia_otro),
+    desactivacion: str(r.desactivacion), desactivacion_otro: str(r.desactivacion_otro),
+  }
+}
+function initDescarga(r: CpeRecord): DescargaForm {
+  return {
+    fecha_arribo: str(r.fecha_arribo), fecha_descarga: str(r.fecha_descarga),
+    nro_turno: str(r.nro_turno),
+    kg_bruto_descargados: str(r.kg_bruto_descargados),
+    kg_tara_descargados: str(r.kg_tara_descargados),
+    localidad_descarga: str(r.localidad_descarga),
+    provincia_descarga: str(r.provincia_descarga),
   }
 }
 
 // ── Tab draft helpers ─────────────────────────────────────────
 
-type DraftTabId = 'datos' | 'transporte' | 'pesaje' | 'cierre'
+type DraftTabId = 'transporte' | 'intervinientes' | 'grano' | 'procedencia' | 'contingencias' | 'descarga'
 
 const TAB_DRAFT_KEY = (id: string, tab: DraftTabId) => `cupo_draft_${id}_${tab}`
 
@@ -222,12 +248,12 @@ function ReadOnlyField({ label, value }: { label: string; value: string }) {
   )
 }
 
-function KgNetoField({ bruto, tara }: { bruto: string; tara: string }) {
+function KgNetoField({ label, bruto, tara }: { label: string; bruto: string; tara: string }) {
   const neto = bruto && tara ? Number(bruto) - Number(tara) : null
   return (
     <div className="flex flex-col gap-1">
       <span className="font-mono text-xs font-medium text-secondary uppercase tracking-wide">
-        Kg Neto cargados
+        {label}
       </span>
       <div className="h-12 px-4 flex items-center rounded-xl bg-gray-100 border border-secondary/30">
         <span className={`font-sans text-base font-semibold ${neto !== null ? 'text-secondary' : 'text-text-muted'}`}>
@@ -316,11 +342,13 @@ interface TabBarProps {
 }
 
 const TAB_LABELS: { id: TabId; label: string }[] = [
-  { id: 'datos',      label: 'Datos'      },
-  { id: 'transporte', label: 'Transporte' },
-  { id: 'pesaje',     label: 'Pesaje'     },
-  { id: 'cierre',     label: 'Cierre'     },
-  { id: 'historial',  label: 'Historial'  },
+  { id: 'transporte',    label: 'Transporte'    },
+  { id: 'intervinientes',label: 'Intervinientes'},
+  { id: 'grano',         label: 'Grano'         },
+  { id: 'procedencia',   label: 'Procedencia'   },
+  { id: 'contingencias', label: 'Contingencias' },
+  { id: 'descarga',      label: 'Descarga'      },
+  { id: 'historial',     label: 'Historial'     },
 ]
 
 function TabBar({ activeTab, onSelect }: TabBarProps) {
@@ -349,10 +377,7 @@ function TabBar({ activeTab, onSelect }: TabBarProps) {
 
 // ── Fixed bottom action bar ───────────────────────────────────
 
-interface BottomBarProps {
-  children: React.ReactNode
-}
-function BottomBar({ children }: BottomBarProps) {
+function BottomBar({ children }: { children: React.ReactNode }) {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-light px-4 py-3 pb-safe z-40">
       <div className="max-w-mobile mx-auto">{children}</div>
@@ -390,53 +415,64 @@ export default function DetalleCupo() {
   // ── Tab state — init from ?tab= query param ──────────────────
   const [activeTab, setActiveTab] = useState<TabId>(() => {
     const q = searchParams.get('tab')
-    return VALID_TABS.includes(q as TabId) ? (q as TabId) : 'datos'
+    return VALID_TABS.includes(q as TabId) ? (q as TabId) : 'transporte'
   })
 
   // ── Form state per tab ───────────────────────────────────────
-  const [datosF,      setDatosF]      = useState<DatosForm>({
-    fecha_carga: '', campo: '', grano: '', variedad: '', localidad: '', campania: '', renspa: '',
-    declaracion_calidad: '', es_campo_origen: false, descripcion_origen: '',
+  const [transporteF,    setTransporteF]    = useState<TransporteForm>({
+    cupo: '', transporte: '', cuit_transporte: '', chofer: '', cuil_chofer: '',
+    chasis: '', acoplado: '', fecha_partida: '', km: '', tarifa: '', nro_ruca: '',
+  })
+  const [intervinientesF, setIntervinientesF] = useState<IntervinientesForm>({
     titular_nombre: '', titular_cuit: '',
     remitente_comercial_nombre: '', remitente_comercial_cuit: '',
-    destinatario: '', cuit_destinatario: '', destino: '', cuit_destino: '',
     rte_venta_primaria: '', cuit_rte_venta_primaria: '',
     rte_venta_secundaria: '', cuit_rte_venta_secundaria: '',
-    rte_venta_secundaria2: '', mercado_termino: '',
+    rte_venta_secundaria2: '', cuit_rte_venta_secundaria2: '',
+    mercado_termino: '',
     corredor_primario: '', cuit_corredor_primario: '',
     corredor_secundario: '', cuit_corredor_secundario: '',
     repr_entregador: '', cuit_repr_entregador: '',
     repr_recibidor: '', cuit_repr_recibidor: '',
-    kg_estimados: '',
-    km: '', tarifa: '', pagador_flete: '', intermediario_flete: '', cuil_intermediario: '',
-    nro_planta: '', nro_turno: '', provincia_origen: '', provincia_destino: '',
-    es_campo_destino: false, direccion_destino: '',
-    observaciones: '',
+    destinatario: '', cuit_destinatario: '',
+    destino: '', cuit_destino: '',
+    pagador_flete: '', cuit_pagador_flete: '',
+    intermediario_flete: '', cuit_intermediario: '',
   })
-  const [transporteF, setTransporteF] = useState<TransporteForm>({
-    transporte: '', cuit_transporte: '', chofer: '', cuil_chofer: '', chasis: '', acoplado: '',
-    fecha_partida: '',
+  const [granoF,         setGranoF]         = useState<GranoForm>({
+    grano: '', variedad: '', declaracion_calidad: '', campania: '',
+    kg_bruto_cargados: '', kg_tara_cargados: '', kg_estimados: '', observaciones: '',
   })
-  const [pesajeF,     setPesajeF]     = useState<PesajeForm>({
-    kg_bruto_cargados: '', kg_tara_cargados: '',
-    kg_bruto_descargados: '', kg_tara_descargados: '', kg_estimados: '',
+  const [procedenciaF,   setProcedenciaF]   = useState<ProcedenciaForm>({
+    es_campo_origen: false, localidad: '', provincia_origen: '',
+    latitud: null, longitud: null, gps: '',
+    descripcion_origen: '', renspa: '', campo: '',
+    es_campo_destino: false, nro_planta: '', direccion_destino: '',
+    localidad_destino: '', provincia_destino: '',
   })
-  const [cierreF,     setCierreF]     = useState<CierreForm>({
-    nro_ruca: '', gps: '', latitud: null, longitud: null,
+  const [contingenciasF, setContingenciasF] = useState<ContingenciasForm>({
+    contingencia: '', contingencia_otro: '', desactivacion: '', desactivacion_otro: '',
+  })
+  const [descargaF,      setDescargaF]      = useState<DescargaForm>({
+    fecha_arribo: '', fecha_descarga: '', nro_turno: '',
+    kg_bruto_descargados: '', kg_tara_descargados: '',
+    localidad_descarga: '', provincia_descarga: '',
   })
 
   // ── Draft dirty tracking ──────────────────────────────────────
   const tabDirtyRef = useRef(new Set<DraftTabId>())
 
-  // ── Helpers ───────────────────────────────────────────────────
-  const setD = (f: keyof DatosForm)      => (v: string) => { tabDirtyRef.current.add('datos');      setDatosF(p => ({ ...p, [f]: v })) }
-  const setT = (f: keyof TransporteForm) => (v: string) => { tabDirtyRef.current.add('transporte'); setTransporteF(p => ({ ...p, [f]: v })) }
-  const setP = (f: keyof PesajeForm)     => (v: string) => { tabDirtyRef.current.add('pesaje');     setPesajeF(p => ({ ...p, [f]: v })) }
-  const setC = (f: keyof CierreForm)     => (v: string) => { tabDirtyRef.current.add('cierre');     setCierreF(p => ({ ...p, [f]: v })) }
+  // ── Setter helpers ────────────────────────────────────────────
+  const setT  = (f: keyof TransporteForm)     => (v: string) => { tabDirtyRef.current.add('transporte');    setTransporteF(p    => ({ ...p, [f]: v })) }
+  const setI  = (f: keyof IntervinientesForm) => (v: string) => { tabDirtyRef.current.add('intervinientes');setIntervinientesF(p=> ({ ...p, [f]: v })) }
+  const setG  = (f: keyof GranoForm)          => (v: string) => { tabDirtyRef.current.add('grano');         setGranoF(p         => ({ ...p, [f]: v })) }
+  const setP  = (f: keyof ProcedenciaForm)    => (v: string) => { tabDirtyRef.current.add('procedencia');   setProcedenciaF(p   => ({ ...p, [f]: v })) }
+  const setCt = (f: keyof ContingenciasForm)  => (v: string) => { tabDirtyRef.current.add('contingencias'); setContingenciasF(p => ({ ...p, [f]: v })) }
+  const setDe = (f: keyof DescargaForm)       => (v: string) => { tabDirtyRef.current.add('descarga');      setDescargaF(p      => ({ ...p, [f]: v })) }
 
-  const setGpsC = (lat: number, lng: number) => {
-    tabDirtyRef.current.add('cierre')
-    setCierreF(p => ({
+  const setGpsP = (lat: number, lng: number) => {
+    tabDirtyRef.current.add('procedencia')
+    setProcedenciaF(p => ({
       ...p,
       latitud: lat,
       longitud: lng,
@@ -466,13 +502,15 @@ export default function DetalleCupo() {
     }
   }, [id]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Init forms once record loads (restore drafts if present) ─
+  // ── Init forms once record loads ─────────────────────────────
   useEffect(() => {
     if (!record) return
-    setDatosF(      readTabDraft<DatosForm>(record.id, 'datos')           ?? initDatos(record))
-    setTransporteF( readTabDraft<TransporteForm>(record.id, 'transporte') ?? initTransporte(record))
-    setPesajeF(     readTabDraft<PesajeForm>(record.id, 'pesaje')         ?? initPesaje(record))
-    setCierreF(     readTabDraft<CierreForm>(record.id, 'cierre')         ?? initCierre(record))
+    setTransporteF(    readTabDraft<TransporteForm>(record.id, 'transporte')           ?? initTransporte(record))
+    setIntervinientesF(readTabDraft<IntervinientesForm>(record.id, 'intervinientes')   ?? initIntervinientes(record))
+    setGranoF(         readTabDraft<GranoForm>(record.id, 'grano')                     ?? initGrano(record))
+    setProcedenciaF(   readTabDraft<ProcedenciaForm>(record.id, 'procedencia')         ?? initProcedencia(record))
+    setContingenciasF( readTabDraft<ContingenciasForm>(record.id, 'contingencias')     ?? initContingencias(record))
+    setDescargaF(      readTabDraft<DescargaForm>(record.id, 'descarga')               ?? initDescarga(record))
     setCuitErrors({})
     tabDirtyRef.current.clear()
   }, [record])
@@ -494,46 +532,54 @@ export default function DetalleCupo() {
 
   // ── Debounced draft saves ─────────────────────────────────────
   useEffect(() => {
-    if (!record || !tabDirtyRef.current.has('datos')) return
-    const t = setTimeout(() => writeTabDraft(record.id, 'datos', datosF), 800)
-    return () => clearTimeout(t)
-  }, [datosF, record])
-
-  useEffect(() => {
     if (!record || !tabDirtyRef.current.has('transporte')) return
     const t = setTimeout(() => writeTabDraft(record.id, 'transporte', transporteF), 800)
     return () => clearTimeout(t)
   }, [transporteF, record])
 
   useEffect(() => {
-    if (!record || !tabDirtyRef.current.has('pesaje')) return
-    const t = setTimeout(() => writeTabDraft(record.id, 'pesaje', pesajeF), 800)
+    if (!record || !tabDirtyRef.current.has('intervinientes')) return
+    const t = setTimeout(() => writeTabDraft(record.id, 'intervinientes', intervinientesF), 800)
     return () => clearTimeout(t)
-  }, [pesajeF, record])
+  }, [intervinientesF, record])
 
   useEffect(() => {
-    if (!record || !tabDirtyRef.current.has('cierre')) return
-    const t = setTimeout(() => writeTabDraft(record.id, 'cierre', cierreF), 800)
+    if (!record || !tabDirtyRef.current.has('grano')) return
+    const t = setTimeout(() => writeTabDraft(record.id, 'grano', granoF), 800)
     return () => clearTimeout(t)
-  }, [cierreF, record])
+  }, [granoF, record])
+
+  useEffect(() => {
+    if (!record || !tabDirtyRef.current.has('procedencia')) return
+    const t = setTimeout(() => writeTabDraft(record.id, 'procedencia', procedenciaF), 800)
+    return () => clearTimeout(t)
+  }, [procedenciaF, record])
+
+  useEffect(() => {
+    if (!record || !tabDirtyRef.current.has('contingencias')) return
+    const t = setTimeout(() => writeTabDraft(record.id, 'contingencias', contingenciasF), 800)
+    return () => clearTimeout(t)
+  }, [contingenciasF, record])
+
+  useEffect(() => {
+    if (!record || !tabDirtyRef.current.has('descarga')) return
+    const t = setTimeout(() => writeTabDraft(record.id, 'descarga', descargaF), 800)
+    return () => clearTimeout(t)
+  }, [descargaF, record])
 
   // ── Derived values ────────────────────────────────────────────
   const status = useMemo(
     () => (record ? normalizeStatus(record.status) : 'IMPORTADO'),
     [record]
   )
-  const lockedTabs  = LOCKED_TABS[status]
   const statusCfg   = STATUS_CONFIG[status]
   const displayCode = record ? (record.cupo ?? record.cpe_id) : '…'
-  const cierreReadOnly = status === 'CERRADO' || status === 'ENVIADO' || status === 'CANCELADO'
+  const descargaReadOnly = status === 'CERRADO' || status === 'ENVIADO' || status === 'CANCELADO'
 
-  // ── Tab selection with lock guard ────────────────────────────
-  const handleTabSelect = (tab: TabId) => {
-    setActiveTab(tab)
-  }
+  // ── Tab selection ─────────────────────────────────────────────
+  const handleTabSelect = (tab: TabId) => setActiveTab(tab)
 
   // ── Menu handlers ─────────────────────────────────────────────
-
   const handleForceStatus = async (newStatus: CpeStatus) => {
     if (!record || !user?.email) return
     setSaving(true)
@@ -553,7 +599,8 @@ export default function DetalleCupo() {
     if (!record || !user?.email || !id) return
     setSaving(true)
     try {
-      ;(['datos', 'transporte', 'pesaje', 'cierre'] as DraftTabId[]).forEach(t => clearTabDraft(id, t))
+      ;(['transporte', 'intervinientes', 'grano', 'procedencia', 'contingencias', 'descarga'] as DraftTabId[])
+        .forEach(t => clearTabDraft(id, t))
       await deleteRecord(id, user.email)
       navigate('/', { replace: true })
     } catch (e) {
@@ -685,74 +732,6 @@ export default function DetalleCupo() {
 
   // ── Save handlers ─────────────────────────────────────────────
 
-  const handleSaveDatos = async () => {
-    if (!record || !user?.email || !id) return
-    setSaving(true)
-    try {
-      await updateRecord(
-        id,
-        record.cpe_id,
-        {
-          fecha_carga:           datosF.fecha_carga || null,
-          campo:                 datosF.campo || null,
-          grano:                 datosF.grano || null,
-          variedad:              datosF.variedad || null,
-          declaracion_calidad:   (datosF.declaracion_calidad as 'conforme' | 'condicional' | null) || null,
-          es_campo_origen:       datosF.es_campo_origen,
-          descripcion_origen:    datosF.descripcion_origen || null,
-          localidad:             datosF.localidad || null,
-          campania:              datosF.campania || null,
-          renspa:                datosF.renspa || null,
-          titular_nombre:        datosF.titular_nombre || null,
-          titular_cuit:          datosF.titular_cuit || null,
-          remitente_comercial_nombre: datosF.remitente_comercial_nombre || null,
-          remitente_comercial_cuit:   datosF.remitente_comercial_cuit || null,
-          destinatario:          datosF.destinatario || null,
-          cuit_destinatario:     datosF.cuit_destinatario || null,
-          destino:               datosF.destino || null,
-          cuit_destino:          datosF.cuit_destino || null,
-          rte_venta_primaria:         datosF.rte_venta_primaria || null,
-          cuit_rte_venta_primaria:    datosF.cuit_rte_venta_primaria || null,
-          rte_venta_secundaria:       datosF.rte_venta_secundaria || null,
-          cuit_rte_venta_secundaria:  datosF.cuit_rte_venta_secundaria || null,
-          rte_venta_secundaria2:      datosF.rte_venta_secundaria2 || null,
-          mercado_termino:            datosF.mercado_termino || null,
-          corredor_primario:          datosF.corredor_primario || null,
-          cuit_corredor_primario:     datosF.cuit_corredor_primario || null,
-          corredor_secundario:        datosF.corredor_secundario || null,
-          cuit_corredor_secundario:   datosF.cuit_corredor_secundario || null,
-          repr_entregador:            datosF.repr_entregador || null,
-          cuit_repr_entregador:       datosF.cuit_repr_entregador || null,
-          repr_recibidor:             datosF.repr_recibidor || null,
-          cuit_repr_recibidor:        datosF.cuit_repr_recibidor || null,
-          kg_estimados:          numOrNull(datosF.kg_estimados),
-          km:                    numOrNull(datosF.km),
-          tarifa:                numOrNull(datosF.tarifa),
-          pagador_flete:         datosF.pagador_flete || null,
-          intermediario_flete:   datosF.intermediario_flete || null,
-          cuil_intermediario:    datosF.cuil_intermediario || null,
-          nro_planta:            datosF.nro_planta || null,
-          nro_turno:             datosF.nro_turno || null,
-          provincia_origen:      datosF.provincia_origen || null,
-          provincia_destino:     datosF.provincia_destino || null,
-          es_campo_destino:      datosF.es_campo_destino,
-          direccion_destino:     datosF.direccion_destino || null,
-          observaciones:         datosF.observaciones || null,
-        },
-        record,
-        user.email
-      )
-      clearTabDraft(id, 'datos')
-      tabDirtyRef.current.delete('datos')
-      await reload()
-      show('Cambios guardados', 'success')
-    } catch (e) {
-      show((e as Error).message, 'error')
-    } finally {
-      setSaving(false)
-    }
-  }
-
   const handleSaveTransporte = async () => {
     if (!record || !user?.email || !id) return
     if (hasTransporteErrors) return
@@ -765,25 +744,27 @@ export default function DetalleCupo() {
         ? formatearCuit(normalizarCuit(transporteF.cuil_chofer))
         : null
       await updateRecord(
-        id,
-        record.cpe_id,
+        id, record.cpe_id,
         {
-          transporte: transporteF.transporte || null,
+          cupo:            transporteF.cupo || null,
+          transporte:      transporteF.transporte || null,
           cuit_transporte: cuit,
-          chofer: transporteF.chofer || null,
-          cuil_chofer: cuil,
-          chasis: transporteF.chasis || null,
-          acoplado: transporteF.acoplado || null,
-          fecha_partida: transporteF.fecha_partida || null,
+          chofer:          transporteF.chofer || null,
+          cuil_chofer:     cuil,
+          chasis:          transporteF.chasis || null,
+          acoplado:        transporteF.acoplado || null,
+          fecha_partida:   transporteF.fecha_partida || null,
+          km:              numOrNull(transporteF.km),
+          tarifa:          numOrNull(transporteF.tarifa),
+          nro_ruca:        transporteF.nro_ruca || null,
         },
-        record,
-        user.email
+        record, user.email
       )
       await updateCupoStatus(record.cpe_id, 'TRANSPORTE', user.email)
       clearTabDraft(id, 'transporte')
       tabDirtyRef.current.delete('transporte')
       await reload()
-      show('Transporte asignado', 'success')
+      show('Transporte guardado', 'success')
     } catch (e) {
       show((e as Error).message, 'error')
     } finally {
@@ -791,28 +772,77 @@ export default function DetalleCupo() {
     }
   }
 
-  const handleSavePesaje = async () => {
+  const handleSaveIntervinientes = async () => {
     if (!record || !user?.email || !id) return
     setSaving(true)
     try {
       await updateRecord(
-        id,
-        record.cpe_id,
+        id, record.cpe_id,
         {
-          kg_bruto_cargados:    numOrNull(pesajeF.kg_bruto_cargados),
-          kg_tara_cargados:     numOrNull(pesajeF.kg_tara_cargados),
-          kg_bruto_descargados: numOrNull(pesajeF.kg_bruto_descargados),
-          kg_tara_descargados:  numOrNull(pesajeF.kg_tara_descargados),
-          kg_estimados:         numOrNull(pesajeF.kg_estimados),
+          titular_nombre:              intervinientesF.titular_nombre || null,
+          titular_cuit:                intervinientesF.titular_cuit || null,
+          remitente_comercial_nombre:  intervinientesF.remitente_comercial_nombre || null,
+          remitente_comercial_cuit:    intervinientesF.remitente_comercial_cuit || null,
+          rte_venta_primaria:          intervinientesF.rte_venta_primaria || null,
+          cuit_rte_venta_primaria:     intervinientesF.cuit_rte_venta_primaria || null,
+          rte_venta_secundaria:        intervinientesF.rte_venta_secundaria || null,
+          cuit_rte_venta_secundaria:   intervinientesF.cuit_rte_venta_secundaria || null,
+          rte_venta_secundaria2:       intervinientesF.rte_venta_secundaria2 || null,
+          cuit_rte_venta_secundaria2:  intervinientesF.cuit_rte_venta_secundaria2 || null,
+          mercado_termino:             intervinientesF.mercado_termino || null,
+          corredor_primario:           intervinientesF.corredor_primario || null,
+          cuit_corredor_primario:      intervinientesF.cuit_corredor_primario || null,
+          corredor_secundario:         intervinientesF.corredor_secundario || null,
+          cuit_corredor_secundario:    intervinientesF.cuit_corredor_secundario || null,
+          repr_entregador:             intervinientesF.repr_entregador || null,
+          cuit_repr_entregador:        intervinientesF.cuit_repr_entregador || null,
+          repr_recibidor:              intervinientesF.repr_recibidor || null,
+          cuit_repr_recibidor:         intervinientesF.cuit_repr_recibidor || null,
+          destinatario:                intervinientesF.destinatario || null,
+          cuit_destinatario:           intervinientesF.cuit_destinatario || null,
+          destino:                     intervinientesF.destino || null,
+          cuit_destino:                intervinientesF.cuit_destino || null,
+          pagador_flete:               intervinientesF.pagador_flete || null,
+          cuit_pagador_flete:          intervinientesF.cuit_pagador_flete || null,
+          intermediario_flete:         intervinientesF.intermediario_flete || null,
+          cuit_intermediario:          intervinientesF.cuit_intermediario || null,
         },
-        record,
-        user.email
+        record, user.email
+      )
+      clearTabDraft(id, 'intervinientes')
+      tabDirtyRef.current.delete('intervinientes')
+      await reload()
+      show('Cambios guardados', 'success')
+    } catch (e) {
+      show((e as Error).message, 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleSaveGrano = async () => {
+    if (!record || !user?.email || !id) return
+    setSaving(true)
+    try {
+      await updateRecord(
+        id, record.cpe_id,
+        {
+          grano:              granoF.grano || null,
+          variedad:           granoF.variedad || null,
+          declaracion_calidad:(granoF.declaracion_calidad as 'conforme' | 'condicional' | null) || null,
+          campania:           granoF.campania || null,
+          kg_bruto_cargados:  numOrNull(granoF.kg_bruto_cargados),
+          kg_tara_cargados:   numOrNull(granoF.kg_tara_cargados),
+          kg_estimados:       numOrNull(granoF.kg_estimados),
+          observaciones:      granoF.observaciones || null,
+        },
+        record, user.email
       )
       await updateCupoStatus(record.cpe_id, 'CARGADO', user.email)
-      clearTabDraft(id, 'pesaje')
-      tabDirtyRef.current.delete('pesaje')
+      clearTabDraft(id, 'grano')
+      tabDirtyRef.current.delete('grano')
       await reload()
-      show('Pesaje guardado', 'success')
+      show('Grano guardado → Cargado', 'success')
     } catch (e) {
       show((e as Error).message, 'error')
     } finally {
@@ -820,30 +850,89 @@ export default function DetalleCupo() {
     }
   }
 
-  const handleSaveCierre = async () => {
+  const handleSaveProcedencia = async () => {
     if (!record || !user?.email || !id) return
     setSaving(true)
     try {
       await updateRecord(
-        id,
-        record.cpe_id,
+        id, record.cpe_id,
         {
-          nro_ruca:  cierreF.nro_ruca  || null,
-          gps:       cierreF.gps       || null,
-          latitud:   cierreF.latitud   ?? null,
-          longitud:  cierreF.longitud  ?? null,
+          es_campo_origen:   procedenciaF.es_campo_origen,
+          localidad:         procedenciaF.localidad || null,
+          provincia_origen:  procedenciaF.provincia_origen || null,
+          latitud:           procedenciaF.latitud ?? null,
+          longitud:          procedenciaF.longitud ?? null,
+          gps:               procedenciaF.gps || null,
+          descripcion_origen:procedenciaF.descripcion_origen || null,
+          renspa:            procedenciaF.renspa || null,
+          campo:             procedenciaF.campo || null,
+          es_campo_destino:  procedenciaF.es_campo_destino,
+          nro_planta:        procedenciaF.nro_planta || null,
+          direccion_destino: procedenciaF.direccion_destino || null,
+          localidad_destino: procedenciaF.localidad_destino || null,
+          provincia_destino: procedenciaF.provincia_destino || null,
         },
-        record,
-        user.email
+        record, user.email
       )
-      await updateCupoStatus(record.cpe_id, 'CERRADO', user.email);
-      (['datos', 'transporte', 'pesaje', 'cierre'] as DraftTabId[]).forEach(t => {
-        clearTabDraft(id, t)
-        tabDirtyRef.current.delete(t)
-      })
+      clearTabDraft(id, 'procedencia')
+      tabDirtyRef.current.delete('procedencia')
+      await reload()
+      show('Procedencia guardada', 'success')
+    } catch (e) {
+      show((e as Error).message, 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleSaveContingencias = async () => {
+    if (!record || !user?.email || !id) return
+    setSaving(true)
+    try {
+      await updateRecord(
+        id, record.cpe_id,
+        {
+          contingencia:       contingenciasF.contingencia || null,
+          contingencia_otro:  contingenciasF.contingencia_otro || null,
+          desactivacion:      contingenciasF.desactivacion || null,
+          desactivacion_otro: contingenciasF.desactivacion_otro || null,
+        },
+        record, user.email
+      )
+      clearTabDraft(id, 'contingencias')
+      tabDirtyRef.current.delete('contingencias')
+      await reload()
+      show('Contingencias guardadas', 'success')
+    } catch (e) {
+      show((e as Error).message, 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleSaveDescarga = async () => {
+    if (!record || !user?.email || !id) return
+    setSaving(true)
+    try {
+      await updateRecord(
+        id, record.cpe_id,
+        {
+          fecha_arribo:         descargaF.fecha_arribo || null,
+          fecha_descarga:       descargaF.fecha_descarga || null,
+          nro_turno:            descargaF.nro_turno || null,
+          kg_bruto_descargados: numOrNull(descargaF.kg_bruto_descargados),
+          kg_tara_descargados:  numOrNull(descargaF.kg_tara_descargados),
+          localidad_descarga:   descargaF.localidad_descarga || null,
+          provincia_descarga:   descargaF.provincia_descarga || null,
+        },
+        record, user.email
+      )
+      await updateCupoStatus(record.cpe_id, 'CERRADO', user.email)
+      ;(['transporte', 'intervinientes', 'grano', 'procedencia', 'contingencias', 'descarga'] as DraftTabId[])
+        .forEach(t => { clearTabDraft(id, t); tabDirtyRef.current.delete(t) })
       await reload()
       setShowConfirm(false)
-      show('Cupo cerrado', 'success')
+      show('Descarga guardada → Cerrado', 'success')
     } catch (e) {
       show((e as Error).message, 'error')
     } finally {
@@ -903,101 +992,12 @@ export default function DetalleCupo() {
       />
 
       {/* ── Tab bar ──────────────────────────────────────────── */}
-      <TabBar
-        activeTab={activeTab}
-        onSelect={handleTabSelect}
-      />
+      <TabBar activeTab={activeTab} onSelect={handleTabSelect} />
 
       {/* ── Content area (offset: header 56px + tabbar 44px) ─── */}
       <div className="max-w-mobile mx-auto px-4 space-y-4" style={{ paddingTop: '108px' }}>
 
-        {/* ── Tab: DATOS ────────────────────────────────────── */}
-        {activeTab === 'datos' && (
-          <>
-            <SectionTitle>General</SectionTitle>
-            <ResponsableChip label="Comercial / Log Central" />
-            <FormField label="Fecha de carga" value={datosF.fecha_carga} onChange={setD('fecha_carga')} type="date" />
-            <SelectField label="Campo"    value={datosF.campo}    onChange={setD('campo')}    options={CAMPOS} />
-            <SelectField label="Grano"    value={datosF.grano}    onChange={setD('grano')}    options={GRANOS} />
-            <SelectField label="Variedad" value={datosF.variedad} onChange={setD('variedad')} options={VARIEDADES} />
-            <SelectField
-              label="Declaración de Calidad"
-              value={datosF.declaracion_calidad}
-              onChange={setD('declaracion_calidad')}
-              options={['conforme', 'condicional']}
-            />
-            <SelectField label="Localidad" value={datosF.localidad} onChange={setD('localidad')} options={LOCALIDADES} />
-            <FormField label="Campaña" value={datosF.campania} onChange={setD('campania')} />
-            <FormField label="RENSPA"  value={datosF.renspa}   onChange={setD('renspa')} />
-            <div className="flex items-center gap-3 px-1">
-              <input
-                type="checkbox"
-                id="es_campo_origen"
-                checked={datosF.es_campo_origen}
-                onChange={e => { tabDirtyRef.current.add('datos'); setDatosF(p => ({ ...p, es_campo_origen: e.target.checked })) }}
-                className="w-4 h-4 rounded cursor-pointer"
-                style={{ accentColor: '#2C9FC0' }}
-              />
-              <label htmlFor="es_campo_origen" className="font-mono text-xs font-medium text-primary uppercase tracking-wide cursor-pointer">
-                Es un campo
-              </label>
-            </div>
-            <FormField label="Descripción" value={datosF.descripcion_origen} onChange={setD('descripcion_origen')} />
-
-            <SectionTitle className="mt-2">Comercial</SectionTitle>
-            <VoiceInput label="Titular Carta de Porte"       value={datosF.titular_nombre}             onChange={setD('titular_nombre')} />
-            <FormField  label="CUIT Titular"                 value={datosF.titular_cuit}               onChange={setD('titular_cuit')} />
-            <VoiceInput label="Remitente Comercial Productor" value={datosF.remitente_comercial_nombre} onChange={setD('remitente_comercial_nombre')} />
-            <FormField  label="CUIT Remitente Comercial"     value={datosF.remitente_comercial_cuit}   onChange={setD('remitente_comercial_cuit')} />
-            <FormField label="Destinatario"       value={datosF.destinatario}      onChange={setD('destinatario')} />
-            <FormField label="CUIT Destinatario"  value={datosF.cuit_destinatario} onChange={setD('cuit_destinatario')} />
-            <FormField label="Destino"            value={datosF.destino}           onChange={setD('destino')} />
-            <FormField label="CUIT Destino"       value={datosF.cuit_destino}      onChange={setD('cuit_destino')} />
-            <VoiceInput label="Rte. Comercial Venta Primaria"    value={datosF.rte_venta_primaria}    onChange={setD('rte_venta_primaria')} />
-            <FormField  label="CUIT Rte. Comercial Venta Primaria" value={datosF.cuit_rte_venta_primaria} onChange={setD('cuit_rte_venta_primaria')} />
-            <VoiceInput label="Rte. Comercial Venta Secundaria"  value={datosF.rte_venta_secundaria}  onChange={setD('rte_venta_secundaria')} />
-            <FormField  label="CUIT Rte. Comercial Venta Secundaria" value={datosF.cuit_rte_venta_secundaria} onChange={setD('cuit_rte_venta_secundaria')} />
-            <VoiceInput label="Rte. Comercial Venta Secundaria 2" value={datosF.rte_venta_secundaria2} onChange={setD('rte_venta_secundaria2')} />
-            <VoiceInput label="Mercado a Término"      value={datosF.mercado_termino}       onChange={setD('mercado_termino')} />
-            <VoiceInput label="Corredor Venta Primaria"      value={datosF.corredor_primario}     onChange={setD('corredor_primario')} />
-            <FormField  label="CUIT Corredor Venta Primaria" value={datosF.cuit_corredor_primario} onChange={setD('cuit_corredor_primario')} />
-            <VoiceInput label="Corredor Venta Secundaria"    value={datosF.corredor_secundario}   onChange={setD('corredor_secundario')} />
-            <FormField  label="CUIT Corredor Venta Secundaria" value={datosF.cuit_corredor_secundario} onChange={setD('cuit_corredor_secundario')} />
-            <VoiceInput label="Representante Entregador"       value={datosF.repr_entregador}       onChange={setD('repr_entregador')} />
-            <FormField  label="CUIT Representante Entregador"  value={datosF.cuit_repr_entregador}  onChange={setD('cuit_repr_entregador')} />
-            <VoiceInput label="Representante Recibidor"        value={datosF.repr_recibidor}        onChange={setD('repr_recibidor')} />
-            <FormField  label="CUIT Representante Recibidor"   value={datosF.cuit_repr_recibidor}   onChange={setD('cuit_repr_recibidor')} />
-            <FormField label="Kg Estimados" value={datosF.kg_estimados} onChange={setD('kg_estimados')} type="number" />
-
-            <SectionTitle className="mt-2">Flete</SectionTitle>
-            <FormField label="Kms. a recorrer" value={datosF.km}     onChange={setD('km')}     type="number" />
-            <FormField label="Tarifa"          value={datosF.tarifa} onChange={setD('tarifa')} type="number" />
-            <VoiceInput label="Flete Pagador"            value={datosF.pagador_flete}       onChange={setD('pagador_flete')} />
-            <VoiceInput label="Intermediario de Flete"   value={datosF.intermediario_flete} onChange={setD('intermediario_flete')} />
-            <FormField  label="CUIL Intermediario"       value={datosF.cuil_intermediario}  onChange={setD('cuil_intermediario')} />
-            <FormField  label="Nro. de Planta"           value={datosF.nro_planta}          onChange={setD('nro_planta')} />
-            <FormField  label="Nro. de Turno"            value={datosF.nro_turno}           onChange={setD('nro_turno')} />
-            <FormField  label="Provincia Origen"         value={datosF.provincia_origen}    onChange={setD('provincia_origen')} />
-            <FormField  label="Provincia Destino"        value={datosF.provincia_destino}   onChange={setD('provincia_destino')} />
-            <div className="flex items-center gap-3 px-1">
-              <input
-                type="checkbox"
-                id="es_campo_destino"
-                checked={datosF.es_campo_destino}
-                onChange={e => { tabDirtyRef.current.add('datos'); setDatosF(p => ({ ...p, es_campo_destino: e.target.checked })) }}
-                className="w-4 h-4 rounded cursor-pointer"
-                style={{ accentColor: '#2C9FC0' }}
-              />
-              <label htmlFor="es_campo_destino" className="font-mono text-xs font-medium text-primary uppercase tracking-wide cursor-pointer">
-                Es un campo (Destino)
-              </label>
-            </div>
-            <FormField  label="Dirección"               value={datosF.direccion_destino}   onChange={setD('direccion_destino')} />
-            <VoiceInput label="Observaciones"           value={datosF.observaciones}       onChange={setD('observaciones')} multiline rows={3} />
-          </>
-        )}
-
-        {/* ── Tab: TRANSPORTE ──────────────────────────────── */}
+        {/* ── TAB 1: TRANSPORTE ────────────────────────────── */}
         {activeTab === 'transporte' && (
           <>
             <SectionTitle>Transporte</SectionTitle>
@@ -1010,6 +1010,7 @@ export default function DetalleCupo() {
               <MessageSquare className="w-4 h-4" />
               Pegar mensaje WA
             </button>
+            <FormField label="Cupo" value={transporteF.cupo} onChange={setT('cupo')} />
             <VoiceInput label="Empresa Transportista" value={transporteF.transporte} onChange={setT('transporte')} />
             <FormField
               label="CUIT Empresa Transportista"
@@ -1029,34 +1030,145 @@ export default function DetalleCupo() {
             <VoiceInput label="Chasis / Patente" value={transporteF.chasis} onChange={setT('chasis')} />
             <VoiceInput label="Acoplado / Patente" value={transporteF.acoplado} onChange={setT('acoplado')} />
             <FormField label="Fecha Partida" value={transporteF.fecha_partida} onChange={setT('fecha_partida')} type="datetime-local" />
+            <FormField label="Kms. a recorrer" value={transporteF.km} onChange={setT('km')} type="number" />
+            <FormField label="Tarifa" value={transporteF.tarifa} onChange={setT('tarifa')} type="number" />
+            <FormField label="N° RUCA" value={transporteF.nro_ruca} onChange={setT('nro_ruca')} />
           </>
         )}
 
-        {/* ── Tab: PESAJE ───────────────────────────────────── */}
-        {activeTab === 'pesaje' && (
+        {/* ── TAB 2: INTERVINIENTES ────────────────────────── */}
+        {activeTab === 'intervinientes' && (
           <>
-            <SectionTitle>Cargados</SectionTitle>
+            <SectionTitle>Intervinientes (Sección A)</SectionTitle>
+            <ResponsableChip label="Comercial / Log Central" />
+            <VoiceInput label="Titular Carta de Porte"        value={intervinientesF.titular_nombre}            onChange={setI('titular_nombre')} />
+            <FormField  label="CUIT Titular"                  value={intervinientesF.titular_cuit}              onChange={setI('titular_cuit')} />
+            <VoiceInput label="Remitente Comercial Productor" value={intervinientesF.remitente_comercial_nombre} onChange={setI('remitente_comercial_nombre')} />
+            <FormField  label="CUIT Remitente Comercial"      value={intervinientesF.remitente_comercial_cuit}  onChange={setI('remitente_comercial_cuit')} />
+            <VoiceInput label="Rte. Comercial Venta Primaria"    value={intervinientesF.rte_venta_primaria}    onChange={setI('rte_venta_primaria')} />
+            <FormField  label="CUIT Rte. Comercial Venta Primaria" value={intervinientesF.cuit_rte_venta_primaria} onChange={setI('cuit_rte_venta_primaria')} />
+            <VoiceInput label="Rte. Comercial Venta Secundaria"  value={intervinientesF.rte_venta_secundaria}  onChange={setI('rte_venta_secundaria')} />
+            <FormField  label="CUIT Rte. Comercial Venta Secundaria" value={intervinientesF.cuit_rte_venta_secundaria} onChange={setI('cuit_rte_venta_secundaria')} />
+            <VoiceInput label="Rte. Comercial Venta Secundaria 2" value={intervinientesF.rte_venta_secundaria2} onChange={setI('rte_venta_secundaria2')} />
+            <FormField  label="CUIT Rte. Comercial Venta Secundaria 2" value={intervinientesF.cuit_rte_venta_secundaria2} onChange={setI('cuit_rte_venta_secundaria2')} />
+            <VoiceInput label="Mercado a Término"      value={intervinientesF.mercado_termino}      onChange={setI('mercado_termino')} />
+            <VoiceInput label="Corredor Venta Primaria"      value={intervinientesF.corredor_primario}     onChange={setI('corredor_primario')} />
+            <FormField  label="CUIT Corredor Venta Primaria" value={intervinientesF.cuit_corredor_primario} onChange={setI('cuit_corredor_primario')} />
+            <VoiceInput label="Corredor Venta Secundaria"    value={intervinientesF.corredor_secundario}   onChange={setI('corredor_secundario')} />
+            <FormField  label="CUIT Corredor Venta Secundaria" value={intervinientesF.cuit_corredor_secundario} onChange={setI('cuit_corredor_secundario')} />
+            <VoiceInput label="Representante Entregador"      value={intervinientesF.repr_entregador}      onChange={setI('repr_entregador')} />
+            <FormField  label="CUIT Representante Entregador" value={intervinientesF.cuit_repr_entregador} onChange={setI('cuit_repr_entregador')} />
+            <VoiceInput label="Representante Recibidor"       value={intervinientesF.repr_recibidor}       onChange={setI('repr_recibidor')} />
+            <FormField  label="CUIT Representante Recibidor"  value={intervinientesF.cuit_repr_recibidor}  onChange={setI('cuit_repr_recibidor')} />
+            <VoiceInput label="Destinatario"      value={intervinientesF.destinatario}      onChange={setI('destinatario')} />
+            <FormField  label="CUIT Destinatario" value={intervinientesF.cuit_destinatario} onChange={setI('cuit_destinatario')} />
+            <VoiceInput label="Destino"      value={intervinientesF.destino}      onChange={setI('destino')} />
+            <FormField  label="CUIT Destino" value={intervinientesF.cuit_destino} onChange={setI('cuit_destino')} />
+            <VoiceInput label="Flete Pagador"        value={intervinientesF.pagador_flete}      onChange={setI('pagador_flete')} />
+            <FormField  label="CUIT Flete Pagador"   value={intervinientesF.cuit_pagador_flete} onChange={setI('cuit_pagador_flete')} />
+            <VoiceInput label="Intermediario de Flete"     value={intervinientesF.intermediario_flete} onChange={setI('intermediario_flete')} />
+            <FormField  label="CUIT Intermediario de Flete" value={intervinientesF.cuit_intermediario}  onChange={setI('cuit_intermediario')} />
+          </>
+        )}
+
+        {/* ── TAB 3: GRANO / ESPECIE ───────────────────────── */}
+        {activeTab === 'grano' && (
+          <>
+            <SectionTitle>Grano / Especie (Sección B)</SectionTitle>
             <ResponsableChip label="Agro / Producción" />
-            <FormField label="Kg Bruto" value={pesajeF.kg_bruto_cargados} onChange={setP('kg_bruto_cargados')} type="number" />
-            <FormField label="Kg Tara" value={pesajeF.kg_tara_cargados} onChange={setP('kg_tara_cargados')} type="number" />
-            <KgNetoField bruto={pesajeF.kg_bruto_cargados} tara={pesajeF.kg_tara_cargados} />
-            <SectionTitle className="mt-2">Descargados</SectionTitle>
-            <FormField label="Kg Bruto" value={pesajeF.kg_bruto_descargados} onChange={setP('kg_bruto_descargados')} type="number" />
-            <FormField label="Kg Tara" value={pesajeF.kg_tara_descargados} onChange={setP('kg_tara_descargados')} type="number" />
-            <SectionTitle className="mt-2">Referencia</SectionTitle>
-            <FormField label="Kg Estimados (email)" value={pesajeF.kg_estimados} onChange={setP('kg_estimados')} type="number" />
+            <SelectField label="Grano"    value={granoF.grano}    onChange={setG('grano')}    options={GRANOS} />
+            <SelectField label="Variedad" value={granoF.variedad} onChange={setG('variedad')} options={VARIEDADES} />
+            <SelectField
+              label="Declaración de Calidad"
+              value={granoF.declaracion_calidad}
+              onChange={setG('declaracion_calidad')}
+              options={['conforme', 'condicional']}
+            />
+            <FormField label="Campaña" value={granoF.campania} onChange={setG('campania')} />
+            <FormField label="Peso Bruto"       value={granoF.kg_bruto_cargados} onChange={setG('kg_bruto_cargados')} type="number" />
+            <FormField label="Peso Tara"        value={granoF.kg_tara_cargados}  onChange={setG('kg_tara_cargados')}  type="number" />
+            <KgNetoField label="Kg Neto cargados" bruto={granoF.kg_bruto_cargados} tara={granoF.kg_tara_cargados} />
+            <FormField label="Kg Estimados"     value={granoF.kg_estimados}       onChange={setG('kg_estimados')}       type="number" />
+            <VoiceInput label="Observaciones"   value={granoF.observaciones}       onChange={setG('observaciones')} multiline rows={3} />
           </>
         )}
 
-        {/* ── Tab: CIERRE ───────────────────────────────────── */}
-        {activeTab === 'cierre' && (
+        {/* ── TAB 4: PROCEDENCIA ───────────────────────────── */}
+        {activeTab === 'procedencia' && (
           <>
-            <SectionTitle>Cierre de cupo</SectionTitle>
-            <ResponsableChip label="Admin Zonal / Ingeniero" />
-            {cierreReadOnly ? (
+            <SectionTitle>Procedencia — Origen (Sección C)</SectionTitle>
+            <div className="flex items-center gap-3 px-1">
+              <input
+                type="checkbox"
+                id="es_campo_origen"
+                checked={procedenciaF.es_campo_origen}
+                onChange={e => { tabDirtyRef.current.add('procedencia'); setProcedenciaF(p => ({ ...p, es_campo_origen: e.target.checked })) }}
+                className="w-4 h-4 rounded cursor-pointer"
+                style={{ accentColor: '#2C9FC0' }}
+              />
+              <label htmlFor="es_campo_origen" className="font-mono text-xs font-medium text-primary uppercase tracking-wide cursor-pointer">
+                Es un campo
+              </label>
+            </div>
+            <SelectField label="Localidad"        value={procedenciaF.localidad}       onChange={setP('localidad')}       options={LOCALIDADES} />
+            <FormField   label="Provincia Origen" value={procedenciaF.provincia_origen} onChange={setP('provincia_origen')} />
+            <GPSInput latitud={procedenciaF.latitud} longitud={procedenciaF.longitud} onChangeCoords={setGpsP} />
+            <FormField label="Descripción"  value={procedenciaF.descripcion_origen} onChange={setP('descripcion_origen')} />
+            <FormField label="RENSPA"       value={procedenciaF.renspa}             onChange={setP('renspa')} />
+            <SelectField label="Campo"      value={procedenciaF.campo}              onChange={setP('campo')}  options={CAMPOS} />
+
+            <SectionTitle className="mt-2">Destino de la Mercadería (Sección D)</SectionTitle>
+            <div className="flex items-center gap-3 px-1">
+              <input
+                type="checkbox"
+                id="es_campo_destino"
+                checked={procedenciaF.es_campo_destino}
+                onChange={e => { tabDirtyRef.current.add('procedencia'); setProcedenciaF(p => ({ ...p, es_campo_destino: e.target.checked })) }}
+                className="w-4 h-4 rounded cursor-pointer"
+                style={{ accentColor: '#2C9FC0' }}
+              />
+              <label htmlFor="es_campo_destino" className="font-mono text-xs font-medium text-primary uppercase tracking-wide cursor-pointer">
+                Es un campo (Destino)
+              </label>
+            </div>
+            <FormField label="N° Planta"           value={procedenciaF.nro_planta}        onChange={setP('nro_planta')} />
+            <FormField label="Dirección"           value={procedenciaF.direccion_destino} onChange={setP('direccion_destino')} />
+            <FormField label="Localidad (Destino)" value={procedenciaF.localidad_destino} onChange={setP('localidad_destino')} />
+            <FormField label="Provincia Destino"   value={procedenciaF.provincia_destino} onChange={setP('provincia_destino')} />
+          </>
+        )}
+
+        {/* ── TAB 5: CONTINGENCIAS ─────────────────────────── */}
+        {activeTab === 'contingencias' && (
+          <>
+            <SectionTitle>Contingencias (Sección F)</SectionTitle>
+            {!contingenciasF.contingencia && !contingenciasF.contingencia_otro &&
+             !contingenciasF.desactivacion && !contingenciasF.desactivacion_otro ? (
+              <div className="flex items-center justify-center py-8 px-4 rounded-2xl bg-gray-50 border border-dashed border-gray-light">
+                <p className="font-sans text-sm text-text-muted">Sin contingencias registradas</p>
+              </div>
+            ) : null}
+            <FormField label="Contingencia" value={contingenciasF.contingencia}      onChange={setCt('contingencia')} />
+            <FormField label="Otro"         value={contingenciasF.contingencia_otro} onChange={setCt('contingencia_otro')} />
+            <FormField label="Desactivación" value={contingenciasF.desactivacion}     onChange={setCt('desactivacion')} />
+            <FormField label="Otro"          value={contingenciasF.desactivacion_otro} onChange={setCt('desactivacion_otro')} />
+          </>
+        )}
+
+        {/* ── TAB 6: DESCARGA ──────────────────────────────── */}
+        {activeTab === 'descarga' && (
+          <>
+            <SectionTitle>Descarga (Sección G)</SectionTitle>
+            <ResponsableChip label="Agro / Producción" />
+            {descargaReadOnly ? (
               <>
-                <ReadOnlyField label="N° RUCA"    value={cierreF.nro_ruca}  />
-                <ReadOnlyField label="GPS"        value={cierreF.gps}       />
+                <ReadOnlyField label="Fecha Arribo"    value={descargaF.fecha_arribo}    />
+                <ReadOnlyField label="Fecha Descarga"  value={descargaF.fecha_descarga}  />
+                <ReadOnlyField label="N° Turno"        value={descargaF.nro_turno}        />
+                <ReadOnlyField label="Peso Bruto (kg)" value={descargaF.kg_bruto_descargados} />
+                <ReadOnlyField label="Peso Tara (kg)"  value={descargaF.kg_tara_descargados}  />
+                <ReadOnlyField label="Localidad (Descarga)"  value={descargaF.localidad_descarga}  />
+                <ReadOnlyField label="Provincia (Descarga)"  value={descargaF.provincia_descarga}  />
                 <div className="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl">
                   <span className="font-sans text-sm text-green-700 font-medium">
                     Cupo cerrado — solo lectura
@@ -1073,8 +1185,14 @@ export default function DetalleCupo() {
               </>
             ) : (
               <>
-                <FormField label="N° RUCA"   value={cierreF.nro_ruca}  onChange={setC('nro_ruca')}  />
-                <GPSInput latitud={cierreF.latitud} longitud={cierreF.longitud} onChangeCoords={setGpsC} />
+                <FormField label="Fecha Arribo"   value={descargaF.fecha_arribo}   onChange={setDe('fecha_arribo')}   type="datetime-local" />
+                <FormField label="Fecha Descarga" value={descargaF.fecha_descarga} onChange={setDe('fecha_descarga')} type="datetime-local" />
+                <FormField label="N° Turno"        value={descargaF.nro_turno}        onChange={setDe('nro_turno')} />
+                <FormField label="Peso Bruto (kg)" value={descargaF.kg_bruto_descargados} onChange={setDe('kg_bruto_descargados')} type="number" />
+                <FormField label="Peso Tara (kg)"  value={descargaF.kg_tara_descargados}  onChange={setDe('kg_tara_descargados')}  type="number" />
+                <KgNetoField label="Kg Neto descargados" bruto={descargaF.kg_bruto_descargados} tara={descargaF.kg_tara_descargados} />
+                <FormField label="Localidad (Descarga)"  value={descargaF.localidad_descarga}  onChange={setDe('localidad_descarga')} />
+                <FormField label="Provincia (Descarga)"  value={descargaF.provincia_descarga}  onChange={setDe('provincia_descarga')} />
                 <Button
                   fullWidth
                   loading={generando}
@@ -1088,7 +1206,7 @@ export default function DetalleCupo() {
           </>
         )}
 
-        {/* ── Tab: HISTORIAL ───────────────────────────────── */}
+        {/* ── TAB 7: HISTORIAL ─────────────────────────────── */}
         {activeTab === 'historial' && (
           <>
             <SectionTitle>Historial de cambios</SectionTitle>
@@ -1098,20 +1216,10 @@ export default function DetalleCupo() {
       </div>
 
       {/* ── Bottom action buttons ────────────────────────────── */}
-      {activeTab === 'datos' && (
-        <BottomBar>
-          <Button fullWidth size="lg" loading={saving} onClick={handleSaveDatos}>
-            Guardar cambios
-          </Button>
-        </BottomBar>
-      )}
-
       {activeTab === 'transporte' && (
         <BottomBar>
           <Button
-            fullWidth
-            size="lg"
-            loading={saving}
+            fullWidth size="lg" loading={saving}
             disabled={hasTransporteErrors}
             onClick={handleSaveTransporte}
             style={{ backgroundColor: '#2C9FC0' }}
@@ -1121,13 +1229,19 @@ export default function DetalleCupo() {
         </BottomBar>
       )}
 
-      {activeTab === 'pesaje' && (
+      {activeTab === 'intervinientes' && (
+        <BottomBar>
+          <Button fullWidth size="lg" loading={saving} onClick={handleSaveIntervinientes}>
+            Guardar cambios
+          </Button>
+        </BottomBar>
+      )}
+
+      {activeTab === 'grano' && (
         <BottomBar>
           <Button
-            fullWidth
-            size="lg"
-            loading={saving}
-            onClick={handleSavePesaje}
+            fullWidth size="lg" loading={saving}
+            onClick={handleSaveGrano}
             style={{ backgroundColor: '#FF6C02' }}
           >
             Guardar → Cargado
@@ -1135,12 +1249,26 @@ export default function DetalleCupo() {
         </BottomBar>
       )}
 
-      {activeTab === 'cierre' && !cierreReadOnly && (
+      {activeTab === 'procedencia' && (
+        <BottomBar>
+          <Button fullWidth size="lg" loading={saving} onClick={handleSaveProcedencia}>
+            Guardar cambios
+          </Button>
+        </BottomBar>
+      )}
+
+      {activeTab === 'contingencias' && (
+        <BottomBar>
+          <Button fullWidth size="lg" loading={saving} onClick={handleSaveContingencias}>
+            Guardar cambios
+          </Button>
+        </BottomBar>
+      )}
+
+      {activeTab === 'descarga' && !descargaReadOnly && (
         <BottomBar>
           <Button
-            fullWidth
-            size="lg"
-            loading={saving}
+            fullWidth size="lg" loading={saving}
             onClick={() => setShowConfirm(true)}
           >
             Cerrar cupo
@@ -1148,12 +1276,12 @@ export default function DetalleCupo() {
         </BottomBar>
       )}
 
-      {/* ── Confirm modal (Cierre) ───────────────────────────── */}
+      {/* ── Confirm modal (Descarga/Cierre) ─────────────────── */}
       {showConfirm && (
         <ConfirmModal
           code={displayCode}
           saving={saving}
-          onConfirm={handleSaveCierre}
+          onConfirm={handleSaveDescarga}
           onCancel={() => setShowConfirm(false)}
         />
       )}
@@ -1251,20 +1379,10 @@ export default function DetalleCupo() {
               Esta acción no se puede deshacer.
             </p>
             <div className="flex gap-3">
-              <Button
-                variant="ghost"
-                fullWidth
-                onClick={() => setDeleteConfirm(false)}
-                disabled={saving}
-              >
+              <Button variant="ghost" fullWidth onClick={() => setDeleteConfirm(false)} disabled={saving}>
                 Cancelar
               </Button>
-              <Button
-                fullWidth
-                loading={saving}
-                onClick={handleDeleteCupo}
-                style={{ backgroundColor: '#DC2626' }}
-              >
+              <Button fullWidth loading={saving} onClick={handleDeleteCupo} style={{ backgroundColor: '#DC2626' }}>
                 Eliminar
               </Button>
             </div>
@@ -1287,20 +1405,10 @@ export default function DetalleCupo() {
               </p>
             </div>
             <div className="flex gap-3">
-              <Button
-                variant="ghost"
-                fullWidth
-                onClick={() => setCancelConfirm(false)}
-                disabled={saving}
-              >
+              <Button variant="ghost" fullWidth onClick={() => setCancelConfirm(false)} disabled={saving}>
                 Volver
               </Button>
-              <Button
-                fullWidth
-                loading={saving}
-                onClick={handleCancelCupo}
-                style={{ backgroundColor: '#FF6C02' }}
-              >
+              <Button fullWidth loading={saving} onClick={handleCancelCupo} style={{ backgroundColor: '#FF6C02' }}>
                 Cancelar cupo
               </Button>
             </div>
@@ -1327,11 +1435,7 @@ export default function DetalleCupo() {
               placeholder="Pegá acá el mensaje de WhatsApp con los datos del transportista..."
               className="w-full h-36 px-4 py-3 rounded-xl border border-gray-light font-sans text-sm resize-none focus:outline-none focus:border-secondary"
             />
-            <Button
-              fullWidth
-              onClick={handleParseTransporte}
-              disabled={!parserText.trim()}
-            >
+            <Button fullWidth onClick={handleParseTransporte} disabled={!parserText.trim()}>
               Extraer datos
             </Button>
             <button
