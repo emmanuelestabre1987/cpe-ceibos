@@ -7,6 +7,7 @@ interface FormFieldProps {
   onChange: (val: string) => void
   onBlur?: () => void
   type?: 'text' | 'number' | 'date' | 'datetime-local' | 'email' | 'tel'
+  inputMode?: 'text' | 'numeric' | 'decimal' | 'tel' | 'email' | 'url' | 'search' | 'none'
   placeholder?: string
   required?: boolean
   multiline?: boolean
@@ -21,6 +22,7 @@ export function FormField({
   onChange,
   onBlur,
   type = 'text',
+  inputMode,
   placeholder,
   required,
   multiline,
@@ -52,6 +54,7 @@ export function FormField({
         <input
           id={inputId}
           type={type}
+          inputMode={inputMode}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
