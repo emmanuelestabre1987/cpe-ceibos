@@ -26,16 +26,7 @@ export async function fetchRazonSocial(cuit: string): Promise<string | null> {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = await res.json() as any
-    const dg = data?.datosGenerales
-    if (!dg || dg.estadoClave !== 'ACTIVO') return null
-
-    // Persona jurídica
-    if (dg.razonSocial) return dg.razonSocial as string
-
-    // Persona física
-    if (dg.nombre) return dg.nombre as string
-
-    return null
+    return (data?.razon_social as string) ?? null
   } catch {
     return null
   }
