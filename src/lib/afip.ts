@@ -9,12 +9,18 @@ export async function fetchRazonSocial(cuit: string): Promise<string | null> {
   if (clean.length !== 11) return null
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
-  if (!supabaseUrl) return null
+  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
+  if (!supabaseUrl || !supabaseKey) return null
 
   try {
     const res = await fetch(
       `${supabaseUrl}/functions/v1/afip-padron?cuit=${clean}`,
-      { headers: { Accept: 'application/json' } }
+      {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+      }
     )
     if (!res.ok) return null
 

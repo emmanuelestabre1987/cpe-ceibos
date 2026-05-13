@@ -1058,33 +1058,33 @@ export default function DetalleCupo() {
           <>
             <SectionTitle>Intervinientes (Sección A)</SectionTitle>
             <ResponsableChip label="Comercial / Log Central" />
-            <VoiceInput label="Titular Carta de Porte"        value={intervinientesF.titular_nombre}            onChange={setI('titular_nombre')} />
             <CuitField  label="CUIT Titular"                  value={intervinientesF.titular_cuit}              onChange={setI('titular_cuit')}              onRazonSocialFound={setI('titular_nombre')} />
-            <VoiceInput label="Remitente Comercial Productor" value={intervinientesF.remitente_comercial_nombre} onChange={setI('remitente_comercial_nombre')} />
+            <VoiceInput label="Titular Carta de Porte"        value={intervinientesF.titular_nombre}            onChange={setI('titular_nombre')} />
             <CuitField  label="CUIT Remitente Comercial"      value={intervinientesF.remitente_comercial_cuit}  onChange={setI('remitente_comercial_cuit')}  onRazonSocialFound={setI('remitente_comercial_nombre')} />
-            <VoiceInput label="Rte. Comercial Venta Primaria"    value={intervinientesF.rte_venta_primaria}    onChange={setI('rte_venta_primaria')} />
+            <VoiceInput label="Remitente Comercial Productor" value={intervinientesF.remitente_comercial_nombre} onChange={setI('remitente_comercial_nombre')} />
             <CuitField  label="CUIT Rte. Comercial Venta Primaria" value={intervinientesF.cuit_rte_venta_primaria} onChange={setI('cuit_rte_venta_primaria')} onRazonSocialFound={setI('rte_venta_primaria')} />
-            <VoiceInput label="Rte. Comercial Venta Secundaria"  value={intervinientesF.rte_venta_secundaria}  onChange={setI('rte_venta_secundaria')} />
+            <VoiceInput label="Rte. Comercial Venta Primaria"    value={intervinientesF.rte_venta_primaria}    onChange={setI('rte_venta_primaria')} />
             <CuitField  label="CUIT Rte. Comercial Venta Secundaria" value={intervinientesF.cuit_rte_venta_secundaria} onChange={setI('cuit_rte_venta_secundaria')} onRazonSocialFound={setI('rte_venta_secundaria')} />
-            <VoiceInput label="Rte. Comercial Venta Secundaria 2" value={intervinientesF.rte_venta_secundaria2} onChange={setI('rte_venta_secundaria2')} />
+            <VoiceInput label="Rte. Comercial Venta Secundaria"  value={intervinientesF.rte_venta_secundaria}  onChange={setI('rte_venta_secundaria')} />
             <CuitField  label="CUIT Rte. Comercial Venta Secundaria 2" value={intervinientesF.cuit_rte_venta_secundaria2} onChange={setI('cuit_rte_venta_secundaria2')} onRazonSocialFound={setI('rte_venta_secundaria2')} />
+            <VoiceInput label="Rte. Comercial Venta Secundaria 2" value={intervinientesF.rte_venta_secundaria2} onChange={setI('rte_venta_secundaria2')} />
             <VoiceInput label="Mercado a Término"      value={intervinientesF.mercado_termino}      onChange={setI('mercado_termino')} />
-            <VoiceInput label="Corredor Venta Primaria"      value={intervinientesF.corredor_primario}     onChange={setI('corredor_primario')} />
             <CuitField  label="CUIT Corredor Venta Primaria" value={intervinientesF.cuit_corredor_primario} onChange={setI('cuit_corredor_primario')} onRazonSocialFound={setI('corredor_primario')} />
-            <VoiceInput label="Corredor Venta Secundaria"    value={intervinientesF.corredor_secundario}   onChange={setI('corredor_secundario')} />
+            <VoiceInput label="Corredor Venta Primaria"      value={intervinientesF.corredor_primario}     onChange={setI('corredor_primario')} />
             <CuitField  label="CUIT Corredor Venta Secundaria" value={intervinientesF.cuit_corredor_secundario} onChange={setI('cuit_corredor_secundario')} onRazonSocialFound={setI('corredor_secundario')} />
-            <VoiceInput label="Representante Entregador"      value={intervinientesF.repr_entregador}      onChange={setI('repr_entregador')} />
+            <VoiceInput label="Corredor Venta Secundaria"    value={intervinientesF.corredor_secundario}   onChange={setI('corredor_secundario')} />
             <CuitField  label="CUIT Representante Entregador" value={intervinientesF.cuit_repr_entregador} onChange={setI('cuit_repr_entregador')} onRazonSocialFound={setI('repr_entregador')} />
-            <VoiceInput label="Representante Recibidor"       value={intervinientesF.repr_recibidor}       onChange={setI('repr_recibidor')} />
+            <VoiceInput label="Representante Entregador"      value={intervinientesF.repr_entregador}      onChange={setI('repr_entregador')} />
             <CuitField  label="CUIT Representante Recibidor"  value={intervinientesF.cuit_repr_recibidor}  onChange={setI('cuit_repr_recibidor')}  onRazonSocialFound={setI('repr_recibidor')} />
-            <VoiceInput label="Destinatario"      value={intervinientesF.destinatario}      onChange={setI('destinatario')} />
+            <VoiceInput label="Representante Recibidor"       value={intervinientesF.repr_recibidor}       onChange={setI('repr_recibidor')} />
             <CuitField  label="CUIT Destinatario" value={intervinientesF.cuit_destinatario} onChange={setI('cuit_destinatario')} onRazonSocialFound={setI('destinatario')} />
-            <VoiceInput label="Destino"      value={intervinientesF.destino}      onChange={setI('destino')} />
+            <VoiceInput label="Destinatario"      value={intervinientesF.destinatario}      onChange={setI('destinatario')} />
             <CuitField  label="CUIT Destino" value={intervinientesF.cuit_destino} onChange={setI('cuit_destino')} onRazonSocialFound={setI('destino')} />
-            <VoiceInput label="Flete Pagador"        value={intervinientesF.pagador_flete}      onChange={setI('pagador_flete')} />
+            <VoiceInput label="Destino"      value={intervinientesF.destino}      onChange={setI('destino')} />
             <CuitField  label="CUIT Flete Pagador"   value={intervinientesF.cuit_pagador_flete} onChange={setI('cuit_pagador_flete')} onRazonSocialFound={setI('pagador_flete')} />
-            <VoiceInput label="Intermediario de Flete"     value={intervinientesF.intermediario_flete} onChange={setI('intermediario_flete')} />
+            <VoiceInput label="Flete Pagador"        value={intervinientesF.pagador_flete}      onChange={setI('pagador_flete')} />
             <CuitField  label="CUIT Intermediario de Flete" value={intervinientesF.cuit_intermediario}  onChange={setI('cuit_intermediario')}  onRazonSocialFound={setI('intermediario_flete')} />
+            <VoiceInput label="Intermediario de Flete"     value={intervinientesF.intermediario_flete} onChange={setI('intermediario_flete')} />
           </>
         )}
 
