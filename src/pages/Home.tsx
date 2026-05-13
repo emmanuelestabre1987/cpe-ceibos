@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, X, RefreshCw, Mail, PenLine, Search, Inbox, Layers, Calendar, ChevronDown } from 'lucide-react'
+import { Plus, X, RefreshCw, Mail, PenLine, Search, Inbox, Layers, Calendar, ChevronDown, Settings } from 'lucide-react'
 import Header from '../components/layout/Header'
 import Button from '../components/ui/Button'
 import CupoCard from '../components/ui/CupoCard'
@@ -8,6 +8,7 @@ import ConnectionDot from '../components/ui/ConnectionDot'
 import { useToast } from '../components/ui/Toast'
 import { useRecords } from '../hooks/useRecords'
 import { updateCupoStatus, deleteRecord } from '../lib/storage'
+import { isAdmin } from '../lib/auth'
 import { useAuth } from '../hooks/useAuth'
 import type { CpeRecord } from '../types'
 
@@ -152,6 +153,14 @@ export default function Home() {
   const { records, loading, refresh, setRecords } = useRecords()
   const { show, ToastComponent } = useToast()
 
+  const [userIsAdmin,     setUserIsAdmin]     = useState(false)
+
+  useEffect(() => {
+    if (user?.email) {
+      isAdmin(user.email).then(setUserIsAdmin).catch(() => {})
+    }
+  }, [user])
+
   const [query,           setQuery]           = useState('')
   const [dateFrom,        setDateFrom]        = useState(() => offsetDate(-1))
   const [dateTo,          setDateTo]          = useState(() => offsetDate(+1))
@@ -278,7 +287,20 @@ export default function Home() {
       <Header
         title="Panel de Cupos"
         showLogout
-        rightElement={<ConnectionDot />}
+        rightElement={
+          <div className="flex items-center gap-1">
+            {userIsAdmin && (
+              <button
+                onClick={() => navigate('/admin')}
+                className="p-1.5 rounded-lg text-white hover:bg-white/20 transition"
+                title="Panel Admin"
+              >
+                <Settings className="w-5 h-5" />
+              </button>
+            )}
+            <ConnectionDot />
+          </div>
+        }
       />
 
       {/* ── Filter + search strip ───────────────────────────── */}
