@@ -25,6 +25,14 @@ export default function CuitField({
 }: Props) {
   const [loading, setLoading] = useState(false)
 
+  const handleChange = (v: string) => {
+    onChange(v)
+    // Si el CUIT queda vacío, limpiar la razón social
+    if (onRazonSocialFound && v.replace(/\D/g, '').length === 0) {
+      onRazonSocialFound('')
+    }
+  }
+
   const handleBlur = async () => {
     // Validación de formato si viene de afuera
     onBlur?.()
@@ -44,7 +52,7 @@ export default function CuitField({
       <FormField
         label={label}
         value={value}
-        onChange={onChange}
+        onChange={handleChange}
         onBlur={() => void handleBlur()}
         placeholder={placeholder ?? '00-00000000-0'}
         inputMode="numeric"
