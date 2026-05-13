@@ -301,10 +301,10 @@ export default function NewRecord() {
               Pegar mensaje WA
             </button>
             <FormField label="Cupo" value={str(form.cupo)} onChange={set('cupo')} required />
-            <VoiceInput label="Empresa Transportista" value={str(form.transporte)} onChange={set('transporte')} />
             <CuitField label="CUIT Empresa Transportista" value={str(form.cuit_transporte)} onChange={set('cuit_transporte')} onRazonSocialFound={set('transporte')} />
-            <VoiceInput label="Chofer" value={str(form.chofer)} onChange={set('chofer')} />
+            <VoiceInput label="Empresa Transportista" value={str(form.transporte)} onChange={set('transporte')} />
             <CuitField label="CUIL Chofer" value={str(form.cuil_chofer)} onChange={set('cuil_chofer')} onRazonSocialFound={set('chofer')} />
+            <VoiceInput label="Chofer" value={str(form.chofer)} onChange={set('chofer')} />
             <VoiceInput label="Chasis / Patente" value={str(form.chasis)} onChange={set('chasis')} />
             <VoiceInput label="Acoplado / Patente" value={str(form.acoplado)} onChange={set('acoplado')} />
             <FormField label="Fecha Partida" value={str(form.fecha_partida)} onChange={set('fecha_partida')} type="datetime-local" />

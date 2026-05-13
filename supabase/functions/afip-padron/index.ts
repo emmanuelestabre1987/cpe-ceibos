@@ -36,12 +36,18 @@ serve(async (req) => {
     return json({ razon_social: cached.razon_social, from_cache: true })
   }
 
-  // ── 2. Consultar AfipSDK ─────────────────────────────────────────
+  // ── 2. Consultar AfipSDK con certificado propio ──────────────────
   const afipToken = Deno.env.get('AFIPSDK_TOKEN')
-  if (!afipToken) return json({ error: 'AFIPSDK_TOKEN not set' }, 500)
+  const afipCuit  = Deno.env.get('AFIP_CUIT')
+  const afipCert  = Deno.env.get('AFIP_CERT')?.replace(/\|/g, '\n')
+  const afipKey   = Deno.env.get('AFIP_KEY')?.replace(/\|/g, '\n')
+
+  if (!afipToken || !afipCuit || !afipCert || !afipKey) {
+    return json({ error: 'Missing AFIP credentials' }, 500)
+  }
 
   try {
-    // Paso 1: obtener token y sign
+    // Paso 1: obtener token y sign con certificado propio
     const authRes = await fetch('https://app.afipsdk.com/api/v1/afip/auth', {
       method: 'POST',
       headers: {
@@ -50,12 +56,18 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         environment: 'prod',
-        tax_id: '20409378472',
+        tax_id: afipCuit,
         wsid: 'ws_sr_constancia_inscripcion',
+        cert: afipCert,
+        key: afipKey,
       }),
     })
 
-    if (!authRes.ok) return json({ error: 'AfipSDK auth failed' }, 502)
+    if (!authRes.ok) {
+      const err = await authRes.text()
+      return json({ error: `Auth failed: ${err}` }, 502)
+    }
+
     const { token, sign } = await authRes.json()
 
     // Paso 2: consultar persona
@@ -72,22 +84,25 @@ serve(async (req) => {
         params: {
           token,
           sign,
-          cuitRepresentada: '20409378472',
+          cuitRepresentada: afipCuit,
           idPersona: parseInt(cuit),
         },
       }),
     })
 
-    if (!personaRes.ok) return json({ error: 'AfipSDK persona failed' }, 502)
-    const persona = await personaRes.json()
+    if (!personaRes.ok) {
+      const err = await personaRes.text()
+      return json({ error: `Persona failed: ${err}` }, 502)
+    }
 
-    // Extraer razón social
-    const dg = persona?.datosGenerales
+    const persona = await personaRes.json()
+    const dg = persona?.personaReturn?.datosGenerales
     if (!dg) return json({ razon_social: null })
 
     const razon_social: string =
       dg.razonSocial ||
-      (dg.nombre ? `${dg.apellido ?? ''} ${dg.nombre}`.trim() : null)
+      [dg.apellido, dg.nombre].filter(Boolean).join(' ').trim() ||
+      null
 
     if (!razon_social) return json({ razon_social: null })
 
