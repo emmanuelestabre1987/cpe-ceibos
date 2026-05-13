@@ -1,20 +1,19 @@
 /**
- * Consulta el padrón público de AFIP/ARCA y devuelve la denominación.
+ * Consulta el padrón público de AFIP/ARCA via Supabase Edge Function (proxy CORS).
  * - Personas jurídicas: razonSocial
  * - Personas físicas: nombre
- * Retorna null si el CUIT no existe, está inactivo o hay error de red/CORS.
- *
- * CORS: si la llamada directa falla en el browser, deployar la Supabase Edge Function
- * en supabase/functions/afip-padron/index.ts y cambiar la URL a:
- *   `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/afip-padron?cuit=${clean}`
+ * Retorna null si el CUIT no existe, está inactivo o hay error de red.
  */
 export async function fetchRazonSocial(cuit: string): Promise<string | null> {
   const clean = cuit.replace(/\D/g, '')
   if (clean.length !== 11) return null
 
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
+  if (!supabaseUrl) return null
+
   try {
     const res = await fetch(
-      `https://soa.afip.gob.ar/sr-padron/v2/persona/${clean}`,
+      `${supabaseUrl}/functions/v1/afip-padron?cuit=${clean}`,
       { headers: { Accept: 'application/json' } }
     )
     if (!res.ok) return null
