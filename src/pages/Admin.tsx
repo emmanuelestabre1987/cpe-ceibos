@@ -66,8 +66,22 @@ export default function Admin() {
     try {
       await addAuthorizedEmail(newEmail, user.email)
       setEmails(await getAuthorizedEmails())
+
+      // Notificar al nuevo usuario via n8n
+      const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_BIENVENIDA_URL as string | undefined
+      if (webhookUrl) {
+        fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: newEmail.trim().toLowerCase(),
+            added_by: user.email,
+          }),
+        }).catch(() => {}) // silencioso — no bloquear el flujo si falla
+      }
+
       setNewEmail('')
-      show('Email agregado', 'success')
+      show('Email agregado — se envió notificación al usuario', 'success')
     } catch (e) {
       show((e as Error).message, 'error')
     } finally {
