@@ -55,7 +55,7 @@ export async function createRecord(
     .insert({
       ...formData,
       cpe_id,
-      status: 'IMPORTADO',
+      status: 'TRANSPORTE',
       created_by: userEmail,
       imported_at: new Date().toISOString(),
     })

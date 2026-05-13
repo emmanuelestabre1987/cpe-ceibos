@@ -514,7 +514,7 @@ export default function NewRecord() {
           )}
           {step <= 6 && (
             <Button onClick={handleGuardarPaso} loading={saving} className="flex-1 whitespace-nowrap text-sm">
-              Guardar y continuar <ChevronRight className="w-4 h-4 inline-block" />
+              {step === 1 ? 'Crear cupo' : 'Guardar y continuar'} <ChevronRight className="w-4 h-4 inline-block" />
             </Button>
           )}
         </div>
