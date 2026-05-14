@@ -13,7 +13,7 @@ import { useToast } from '../components/ui/Toast'
 import { createRecord, updateRecord } from '../lib/storage'
 import { parseTransporteMsg } from '../lib/transporteParser'
 import { useAuth } from '../hooks/useAuth'
-import { CAMPOS, GRANOS, VARIEDADES, LOCALIDADES, FIELD_LABELS, type CpeRecord, type RecordFormData } from '../types'
+import { CAMPOS, GRANOS, VARIEDADES, FIELD_LABELS, type CpeRecord, type RecordFormData } from '../types'
 
 const DRAFT_KEY = 'draft_new_record'
 
@@ -364,7 +364,6 @@ export default function NewRecord() {
             <FormField label="Peso Bruto"   value={str(form.kg_bruto_cargados)} onChange={set('kg_bruto_cargados')} type="number" />
             <FormField label="Peso Tara"    value={str(form.kg_tara_cargados)}  onChange={set('kg_tara_cargados')}  type="number" />
             <KgNetoDisplay label="Kg Neto cargados" bruto={str(form.kg_bruto_cargados)} tara={str(form.kg_tara_cargados)} />
-            <FormField label="Kg Estimados" value={str(form.kg_estimados)}      onChange={set('kg_estimados')}      type="number" />
             <VoiceInput label="Observaciones" value={str(form.observaciones)} onChange={set('observaciones')} multiline rows={4} />
           </>
         )}
@@ -387,7 +386,7 @@ export default function NewRecord() {
                 Es un campo
               </label>
             </div>
-            <SelectField label="Localidad"        value={str(form.localidad)}       onChange={set('localidad')}       options={LOCALIDADES} required />
+            <FormField   label="Localidad"        value={str(form.localidad)}       onChange={set('localidad')}       required />
             <FormField   label="Provincia Origen" value={str(form.provincia_origen)} onChange={set('provincia_origen')} />
             <GPSInput latitud={form.latitud ?? null} longitud={form.longitud ?? null} onChangeCoords={setGps} />
             <FormField label="Descripción" value={str(form.descripcion_origen)} onChange={set('descripcion_origen')} />

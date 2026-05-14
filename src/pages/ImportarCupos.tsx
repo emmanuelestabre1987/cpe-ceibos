@@ -10,7 +10,7 @@ import { useToast } from '../components/ui/Toast'
 import { createImportBatch, createCuposEnLote } from '../lib/storage'
 import { useAuth } from '../hooks/useAuth'
 import { format } from '../lib/dateUtils'
-import { CAMPOS, GRANOS, VARIEDADES, LOCALIDADES, type CpeRecord } from '../types'
+import { CAMPOS, GRANOS, VARIEDADES, type CpeRecord } from '../types'
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -457,7 +457,7 @@ export default function ImportarCupos() {
           {/* ── General ── */}
           <SectionTitle>Grano / Especie</SectionTitle>
           <SelectField label="Campo" value={campos.campo} onChange={set('campo')} options={CAMPOS} />
-          <SelectField label="Localidad" value={campos.localidad} onChange={set('localidad')} options={LOCALIDADES} />
+          <FormField   label="Localidad" value={campos.localidad} onChange={set('localidad')} />
           <SelectField label="Grano" value={campos.grano} onChange={set('grano')} options={GRANOS} />
           <SelectField label="Variedad" value={campos.variedad} onChange={set('variedad')} options={VARIEDADES} />
           <SelectField

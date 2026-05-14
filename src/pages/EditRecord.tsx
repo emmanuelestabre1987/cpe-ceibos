@@ -10,7 +10,7 @@ import SectionTitle from '../components/ui/SectionTitle'
 import { useToast } from '../components/ui/Toast'
 import { getRecord, updateRecord } from '../lib/storage'
 import { useAuth } from '../hooks/useAuth'
-import { CAMPOS, GRANOS, VARIEDADES, LOCALIDADES, type CpeRecord, type RecordFormData } from '../types'
+import { CAMPOS, GRANOS, VARIEDADES, type CpeRecord, type RecordFormData } from '../types'
 
 function str(val: string | number | null | undefined) {
   return val === null || val === undefined ? '' : String(val)
@@ -172,7 +172,6 @@ export default function EditRecord() {
         <FormField label="Campaña"      value={str(form.campania)}          onChange={set('campania')} />
         <FormField label="Peso Bruto"   value={str(form.kg_bruto_cargados)} onChange={set('kg_bruto_cargados')} type="number" />
         <FormField label="Peso Tara"    value={str(form.kg_tara_cargados)}  onChange={set('kg_tara_cargados')}  type="number" />
-        <FormField label="Kg Estimados" value={str(form.kg_estimados)}      onChange={set('kg_estimados')}      type="number" />
         <VoiceInput label="Observaciones" value={str(form.observaciones)} onChange={set('observaciones')} multiline rows={4} />
 
         {/* ── PROCEDENCIA (C) ── */}
@@ -191,7 +190,7 @@ export default function EditRecord() {
             Es un campo
           </label>
         </div>
-        <SelectField label="Localidad"        value={str(form.localidad)}       onChange={set('localidad')}       options={LOCALIDADES} />
+        <FormField   label="Localidad"        value={str(form.localidad)}       onChange={set('localidad')} />
         <FormField   label="Provincia Origen" value={str(form.provincia_origen)} onChange={set('provincia_origen')} />
         <GPSInput latitud={form.latitud ?? null} longitud={form.longitud ?? null} onChangeCoords={setGps} />
         <FormField label="Descripción" value={str(form.descripcion_origen)} onChange={set('descripcion_origen')} />

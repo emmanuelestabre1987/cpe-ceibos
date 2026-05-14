@@ -26,7 +26,6 @@ import {
   CAMPOS,
   GRANOS,
   VARIEDADES,
-  LOCALIDADES,
   FIELD_LABELS,
   type CpeRecord,
   type AuditEntry,
@@ -1105,7 +1104,6 @@ export default function DetalleCupo() {
             <FormField label="Peso Bruto"       value={granoF.kg_bruto_cargados} onChange={setG('kg_bruto_cargados')} type="number" />
             <FormField label="Peso Tara"        value={granoF.kg_tara_cargados}  onChange={setG('kg_tara_cargados')}  type="number" />
             <KgNetoField label="Kg Neto cargados" bruto={granoF.kg_bruto_cargados} tara={granoF.kg_tara_cargados} />
-            <FormField label="Kg Estimados"     value={granoF.kg_estimados}       onChange={setG('kg_estimados')}       type="number" />
             <VoiceInput label="Observaciones"   value={granoF.observaciones}       onChange={setG('observaciones')} multiline rows={3} />
           </>
         )}
@@ -1127,7 +1125,7 @@ export default function DetalleCupo() {
                 Es un campo
               </label>
             </div>
-            <SelectField label="Localidad"        value={procedenciaF.localidad}       onChange={setP('localidad')}       options={LOCALIDADES} />
+            <FormField   label="Localidad"        value={procedenciaF.localidad}       onChange={setP('localidad')} />
             <FormField   label="Provincia Origen" value={procedenciaF.provincia_origen} onChange={setP('provincia_origen')} />
             <GPSInput latitud={procedenciaF.latitud} longitud={procedenciaF.longitud} onChangeCoords={setGpsP} />
             <FormField label="Descripción"  value={procedenciaF.descripcion_origen} onChange={setP('descripcion_origen')} />

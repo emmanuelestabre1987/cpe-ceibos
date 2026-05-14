@@ -9,7 +9,7 @@ import VoiceInput from '../components/forms/VoiceInput'
 import { useToast } from '../components/ui/Toast'
 import { getRecord, updateRecord } from '../lib/storage'
 import { useAuth } from '../hooks/useAuth'
-import { CAMPOS, GRANOS, VARIEDADES, LOCALIDADES } from '../types'
+import { CAMPOS, GRANOS, VARIEDADES } from '../types'
 import type { CpeRecord, CpeStatus, RecordFormData } from '../types'
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -195,13 +195,12 @@ export default function AsignarDatos() {
         <FormField label="Campaña"      value={str(form.campania)}          onChange={set('campania')} />
         <FormField label="Peso Bruto"   value={str(form.kg_bruto_cargados)} onChange={setNum('kg_bruto_cargados')} type="number" />
         <FormField label="Peso Tara"    value={str(form.kg_tara_cargados)}  onChange={setNum('kg_tara_cargados')}  type="number" />
-        <FormField label="Kg Estimados" value={str(form.kg_estimados)}      onChange={setNum('kg_estimados')}      type="number" />
         <VoiceInput label="Observaciones" value={str(form.observaciones)}   onChange={set('observaciones')} multiline rows={4} />
 
         {/* ── Sección 4: Procedencia + Destino ── */}
         <SectionTitle className="mt-2">Procedencia — Origen (Sección C)</SectionTitle>
         <FormField  label="Fecha de carga"   value={str(form.fecha_carga)}        onChange={set('fecha_carga')} type="date" />
-        <SelectField label="Localidad"       value={str(form.localidad)}          onChange={set('localidad')}   options={LOCALIDADES} />
+        <FormField   label="Localidad"       value={str(form.localidad)}          onChange={set('localidad')} />
         <FormField  label="Provincia Origen" value={str(form.provincia_origen)}   onChange={set('provincia_origen')} />
         <FormField  label="Descripción"      value={str(form.descripcion_origen)} onChange={set('descripcion_origen')} />
         <FormField  label="RENSPA"           value={str(form.renspa)}             onChange={set('renspa')} />
