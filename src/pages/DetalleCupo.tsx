@@ -1128,7 +1128,7 @@ export default function DetalleCupo() {
             <FormField   label="Localidad"        value={procedenciaF.localidad}       onChange={setP('localidad')} />
             <FormField   label="Provincia Origen" value={procedenciaF.provincia_origen} onChange={setP('provincia_origen')} />
             <GPSInput latitud={procedenciaF.latitud} longitud={procedenciaF.longitud} onChangeCoords={setGpsP} />
-            <FormField label="Descripción"  value={procedenciaF.descripcion_origen} onChange={setP('descripcion_origen')} />
+            <FormField label="Dirección"    value={procedenciaF.descripcion_origen} onChange={setP('descripcion_origen')} />
             <FormField label="RENSPA"       value={procedenciaF.renspa}             onChange={setP('renspa')} />
             <SelectField label="Campo"      value={procedenciaF.campo}              onChange={setP('campo')}  options={CAMPOS} />
 

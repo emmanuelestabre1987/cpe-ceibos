@@ -202,7 +202,7 @@ export default function AsignarDatos() {
         <FormField  label="Fecha de carga"   value={str(form.fecha_carga)}        onChange={set('fecha_carga')} type="date" />
         <FormField   label="Localidad"       value={str(form.localidad)}          onChange={set('localidad')} />
         <FormField  label="Provincia Origen" value={str(form.provincia_origen)}   onChange={set('provincia_origen')} />
-        <FormField  label="Descripción"      value={str(form.descripcion_origen)} onChange={set('descripcion_origen')} />
+        <FormField  label="Dirección"         value={str(form.descripcion_origen)} onChange={set('descripcion_origen')} />
         <FormField  label="RENSPA"           value={str(form.renspa)}             onChange={set('renspa')} />
         <SelectField label="Campo"           value={str(form.campo)}              onChange={set('campo')} options={CAMPOS} />
 
