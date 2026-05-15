@@ -367,7 +367,7 @@ const TAB_LABELS: { id: TabId; label: string }[] = [
 
 function TabBar({ activeTab, onSelect }: TabBarProps) {
   return (
-    <div className="fixed top-14 left-0 right-0 z-30 bg-white border-b border-gray-light flex overflow-x-auto scrollbar-hide">
+    <div className="fixed top-14 left-0 right-0 z-30 flex overflow-x-auto scrollbar-hide" style={{ backgroundColor: '#1E3252' }}>
       {TAB_LABELS.map(({ id, label }) => {
         const active = activeTab === id
         return (
@@ -377,8 +377,8 @@ function TabBar({ activeTab, onSelect }: TabBarProps) {
             onClick={() => onSelect(id)}
             className={`flex-shrink-0 px-4 py-3 font-mono text-xs font-medium transition-colors border-b-2 ${
               active
-                ? 'border-secondary text-secondary'
-                : 'border-transparent text-text-muted hover:text-primary'
+                ? 'border-secondary text-white'
+                : 'border-transparent text-white/50 hover:text-white/80'
             }`}
           >
             {label}
