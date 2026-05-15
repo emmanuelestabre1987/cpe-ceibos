@@ -106,8 +106,8 @@ export default function CupoCard({
               }
             </div>
           )}
-          <p className="font-mono font-bold text-primary text-sm leading-snug flex-1 min-w-0 break-all">
-            {displayCode}
+          <p className={`font-mono font-bold text-sm leading-snug flex-1 min-w-0 break-all ${displayCode ? 'text-primary' : 'text-gray-400'}`}>
+            {displayCode ?? 'Sin número asignado'}
           </p>
           <span
             className="shrink-0 inline-block px-2.5 py-0.5 rounded-full text-xs font-sans font-semibold leading-5"
@@ -118,11 +118,17 @@ export default function CupoCard({
         </div>
 
         {/* Row 2: grano · destinatario · kg */}
-        {line2 && (
-          <p className="font-sans text-sm font-medium text-primary truncate mb-0.5">
-            {line2}
-          </p>
-        )}
+        {line2
+          ? (
+            <p className="font-sans text-sm font-medium text-primary truncate mb-0.5">
+              {line2}
+            </p>
+          ) : (
+            <p className="font-sans text-sm text-text-muted italic mb-0.5">
+              Sin datos de carga
+            </p>
+          )
+        }
 
         {/* Row 3: localidad · fecha */}
         {line3 && (
