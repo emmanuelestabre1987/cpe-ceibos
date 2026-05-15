@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Save } from 'lucide-react'
 import Header from '../components/layout/Header'
@@ -16,6 +16,19 @@ function str(val: string | number | null | undefined) {
   return val === null || val === undefined ? '' : String(val)
 }
 
+// ── Roles opcionales en Intervinientes ───────────────────────
+
+const ROLES_OPCIONALES = [
+  { id: 'rte_primaria',        label: 'Rte. Venta Primaria'   },
+  { id: 'rte_secundaria',      label: 'Rte. Venta Secundaria' },
+  { id: 'rte_secundaria2',     label: 'Rte. Venta Sec. 2'     },
+  { id: 'mercado',             label: 'Mercado a Término'      },
+  { id: 'corredor_primario',   label: 'Corredor Primario'      },
+  { id: 'corredor_secundario', label: 'Corredor Secundario'    },
+  { id: 'repr_entregador',     label: 'Rep. Entregador'        },
+  { id: 'repr_recibidor',      label: 'Rep. Recibidor'         },
+] as const
+
 export default function EditRecord() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -25,6 +38,9 @@ export default function EditRecord() {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  // Roles opcionales Intervinientes
+  const [rolesActivos, setRolesActivos] = useState(new Set<string>())
+  const rolesInit = useRef(false)
   const { show, ToastComponent } = useToast()
 
   useEffect(() => {
@@ -43,6 +59,46 @@ export default function EditRecord() {
         setLoading(false)
       })
   }, [id])
+
+  // Inicializar toggles cuando carga el registro original
+  useEffect(() => {
+    if (!original || rolesInit.current) return
+    rolesInit.current = true
+    const active = new Set<string>()
+    if (str(original.rte_venta_primaria)   || str(original.cuit_rte_venta_primaria))   active.add('rte_primaria')
+    if (str(original.rte_venta_secundaria) || str(original.cuit_rte_venta_secundaria)) active.add('rte_secundaria')
+    if (str(original.rte_venta_secundaria2) || str(original.cuit_rte_venta_secundaria2)) active.add('rte_secundaria2')
+    if (str(original.mercado_termino))                                                  active.add('mercado')
+    if (str(original.corredor_primario)    || str(original.cuit_corredor_primario))     active.add('corredor_primario')
+    if (str(original.corredor_secundario)  || str(original.cuit_corredor_secundario))   active.add('corredor_secundario')
+    if (str(original.repr_entregador)      || str(original.cuit_repr_entregador))       active.add('repr_entregador')
+    if (str(original.repr_recibidor)       || str(original.cuit_repr_recibidor))        active.add('repr_recibidor')
+    if (active.size > 0) setRolesActivos(active)
+  }, [original])
+
+  const clearRolFields = (id: string) => {
+    switch (id) {
+      case 'rte_primaria':        set('cuit_rte_venta_primaria')('');    set('rte_venta_primaria')('');    break
+      case 'rte_secundaria':      set('cuit_rte_venta_secundaria')('');   set('rte_venta_secundaria')('');  break
+      case 'rte_secundaria2':     set('cuit_rte_venta_secundaria2')('');  set('rte_venta_secundaria2')(''); break
+      case 'mercado':             set('mercado_termino')('');             break
+      case 'corredor_primario':   set('cuit_corredor_primario')('');      set('corredor_primario')('');     break
+      case 'corredor_secundario': set('cuit_corredor_secundario')('');    set('corredor_secundario')('');   break
+      case 'repr_entregador':     set('cuit_repr_entregador')('');        set('repr_entregador')('');       break
+      case 'repr_recibidor':      set('cuit_repr_recibidor')('');         set('repr_recibidor')('');        break
+    }
+  }
+
+  const toggleRol = (id: string) => {
+    const wasActive = rolesActivos.has(id)
+    setRolesActivos(prev => {
+      const next = new Set(prev)
+      if (wasActive) next.delete(id)
+      else next.add(id)
+      return next
+    })
+    if (wasActive) clearRolFields(id)
+  }
 
   const set = (field: keyof RecordFormData) => (val: string) => {
     setForm((prev) => {
@@ -131,33 +187,81 @@ export default function EditRecord() {
 
         {/* ── INTERVINIENTES ── */}
         <SectionTitle className="mt-4">Intervinientes (Sección A)</SectionTitle>
-        <VoiceInput label="Titular Carta de Porte"        value={str(form.titular_nombre)}            onChange={set('titular_nombre')} />
-        <FormField  label="CUIT Titular"                  value={str(form.titular_cuit)}              onChange={set('titular_cuit')} />
-        <VoiceInput label="Remitente Comercial Productor" value={str(form.remitente_comercial_nombre)} onChange={set('remitente_comercial_nombre')} />
-        <FormField  label="CUIT Remitente Comercial"      value={str(form.remitente_comercial_cuit)}  onChange={set('remitente_comercial_cuit')} />
-        <VoiceInput label="Rte. Comercial Venta Primaria"    value={str(form.rte_venta_primaria)}    onChange={set('rte_venta_primaria')} />
-        <FormField  label="CUIT Rte. Comercial Venta Primaria" value={str(form.cuit_rte_venta_primaria)} onChange={set('cuit_rte_venta_primaria')} />
-        <VoiceInput label="Rte. Comercial Venta Secundaria"  value={str(form.rte_venta_secundaria)}  onChange={set('rte_venta_secundaria')} />
-        <FormField  label="CUIT Rte. Comercial Venta Secundaria" value={str(form.cuit_rte_venta_secundaria)} onChange={set('cuit_rte_venta_secundaria')} />
-        <VoiceInput label="Rte. Comercial Venta Secundaria 2" value={str(form.rte_venta_secundaria2)} onChange={set('rte_venta_secundaria2')} />
-        <FormField  label="CUIT Rte. Comercial Venta Secundaria 2" value={str(form.cuit_rte_venta_secundaria2)} onChange={set('cuit_rte_venta_secundaria2')} />
-        <VoiceInput label="Mercado a Término" value={str(form.mercado_termino)} onChange={set('mercado_termino')} />
-        <VoiceInput label="Corredor Venta Primaria"      value={str(form.corredor_primario)}     onChange={set('corredor_primario')} />
-        <FormField  label="CUIT Corredor Venta Primaria" value={str(form.cuit_corredor_primario)} onChange={set('cuit_corredor_primario')} />
-        <VoiceInput label="Corredor Venta Secundaria"    value={str(form.corredor_secundario)}   onChange={set('corredor_secundario')} />
-        <FormField  label="CUIT Corredor Venta Secundaria" value={str(form.cuit_corredor_secundario)} onChange={set('cuit_corredor_secundario')} />
-        <VoiceInput label="Representante Entregador"      value={str(form.repr_entregador)}      onChange={set('repr_entregador')} />
-        <FormField  label="CUIT Representante Entregador" value={str(form.cuit_repr_entregador)} onChange={set('cuit_repr_entregador')} />
-        <VoiceInput label="Representante Recibidor"       value={str(form.repr_recibidor)}       onChange={set('repr_recibidor')} />
-        <FormField  label="CUIT Representante Recibidor"  value={str(form.cuit_repr_recibidor)}  onChange={set('cuit_repr_recibidor')} />
-        <VoiceInput label="Destinatario"      value={str(form.destinatario)}      onChange={set('destinatario')} />
-        <FormField  label="CUIT Destinatario" value={str(form.cuit_destinatario)} onChange={set('cuit_destinatario')} />
-        <VoiceInput label="Destino"      value={str(form.destino)}      onChange={set('destino')} />
-        <FormField  label="CUIT Destino" value={str(form.cuit_destino)} onChange={set('cuit_destino')} />
-        <VoiceInput label="Flete Pagador"             value={str(form.pagador_flete)}      onChange={set('pagador_flete')} />
-        <FormField  label="CUIT Flete Pagador"        value={str(form.cuit_pagador_flete)} onChange={set('cuit_pagador_flete')} />
+
+        {/* Siempre visibles */}
+        <VoiceInput label="Titular Carta de Porte"        value={str(form.titular_nombre)}             onChange={set('titular_nombre')} />
+        <FormField  label="CUIT Titular"                  value={str(form.titular_cuit)}               onChange={set('titular_cuit')} />
+        <VoiceInput label="Remitente Comercial Productor" value={str(form.remitente_comercial_nombre)}  onChange={set('remitente_comercial_nombre')} />
+        <FormField  label="CUIT Remitente Comercial"      value={str(form.remitente_comercial_cuit)}    onChange={set('remitente_comercial_cuit')} />
+
+        {/* Roles opcionales — toggles */}
+        <div>
+          <p className="font-mono text-xs font-medium text-text-muted uppercase tracking-wide px-0.5 mb-2">
+            Roles opcionales
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {ROLES_OPCIONALES.map(({ id, label }) => {
+              const active = rolesActivos.has(id)
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => toggleRol(id)}
+                  className={`h-8 px-3 rounded-full border font-mono text-xs font-medium transition-colors active:scale-[0.97] ${
+                    active
+                      ? 'border-secondary bg-secondary text-white'
+                      : 'border-gray-light bg-white text-text-muted'
+                  }`}
+                >
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Campos condicionales por rol */}
+        {rolesActivos.has('rte_primaria') && (<>
+          <VoiceInput label="Rte. Comercial Venta Primaria"          value={str(form.rte_venta_primaria)}        onChange={set('rte_venta_primaria')} />
+          <FormField  label="CUIT Rte. Comercial Venta Primaria"     value={str(form.cuit_rte_venta_primaria)}   onChange={set('cuit_rte_venta_primaria')} />
+        </>)}
+        {rolesActivos.has('rte_secundaria') && (<>
+          <VoiceInput label="Rte. Comercial Venta Secundaria"        value={str(form.rte_venta_secundaria)}      onChange={set('rte_venta_secundaria')} />
+          <FormField  label="CUIT Rte. Comercial Venta Secundaria"   value={str(form.cuit_rte_venta_secundaria)} onChange={set('cuit_rte_venta_secundaria')} />
+        </>)}
+        {rolesActivos.has('rte_secundaria2') && (<>
+          <VoiceInput label="Rte. Comercial Venta Secundaria 2"      value={str(form.rte_venta_secundaria2)}       onChange={set('rte_venta_secundaria2')} />
+          <FormField  label="CUIT Rte. Comercial Venta Secundaria 2" value={str(form.cuit_rte_venta_secundaria2)}  onChange={set('cuit_rte_venta_secundaria2')} />
+        </>)}
+        {rolesActivos.has('mercado') && (
+          <VoiceInput label="Mercado a Término" value={str(form.mercado_termino)} onChange={set('mercado_termino')} />
+        )}
+        {rolesActivos.has('corredor_primario') && (<>
+          <VoiceInput label="Corredor Venta Primaria"      value={str(form.corredor_primario)}      onChange={set('corredor_primario')} />
+          <FormField  label="CUIT Corredor Venta Primaria" value={str(form.cuit_corredor_primario)} onChange={set('cuit_corredor_primario')} />
+        </>)}
+        {rolesActivos.has('corredor_secundario') && (<>
+          <VoiceInput label="Corredor Venta Secundaria"      value={str(form.corredor_secundario)}       onChange={set('corredor_secundario')} />
+          <FormField  label="CUIT Corredor Venta Secundaria" value={str(form.cuit_corredor_secundario)}  onChange={set('cuit_corredor_secundario')} />
+        </>)}
+        {rolesActivos.has('repr_entregador') && (<>
+          <VoiceInput label="Representante Entregador"      value={str(form.repr_entregador)}      onChange={set('repr_entregador')} />
+          <FormField  label="CUIT Representante Entregador" value={str(form.cuit_repr_entregador)} onChange={set('cuit_repr_entregador')} />
+        </>)}
+        {rolesActivos.has('repr_recibidor') && (<>
+          <VoiceInput label="Representante Recibidor"       value={str(form.repr_recibidor)}       onChange={set('repr_recibidor')} />
+          <FormField  label="CUIT Representante Recibidor"  value={str(form.cuit_repr_recibidor)}  onChange={set('cuit_repr_recibidor')} />
+        </>)}
+
+        {/* Siempre visibles */}
+        <VoiceInput label="Destinatario"               value={str(form.destinatario)}       onChange={set('destinatario')} />
+        <FormField  label="CUIT Destinatario"          value={str(form.cuit_destinatario)}  onChange={set('cuit_destinatario')} />
+        <VoiceInput label="Destino"                    value={str(form.destino)}            onChange={set('destino')} />
+        <FormField  label="CUIT Destino"               value={str(form.cuit_destino)}       onChange={set('cuit_destino')} />
+        <VoiceInput label="Flete Pagador"              value={str(form.pagador_flete)}      onChange={set('pagador_flete')} />
+        <FormField  label="CUIT Flete Pagador"         value={str(form.cuit_pagador_flete)} onChange={set('cuit_pagador_flete')} />
         <VoiceInput label="Intermediario de Flete"     value={str(form.intermediario_flete)} onChange={set('intermediario_flete')} />
-        <FormField  label="CUIT Intermediario de Flete" value={str(form.cuit_intermediario)}  onChange={set('cuit_intermediario')} />
+        <FormField  label="CUIT Intermediario de Flete" value={str(form.cuit_intermediario)} onChange={set('cuit_intermediario')} />
 
         {/* ── GRANO / ESPECIE ── */}
         <SectionTitle className="mt-4">Grano / Especie (Sección B)</SectionTitle>
