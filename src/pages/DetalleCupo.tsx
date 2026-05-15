@@ -366,25 +366,49 @@ const TAB_LABELS: { id: TabId; label: string }[] = [
 ]
 
 function TabBar({ activeTab, onSelect }: TabBarProps) {
+  const totalTabs = TAB_LABELS.length
+  const activeIdx = TAB_LABELS.findIndex(t => t.id === activeTab)
+  const activeLabel = TAB_LABELS[activeIdx]?.label ?? ''
+  const pct = (activeIdx / (totalTabs - 1)) * 100
+
   return (
-    <div className="fixed top-14 left-0 right-0 z-30 flex overflow-x-auto scrollbar-hide" style={{ backgroundColor: '#1E3252' }}>
-      {TAB_LABELS.map(({ id, label }) => {
-        const active = activeTab === id
-        return (
-          <button
-            key={id}
-            type="button"
-            onClick={() => onSelect(id)}
-            className={`flex-shrink-0 px-4 py-3 font-mono text-xs font-medium transition-colors border-b-2 ${
-              active
-                ? 'border-secondary text-white'
-                : 'border-transparent text-white/50 hover:text-white/80'
-            }`}
-          >
-            {label}
-          </button>
-        )
-      })}
+    <div className="fixed top-14 left-0 right-0 z-30 bg-primary px-4 pt-2 pb-3">
+
+      {/* Row 1: active tab name + counter */}
+      <div className="flex items-baseline justify-between mb-2">
+        <span className="text-xs font-mono font-semibold text-white">
+          {activeLabel}
+        </span>
+        <span className="text-xs font-mono text-white/50">
+          {activeIdx + 1} / {totalTabs}
+        </span>
+      </div>
+
+      {/* Row 2: progress bar with clickable dots */}
+      <div className="relative h-1.5 bg-white/20 rounded-full overflow-visible">
+        <div
+          className="h-full bg-secondary rounded-full transition-all duration-300"
+          style={{ width: `${pct}%` }}
+        />
+        {TAB_LABELS.map(({ id }, i) => {
+          const dotPct = (i / (totalTabs - 1)) * 100
+          const done   = i < activeIdx
+          const active = i === activeIdx
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => onSelect(id)}
+              className={`absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border transition-all duration-300 ${
+                active ? 'bg-white border-white scale-125' :
+                done   ? 'bg-secondary border-secondary' :
+                         'bg-white/20 border-white/20'
+              }`}
+              style={{ left: `calc(${dotPct}% - 4px)` }}
+            />
+          )
+        })}
+      </div>
     </div>
   )
 }
