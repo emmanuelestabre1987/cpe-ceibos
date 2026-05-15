@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Save } from 'lucide-react'
 import Header from '../components/layout/Header'
@@ -40,7 +40,6 @@ export default function EditRecord() {
   const [loadError, setLoadError] = useState<string | null>(null)
   // Roles opcionales Intervinientes
   const [rolesActivos, setRolesActivos] = useState(new Set<string>())
-  const rolesInit = useRef(false)
   const { show, ToastComponent } = useToast()
 
   useEffect(() => {
@@ -51,6 +50,17 @@ export default function EditRecord() {
         if (rec) {
           const { id: _id, cpe_id: _cpe, status: _s, created_by: _cb, created_at: _ca, updated_at: _ua, ...rest } = rec
           setForm(rest as RecordFormData)
+          // Inicializar toggles de roles opcionales según los datos del registro
+          const active = new Set<string>()
+          if (str(rec.rte_venta_primaria)    || str(rec.cuit_rte_venta_primaria))    active.add('rte_primaria')
+          if (str(rec.rte_venta_secundaria)  || str(rec.cuit_rte_venta_secundaria))  active.add('rte_secundaria')
+          if (str(rec.rte_venta_secundaria2) || str(rec.cuit_rte_venta_secundaria2)) active.add('rte_secundaria2')
+          if (str(rec.mercado_termino))                                               active.add('mercado')
+          if (str(rec.corredor_primario)     || str(rec.cuit_corredor_primario))      active.add('corredor_primario')
+          if (str(rec.corredor_secundario)   || str(rec.cuit_corredor_secundario))    active.add('corredor_secundario')
+          if (str(rec.repr_entregador)       || str(rec.cuit_repr_entregador))        active.add('repr_entregador')
+          if (str(rec.repr_recibidor)        || str(rec.cuit_repr_recibidor))         active.add('repr_recibidor')
+          setRolesActivos(active)
         }
         setLoading(false)
       })
@@ -59,22 +69,6 @@ export default function EditRecord() {
         setLoading(false)
       })
   }, [id])
-
-  // Inicializar toggles cuando carga el registro original
-  useEffect(() => {
-    if (!original || rolesInit.current) return
-    rolesInit.current = true
-    const active = new Set<string>()
-    if (str(original.rte_venta_primaria)   || str(original.cuit_rte_venta_primaria))   active.add('rte_primaria')
-    if (str(original.rte_venta_secundaria) || str(original.cuit_rte_venta_secundaria)) active.add('rte_secundaria')
-    if (str(original.rte_venta_secundaria2) || str(original.cuit_rte_venta_secundaria2)) active.add('rte_secundaria2')
-    if (str(original.mercado_termino))                                                  active.add('mercado')
-    if (str(original.corredor_primario)    || str(original.cuit_corredor_primario))     active.add('corredor_primario')
-    if (str(original.corredor_secundario)  || str(original.cuit_corredor_secundario))   active.add('corredor_secundario')
-    if (str(original.repr_entregador)      || str(original.cuit_repr_entregador))       active.add('repr_entregador')
-    if (str(original.repr_recibidor)       || str(original.cuit_repr_recibidor))        active.add('repr_recibidor')
-    if (active.size > 0) setRolesActivos(active)
-  }, [original])
 
   const clearRolFields = (id: string) => {
     switch (id) {
