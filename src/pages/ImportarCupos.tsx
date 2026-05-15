@@ -218,6 +218,7 @@ export default function ImportarCupos() {
       setCupos(parsed)
       setSelected(new Set(parsed.map((_, i) => i)))
       setCampos(CAMPOS_VACIOS)
+      setRolesActivos(new Set())
       setVista('preview')
     } catch {
       show('Error al leer el archivo. Verificá que sea un Excel válido.', 'error')
