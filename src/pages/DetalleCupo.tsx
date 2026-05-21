@@ -762,7 +762,7 @@ export default function DetalleCupo() {
     setGenerando(true)
     try {
       const webhookUrl = (import.meta.env.VITE_N8N_WEBHOOK_CP_URL as string | undefined)?.trim()
-        || 'https://coder2026.app.n8n.cloud/webhook/7570394e-23cf-4973-980b-3db48c90c933'
+        || 'https://coder2026.app.n8n.cloud/webhook/ceibos-solicitud-cp'
       if (!webhookUrl) {
         show('URL del webhook no configurada (VITE_N8N_WEBHOOK_CP_URL)', 'error')
         return
@@ -786,7 +786,7 @@ export default function DetalleCupo() {
     setGenerando(true)
     try {
       const webhookUrl = (import.meta.env.VITE_N8N_WEBHOOK_CP_URL as string | undefined)?.trim()
-        || 'https://coder2026.app.n8n.cloud/webhook/7570394e-23cf-4973-980b-3db48c90c933'
+        || 'https://coder2026.app.n8n.cloud/webhook/ceibos-solicitud-cp'
       if (!webhookUrl) {
         show('URL del webhook no configurada (VITE_N8N_WEBHOOK_CP_URL)', 'error')
         return
