@@ -12,7 +12,8 @@ export default function WizardProgress({ currentStep, totalSteps = 7 }: WizardPr
   const currentLabel = STEP_LABELS[currentStep - 1] ?? ''
 
   return (
-    <div className="fixed top-14 left-0 right-0 z-30 bg-primary px-4 pt-2 pb-3">
+    <div className="fixed top-14 left-0 right-0 z-30 bg-primary">
+      <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-2 pb-3">
 
       {/* Step counter + current label */}
       <div className="flex items-baseline justify-between mb-2">
@@ -46,6 +47,7 @@ export default function WizardProgress({ currentStep, totalSteps = 7 }: WizardPr
             />
           )
         })}
+      </div>
       </div>
     </div>
   )

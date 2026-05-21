@@ -1,0 +1,7 @@
+[req]
+prompt = no
+distinguished_name = dn
+
+[dn]
+CN = cpewscpe
+serialNumber = CUIT 20329969518

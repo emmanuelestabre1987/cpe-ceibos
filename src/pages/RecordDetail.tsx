@@ -164,7 +164,7 @@ export default function RecordDetail() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Cargando…" showBack />
-        <div className="max-w-mobile mx-auto px-4 pt-20 space-y-3">
+        <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-20 space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-24 bg-white rounded-2xl border border-gray-light animate-pulse" />
           ))}
@@ -177,7 +177,7 @@ export default function RecordDetail() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="No encontrado" showBack />
-        <div className="max-w-mobile mx-auto px-4 pt-20 text-center">
+        <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-20 text-center">
           <p className="font-sans text-text-muted">Registro no encontrado.</p>
         </div>
       </div>
@@ -201,7 +201,7 @@ export default function RecordDetail() {
         }
       />
 
-      <div className="max-w-mobile mx-auto px-4 pt-20">
+      <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-20">
         {/* Status + meta */}
         <div className="flex items-center gap-3 mb-4">
           <span

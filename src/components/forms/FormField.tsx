@@ -13,6 +13,7 @@ interface FormFieldProps {
   multiline?: boolean
   rows?: number
   error?: string
+  className?: string
 }
 
 export function FormField({
@@ -28,6 +29,7 @@ export function FormField({
   multiline,
   rows = 3,
   error,
+  className = '',
 }: FormFieldProps) {
   const inputId = id ?? label.toLowerCase().replace(/\s+/g, '-')
   const borderCls = error
@@ -36,7 +38,7 @@ export function FormField({
   const base = `w-full px-4 rounded-xl border bg-white font-sans text-base text-primary placeholder:text-text-muted focus:ring-2 transition ${borderCls}`
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className={`flex flex-col gap-1 ${className}`}>
       <label htmlFor={inputId} className="font-mono text-xs font-medium text-primary uppercase tracking-wide">
         {label}{required && <span className="text-accent ml-0.5">*</span>}
       </label>
@@ -77,6 +79,7 @@ interface SelectFieldProps {
   options: string[]
   required?: boolean
   placeholder?: string
+  className?: string
 }
 
 export function SelectField({
@@ -87,11 +90,12 @@ export function SelectField({
   options,
   required,
   placeholder,
+  className = '',
 }: SelectFieldProps) {
   const inputId = id ?? label.toLowerCase().replace(/\s+/g, '-')
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className={`flex flex-col gap-1 ${className}`}>
       <label htmlFor={inputId} className="font-mono text-xs font-medium text-primary uppercase tracking-wide">
         {label}{required && <span className="text-accent ml-0.5">*</span>}
       </label>

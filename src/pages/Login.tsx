@@ -54,7 +54,7 @@ export default function Login() {
       </div>
 
       {/* ── Bottom: white card ───────────────────────────────── */}
-      <div className="bg-white rounded-t-3xl px-6 pt-8 pb-10">
+      <div className="bg-white rounded-t-3xl px-6 pt-8 pb-10 md:rounded-3xl md:max-w-md md:mx-auto md:mb-16 md:shadow-xl">
         <div className="flex justify-center mb-6">
           <img
             src={logoColor}

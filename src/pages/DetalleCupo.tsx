@@ -372,7 +372,8 @@ function TabBar({ activeTab, onSelect }: TabBarProps) {
   const pct = (activeIdx / (totalTabs - 1)) * 100
 
   return (
-    <div className="fixed top-14 left-0 right-0 z-30 bg-primary px-4 pt-2 pb-3">
+    <div className="fixed top-14 left-0 right-0 z-30 bg-primary">
+      <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-2 pb-3">
 
       {/* Row 1: active tab name + counter */}
       <div className="flex items-baseline justify-between mb-2">
@@ -409,6 +410,7 @@ function TabBar({ activeTab, onSelect }: TabBarProps) {
           )
         })}
       </div>
+      </div>
     </div>
   )
 }
@@ -418,7 +420,7 @@ function TabBar({ activeTab, onSelect }: TabBarProps) {
 function BottomBar({ children }: { children: React.ReactNode }) {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-light px-4 py-3 pb-safe z-40">
-      <div className="max-w-mobile mx-auto">{children}</div>
+      <div className="max-w-mobile md:max-w-desktop mx-auto">{children}</div>
     </div>
   )
 }
@@ -1031,7 +1033,7 @@ export default function DetalleCupo() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Cargando…" showBack />
-        <div className="max-w-mobile mx-auto px-4 pt-20 space-y-3">
+        <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-20 space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-20 bg-white rounded-2xl border border-gray-light animate-pulse" />
           ))}
@@ -1044,7 +1046,7 @@ export default function DetalleCupo() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="No encontrado" showBack />
-        <div className="max-w-mobile mx-auto px-4 pt-20 text-center space-y-4">
+        <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-20 text-center space-y-4">
           <p className="font-sans text-text-muted text-sm">Cupo no encontrado.</p>
           <Button variant="ghost" onClick={() => navigate(-1)}>Volver</Button>
         </div>
@@ -1081,22 +1083,22 @@ export default function DetalleCupo() {
       <TabBar activeTab={activeTab} onSelect={handleTabSelect} />
 
       {/* ── Content area (offset: header 56px + tabbar 44px) ─── */}
-      <div className="max-w-mobile mx-auto px-4 space-y-4" style={{ paddingTop: '108px' }}>
+      <div className="max-w-mobile md:max-w-desktop mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-4" style={{ paddingTop: '128px' }}>
 
         {/* ── TAB 1: TRANSPORTE ────────────────────────────── */}
         {activeTab === 'transporte' && (
           <>
-            <SectionTitle>Transporte</SectionTitle>
-            <ResponsableChip label="Admin Zonal" />
+            <SectionTitle className="md:col-span-2">Transporte</SectionTitle>
+            <div className="md:col-span-2"><ResponsableChip label="Admin Zonal" /></div>
             <button
               type="button"
               onClick={() => setParserOpen(true)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-secondary text-secondary font-sans text-sm font-medium mb-4 active:bg-blue-50"
+              className="md:col-span-2 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-secondary text-secondary font-sans text-sm font-medium mb-4 active:bg-blue-50"
             >
               <MessageSquare className="w-4 h-4" />
               Pegar mensaje WA
             </button>
-            <FormField label="Cupo" value={transporteF.cupo} onChange={setT('cupo')} />
+            <FormField label="Cupo" value={transporteF.cupo} onChange={setT('cupo')} className="md:col-span-2" />
             <VoiceInput label="Empresa Transportista" value={transporteF.transporte} onChange={setT('transporte')} />
             <CuitField
               label="CUIT Empresa Transportista"
@@ -1117,24 +1119,24 @@ export default function DetalleCupo() {
             />
             <VoiceInput label="Chasis / Patente" value={transporteF.chasis} onChange={setT('chasis')} />
             <VoiceInput label="Acoplado / Patente" value={transporteF.acoplado} onChange={setT('acoplado')} />
-            <FormField label="Fecha Partida" value={transporteF.fecha_partida} onChange={setT('fecha_partida')} type="datetime-local" />
+            <FormField label="Fecha Partida" value={transporteF.fecha_partida} onChange={setT('fecha_partida')} type="datetime-local" className="md:col-span-2" />
             <FormField label="Kms. a recorrer" value={transporteF.km} onChange={setT('km')} type="number" />
             <FormField label="Tarifa" value={transporteF.tarifa} onChange={setT('tarifa')} type="number" />
-            <FormField label="N° RUCA" value={transporteF.nro_ruca} onChange={setT('nro_ruca')} />
+            <FormField label="N° RUCA" value={transporteF.nro_ruca} onChange={setT('nro_ruca')} className="md:col-span-2" />
           </>
         )}
 
         {/* ── TAB 2: INTERVINIENTES ────────────────────────── */}
         {activeTab === 'intervinientes' && (
           <>
-            <SectionTitle>Intervinientes (Sección A)</SectionTitle>
-            <ResponsableChip label="Comercial / Log Central" />
+            <SectionTitle className="md:col-span-2">Intervinientes (Sección A)</SectionTitle>
+            <div className="md:col-span-2"><ResponsableChip label="Comercial / Log Central" /></div>
             <CuitField  label="CUIT Titular"                  value={intervinientesF.titular_cuit}              onChange={setI('titular_cuit')}              onRazonSocialFound={setI('titular_nombre')} />
             <VoiceInput label="Titular Carta de Porte"        value={intervinientesF.titular_nombre}            onChange={setI('titular_nombre')} />
             <CuitField  label="CUIT Remitente Comercial"      value={intervinientesF.remitente_comercial_cuit}  onChange={setI('remitente_comercial_cuit')}  onRazonSocialFound={setI('remitente_comercial_nombre')} />
             <VoiceInput label="Remitente Comercial Productor" value={intervinientesF.remitente_comercial_nombre} onChange={setI('remitente_comercial_nombre')} />
             {/* Roles opcionales — toggles */}
-            <div>
+            <div className="md:col-span-2">
               <p className="font-mono text-xs font-medium text-text-muted uppercase tracking-wide px-0.5 mb-2">
                 Roles opcionales
               </p>
@@ -1205,8 +1207,8 @@ export default function DetalleCupo() {
         {/* ── TAB 3: GRANO / ESPECIE ───────────────────────── */}
         {activeTab === 'grano' && (
           <>
-            <SectionTitle>Grano / Especie (Sección B)</SectionTitle>
-            <ResponsableChip label="Agro / Producción" />
+            <SectionTitle className="md:col-span-2">Grano / Especie (Sección B)</SectionTitle>
+            <div className="md:col-span-2"><ResponsableChip label="Agro / Producción" /></div>
             <SelectField label="Grano"    value={granoF.grano}    onChange={setG('grano')}    options={GRANOS} />
             <SelectField label="Variedad" value={granoF.variedad} onChange={setG('variedad')} options={VARIEDADES} />
             <SelectField
@@ -1214,20 +1216,21 @@ export default function DetalleCupo() {
               value={granoF.declaracion_calidad}
               onChange={setG('declaracion_calidad')}
               options={['conforme', 'condicional']}
+              className="md:col-span-2"
             />
-            <FormField label="Campaña" value={granoF.campania} onChange={setG('campania')} />
+            <FormField label="Campaña" value={granoF.campania} onChange={setG('campania')} className="md:col-span-2" />
             <FormField label="Peso Bruto"       value={granoF.kg_bruto_cargados} onChange={setG('kg_bruto_cargados')} type="number" />
             <FormField label="Peso Tara"        value={granoF.kg_tara_cargados}  onChange={setG('kg_tara_cargados')}  type="number" />
-            <KgNetoField label="Kg Neto cargados" bruto={granoF.kg_bruto_cargados} tara={granoF.kg_tara_cargados} />
-            <VoiceInput label="Observaciones"   value={granoF.observaciones}       onChange={setG('observaciones')} multiline rows={3} />
+            <div className="md:col-span-2"><KgNetoField label="Kg Neto cargados" bruto={granoF.kg_bruto_cargados} tara={granoF.kg_tara_cargados} /></div>
+            <VoiceInput label="Observaciones"   value={granoF.observaciones}       onChange={setG('observaciones')} multiline rows={3} className="md:col-span-2" />
           </>
         )}
 
         {/* ── TAB 4: PROCEDENCIA ───────────────────────────── */}
         {activeTab === 'procedencia' && (
           <>
-            <SectionTitle>Procedencia — Origen (Sección C)</SectionTitle>
-            <div className="flex items-center gap-3 px-1">
+            <SectionTitle className="md:col-span-2">Procedencia — Origen (Sección C)</SectionTitle>
+            <div className="md:col-span-2 flex items-center gap-3 px-1">
               <input
                 type="checkbox"
                 id="es_campo_origen"
@@ -1242,13 +1245,13 @@ export default function DetalleCupo() {
             </div>
             <FormField   label="Localidad"        value={procedenciaF.localidad}       onChange={setP('localidad')} />
             <FormField   label="Provincia Origen" value={procedenciaF.provincia_origen} onChange={setP('provincia_origen')} />
-            <GPSInput latitud={procedenciaF.latitud} longitud={procedenciaF.longitud} onChangeCoords={setGpsP} />
-            <FormField label="Dirección"    value={procedenciaF.descripcion_origen} onChange={setP('descripcion_origen')} />
+            <div className="md:col-span-2"><GPSInput latitud={procedenciaF.latitud} longitud={procedenciaF.longitud} onChangeCoords={setGpsP} /></div>
+            <FormField label="Dirección"    value={procedenciaF.descripcion_origen} onChange={setP('descripcion_origen')} className="md:col-span-2" />
             <FormField label="RENSPA"       value={procedenciaF.renspa}             onChange={setP('renspa')} />
             <SelectField label="Campo"      value={procedenciaF.campo}              onChange={setP('campo')}  options={CAMPOS} />
 
-            <SectionTitle className="mt-2">Destino de la Mercadería (Sección D)</SectionTitle>
-            <div className="flex items-center gap-3 px-1">
+            <SectionTitle className="mt-2 md:col-span-2">Destino de la Mercadería (Sección D)</SectionTitle>
+            <div className="md:col-span-2 flex items-center gap-3 px-1">
               <input
                 type="checkbox"
                 id="es_campo_destino"
@@ -1271,10 +1274,10 @@ export default function DetalleCupo() {
         {/* ── TAB 5: CONTINGENCIAS ─────────────────────────── */}
         {activeTab === 'contingencias' && (
           <>
-            <SectionTitle>Contingencias (Sección F)</SectionTitle>
+            <SectionTitle className="md:col-span-2">Contingencias (Sección F)</SectionTitle>
             {!contingenciasF.contingencia && !contingenciasF.contingencia_otro &&
              !contingenciasF.desactivacion && !contingenciasF.desactivacion_otro ? (
-              <div className="flex items-center justify-center py-8 px-4 rounded-2xl bg-gray-50 border border-dashed border-gray-light">
+              <div className="md:col-span-2 flex items-center justify-center py-8 px-4 rounded-2xl bg-gray-50 border border-dashed border-gray-light">
                 <p className="font-sans text-sm text-text-muted">Sin contingencias registradas</p>
               </div>
             ) : null}
@@ -1288,8 +1291,8 @@ export default function DetalleCupo() {
         {/* ── TAB 6: DESCARGA ──────────────────────────────── */}
         {activeTab === 'descarga' && (
           <>
-            <SectionTitle>Descarga (Sección G)</SectionTitle>
-            <ResponsableChip label="Agro / Producción" />
+            <SectionTitle className="md:col-span-2">Descarga (Sección G)</SectionTitle>
+            <div className="md:col-span-2"><ResponsableChip label="Agro / Producción" /></div>
             {descargaReadOnly ? (
               <>
                 <ReadOnlyField label="Fecha Arribo"    value={descargaF.fecha_arribo}    />
@@ -1299,38 +1302,42 @@ export default function DetalleCupo() {
                 <ReadOnlyField label="Peso Tara (kg)"  value={descargaF.kg_tara_descargados}  />
                 <ReadOnlyField label="Localidad (Descarga)"  value={descargaF.localidad_descarga}  />
                 <ReadOnlyField label="Provincia (Descarga)"  value={descargaF.provincia_descarga}  />
-                <div className="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl">
+                <div className="md:col-span-2 flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl">
                   <span className="font-sans text-sm text-green-700 font-medium">
                     Cupo cerrado — solo lectura
                   </span>
                 </div>
-                <Button
-                  fullWidth
-                  loading={generando}
-                  onClick={handleGenerarCP}
-                  style={{ backgroundColor: '#1E3252' }}
-                >
-                  Generar CP
-                </Button>
+                <div className="md:col-span-2">
+                  <Button
+                    fullWidth
+                    loading={generando}
+                    onClick={handleGenerarCP}
+                    style={{ backgroundColor: '#1E3252' }}
+                  >
+                    Generar CP
+                  </Button>
+                </div>
               </>
             ) : (
               <>
-                <FormField label="Fecha Arribo"   value={descargaF.fecha_arribo}   onChange={setDe('fecha_arribo')}   type="datetime-local" />
-                <FormField label="Fecha Descarga" value={descargaF.fecha_descarga} onChange={setDe('fecha_descarga')} type="datetime-local" />
+                <FormField label="Fecha Arribo"   value={descargaF.fecha_arribo}   onChange={setDe('fecha_arribo')}   type="datetime-local" className="md:col-span-2" />
+                <FormField label="Fecha Descarga" value={descargaF.fecha_descarga} onChange={setDe('fecha_descarga')} type="datetime-local" className="md:col-span-2" />
                 <FormField label="N° Turno"        value={descargaF.nro_turno}        onChange={setDe('nro_turno')} />
                 <FormField label="Peso Bruto (kg)" value={descargaF.kg_bruto_descargados} onChange={setDe('kg_bruto_descargados')} type="number" />
                 <FormField label="Peso Tara (kg)"  value={descargaF.kg_tara_descargados}  onChange={setDe('kg_tara_descargados')}  type="number" />
-                <KgNetoField label="Kg Neto descargados" bruto={descargaF.kg_bruto_descargados} tara={descargaF.kg_tara_descargados} />
+                <div className="md:col-span-2"><KgNetoField label="Kg Neto descargados" bruto={descargaF.kg_bruto_descargados} tara={descargaF.kg_tara_descargados} /></div>
                 <FormField label="Localidad (Descarga)"  value={descargaF.localidad_descarga}  onChange={setDe('localidad_descarga')} />
                 <FormField label="Provincia (Descarga)"  value={descargaF.provincia_descarga}  onChange={setDe('provincia_descarga')} />
-                <Button
-                  fullWidth
-                  loading={generando}
-                  onClick={() => void handleGenerarCP()}
-                  style={{ backgroundColor: '#1E3252' }}
-                >
-                  {generando ? 'Enviando…' : 'Generar CP'}
-                </Button>
+                <div className="md:col-span-2">
+                  <Button
+                    fullWidth
+                    loading={generando}
+                    onClick={() => void handleGenerarCP()}
+                    style={{ backgroundColor: '#1E3252' }}
+                  >
+                    {generando ? 'Enviando…' : 'Generar CP'}
+                  </Button>
+                </div>
               </>
             )}
           </>
@@ -1339,8 +1346,8 @@ export default function DetalleCupo() {
         {/* ── TAB 7: HISTORIAL ─────────────────────────────── */}
         {activeTab === 'historial' && (
           <>
-            <SectionTitle>Historial de cambios</SectionTitle>
-            <HistoryPanel entries={audit} />
+            <SectionTitle className="md:col-span-2">Historial de cambios</SectionTitle>
+            <div className="md:col-span-2"><HistoryPanel entries={audit} /></div>
           </>
         )}
       </div>
@@ -1393,7 +1400,7 @@ export default function DetalleCupo() {
           onClick={() => setMenuOpen(false)}
         >
           <div
-            className="bg-white rounded-t-2xl w-full max-w-mobile p-4 space-y-2 pb-safe"
+            className="bg-white rounded-t-2xl w-full max-w-mobile md:max-w-desktop p-4 space-y-2 pb-safe"
             onClick={e => e.stopPropagation()}
           >
             <p className="font-mono text-xs text-text-muted uppercase tracking-widest px-1 pb-1">
@@ -1438,7 +1445,7 @@ export default function DetalleCupo() {
           onClick={() => setForceOpen(false)}
         >
           <div
-            className="bg-white rounded-t-2xl w-full max-w-mobile p-4 space-y-2 pb-safe"
+            className="bg-white rounded-t-2xl w-full max-w-mobile md:max-w-desktop p-4 space-y-2 pb-safe"
             onClick={e => e.stopPropagation()}
           >
             <p className="font-mono text-xs text-text-muted uppercase tracking-widest px-1 pb-1">

@@ -142,7 +142,7 @@ export default function EditRecord() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Cargando…" showBack accentColor="#FF6C02" />
-        <div className="max-w-mobile mx-auto px-4 pt-20 space-y-3">
+        <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-20 space-y-3">
           {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-white rounded-2xl border border-gray-light animate-pulse" />)}
         </div>
       </div>
@@ -153,7 +153,7 @@ export default function EditRecord() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Error" showBack accentColor="#FF6C02" />
-        <div className="max-w-mobile mx-auto px-4 pt-20 text-center">
+        <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-20 text-center">
           <p className="font-sans text-red-600 text-sm">{loadError ?? 'Registro no encontrado'}</p>
         </div>
       </div>
@@ -164,24 +164,24 @@ export default function EditRecord() {
     <div className="min-h-screen bg-gray-50">
       <Header title={`Editar ${original?.cpe_id ?? ''}`} showBack accentColor="#FF6C02" />
 
-      <div className="max-w-mobile mx-auto px-4 pt-20 pb-32 space-y-4">
+      <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-20 pb-32 grid grid-cols-1 md:grid-cols-2 gap-4">
 
         {/* ── TRANSPORTE ── */}
-        <SectionTitle>Transporte</SectionTitle>
-        <FormField label="Cupo" value={str(form.cupo)} onChange={set('cupo')} />
+        <SectionTitle className="md:col-span-2">Transporte</SectionTitle>
+        <FormField label="Cupo" value={str(form.cupo)} onChange={set('cupo')} className="md:col-span-2" />
         <VoiceInput label="Empresa Transportista" value={str(form.transporte)} onChange={set('transporte')} />
         <FormField label="CUIT Empresa Transportista" value={str(form.cuit_transporte)} onChange={set('cuit_transporte')} />
         <VoiceInput label="Chofer" value={str(form.chofer)} onChange={set('chofer')} />
         <FormField label="CUIL Chofer" value={str(form.cuil_chofer)} onChange={set('cuil_chofer')} />
         <VoiceInput label="Chasis / Patente" value={str(form.chasis)} onChange={set('chasis')} />
         <VoiceInput label="Acoplado / Patente" value={str(form.acoplado)} onChange={set('acoplado')} />
-        <FormField label="Fecha Partida" value={str(form.fecha_partida)} onChange={set('fecha_partida')} type="datetime-local" />
+        <FormField label="Fecha Partida" value={str(form.fecha_partida)} onChange={set('fecha_partida')} type="datetime-local" className="md:col-span-2" />
         <FormField label="Kms. a recorrer" value={str(form.km)} onChange={set('km')} type="number" />
         <FormField label="Tarifa" value={str(form.tarifa)} onChange={set('tarifa')} type="number" />
-        <FormField label="N° RUCA" value={str(form.nro_ruca)} onChange={set('nro_ruca')} />
+        <FormField label="N° RUCA" value={str(form.nro_ruca)} onChange={set('nro_ruca')} className="md:col-span-2" />
 
         {/* ── INTERVINIENTES ── */}
-        <SectionTitle className="mt-4">Intervinientes (Sección A)</SectionTitle>
+        <SectionTitle className="mt-4 md:col-span-2">Intervinientes (Sección A)</SectionTitle>
 
         {/* Siempre visibles */}
         <CuitField  label="CUIT Titular"                  value={str(form.titular_cuit)}               onChange={set('titular_cuit')}               onRazonSocialFound={set('titular_nombre')} />
@@ -190,7 +190,7 @@ export default function EditRecord() {
         <VoiceInput label="Remitente Comercial Productor" value={str(form.remitente_comercial_nombre)} onChange={set('remitente_comercial_nombre')} />
 
         {/* Roles opcionales — toggles */}
-        <div>
+        <div className="md:col-span-2">
           <p className="font-mono text-xs font-medium text-text-muted uppercase tracking-wide px-0.5 mb-2">
             Roles opcionales
           </p>
@@ -229,7 +229,7 @@ export default function EditRecord() {
           <VoiceInput label="Rte. Comercial Venta Secundaria 2"      value={str(form.rte_venta_secundaria2)}      onChange={set('rte_venta_secundaria2')} />
         </>)}
         {rolesActivos.has('mercado') && (
-          <VoiceInput label="Mercado a Término" value={str(form.mercado_termino)} onChange={set('mercado_termino')} />
+          <VoiceInput label="Mercado a Término" value={str(form.mercado_termino)} onChange={set('mercado_termino')} className="md:col-span-2" />
         )}
         {rolesActivos.has('corredor_primario') && (<>
           <CuitField  label="CUIT Corredor Venta Primaria" value={str(form.cuit_corredor_primario)}    onChange={set('cuit_corredor_primario')}    onRazonSocialFound={set('corredor_primario')} />
@@ -259,7 +259,7 @@ export default function EditRecord() {
         <VoiceInput label="Intermediario de Flete"      value={str(form.intermediario_flete)} onChange={set('intermediario_flete')} />
 
         {/* ── GRANO / ESPECIE ── */}
-        <SectionTitle className="mt-4">Grano / Especie (Sección B)</SectionTitle>
+        <SectionTitle className="mt-4 md:col-span-2">Grano / Especie (Sección B)</SectionTitle>
         <SelectField label="Grano"    value={str(form.grano)}    onChange={set('grano')}    options={GRANOS} />
         <SelectField label="Variedad" value={str(form.variedad)} onChange={set('variedad')} options={VARIEDADES} />
         <SelectField
@@ -267,16 +267,17 @@ export default function EditRecord() {
           value={str(form.declaracion_calidad)}
           onChange={set('declaracion_calidad')}
           options={['conforme', 'condicional']}
+          className="md:col-span-2"
         />
-        <FormField label="Campaña"      value={str(form.campania)}          onChange={set('campania')} />
+        <FormField label="Campaña"      value={str(form.campania)}          onChange={set('campania')} className="md:col-span-2" />
         <FormField label="Peso Bruto"   value={str(form.kg_bruto_cargados)} onChange={set('kg_bruto_cargados')} type="number" />
         <FormField label="Peso Tara"    value={str(form.kg_tara_cargados)}  onChange={set('kg_tara_cargados')}  type="number" />
-        <VoiceInput label="Observaciones" value={str(form.observaciones)} onChange={set('observaciones')} multiline rows={4} />
+        <VoiceInput label="Observaciones" value={str(form.observaciones)} onChange={set('observaciones')} multiline rows={4} className="md:col-span-2" />
 
         {/* ── PROCEDENCIA (C) ── */}
-        <SectionTitle className="mt-4">Procedencia — Origen (Sección C)</SectionTitle>
-        <FormField label="Fecha de carga" value={str(form.fecha_carga)} onChange={set('fecha_carga')} type="date" />
-        <div className="flex items-center gap-3 px-1">
+        <SectionTitle className="mt-4 md:col-span-2">Procedencia — Origen (Sección C)</SectionTitle>
+        <FormField label="Fecha de carga" value={str(form.fecha_carga)} onChange={set('fecha_carga')} type="date" className="md:col-span-2" />
+        <div className="md:col-span-2 flex items-center gap-3 px-1">
           <input
             type="checkbox"
             id="edit_es_campo_origen"
@@ -291,14 +292,14 @@ export default function EditRecord() {
         </div>
         <FormField   label="Localidad"        value={str(form.localidad)}       onChange={set('localidad')} />
         <FormField   label="Provincia Origen" value={str(form.provincia_origen)} onChange={set('provincia_origen')} />
-        <GPSInput latitud={form.latitud ?? null} longitud={form.longitud ?? null} onChangeCoords={setGps} />
-        <FormField label="Dirección" value={str(form.descripcion_origen)} onChange={set('descripcion_origen')} />
+        <div className="md:col-span-2"><GPSInput latitud={form.latitud ?? null} longitud={form.longitud ?? null} onChangeCoords={setGps} /></div>
+        <FormField label="Dirección" value={str(form.descripcion_origen)} onChange={set('descripcion_origen')} className="md:col-span-2" />
         <FormField label="RENSPA"      value={str(form.renspa)}             onChange={set('renspa')} />
         <SelectField label="Campo"     value={str(form.campo)}              onChange={set('campo')}  options={CAMPOS} />
 
         {/* ── DESTINO (D) ── */}
-        <SectionTitle className="mt-4">Destino de la Mercadería (Sección D)</SectionTitle>
-        <div className="flex items-center gap-3 px-1">
+        <SectionTitle className="mt-4 md:col-span-2">Destino de la Mercadería (Sección D)</SectionTitle>
+        <div className="md:col-span-2 flex items-center gap-3 px-1">
           <input
             type="checkbox"
             id="edit_es_campo_destino"
@@ -317,16 +318,16 @@ export default function EditRecord() {
         <FormField label="Provincia Destino"   value={str(form.provincia_destino)} onChange={set('provincia_destino')} />
 
         {/* ── CONTINGENCIAS (F) ── */}
-        <SectionTitle className="mt-4">Contingencias (Sección F)</SectionTitle>
+        <SectionTitle className="mt-4 md:col-span-2">Contingencias (Sección F)</SectionTitle>
         <FormField label="Contingencia"  value={str(form.contingencia)}      onChange={set('contingencia')} />
         <FormField label="Otro"          value={str(form.contingencia_otro)} onChange={set('contingencia_otro')} />
         <FormField label="Desactivación" value={str(form.desactivacion)}     onChange={set('desactivacion')} />
         <FormField label="Otro"          value={str(form.desactivacion_otro)} onChange={set('desactivacion_otro')} />
 
         {/* ── DESCARGA (G) ── */}
-        <SectionTitle className="mt-4">Descarga (Sección G)</SectionTitle>
-        <FormField label="Fecha Arribo"   value={str(form.fecha_arribo)}   onChange={set('fecha_arribo')}   type="datetime-local" />
-        <FormField label="Fecha Descarga" value={str(form.fecha_descarga)} onChange={set('fecha_descarga')} type="datetime-local" />
+        <SectionTitle className="mt-4 md:col-span-2">Descarga (Sección G)</SectionTitle>
+        <FormField label="Fecha Arribo"   value={str(form.fecha_arribo)}   onChange={set('fecha_arribo')}   type="datetime-local" className="md:col-span-2" />
+        <FormField label="Fecha Descarga" value={str(form.fecha_descarga)} onChange={set('fecha_descarga')} type="datetime-local" className="md:col-span-2" />
         <FormField label="N° Turno"        value={str(form.nro_turno)}        onChange={set('nro_turno')} />
         <FormField label="Peso Bruto (kg)" value={str(form.kg_bruto_descargados)} onChange={set('kg_bruto_descargados')} type="number" />
         <FormField label="Peso Tara (kg)"  value={str(form.kg_tara_descargados)}  onChange={set('kg_tara_descargados')}  type="number" />
@@ -336,7 +337,7 @@ export default function EditRecord() {
 
       {/* Fixed save button */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-light px-4 py-3 pb-safe z-40">
-        <div className="max-w-mobile mx-auto">
+        <div className="max-w-mobile md:max-w-desktop mx-auto">
           <Button fullWidth variant="accent" size="lg" loading={saving} onClick={handleSave}>
             <Save className="w-5 h-5" /> Guardar cambios
           </Button>

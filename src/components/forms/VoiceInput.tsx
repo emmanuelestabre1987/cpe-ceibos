@@ -13,6 +13,7 @@ interface VoiceInputProps {
   type?: 'text' | 'email' | 'tel'
   multiline?: boolean
   rows?: number
+  className?: string
 }
 
 export default function VoiceInput({
@@ -25,6 +26,7 @@ export default function VoiceInput({
   type = 'text',
   multiline = false,
   rows = 4,
+  className = '',
 }: VoiceInputProps) {
   const [listening, setListening] = useState(false)
   const stopRef = useRef<() => void>(() => {})
@@ -63,7 +65,7 @@ export default function VoiceInput({
   }
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className={`flex flex-col gap-1 ${className}`}>
       <label htmlFor={inputId} className="font-mono text-xs font-medium text-primary uppercase tracking-wide">
         {label}{required && <span className="text-accent ml-0.5">*</span>}
       </label>

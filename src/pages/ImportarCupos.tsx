@@ -402,7 +402,7 @@ export default function ImportarCupos() {
 
       {/* ── Estado 1: upload ──────────────────────────────────── */}
       {vista === 'upload' && (
-        <div className="max-w-mobile mx-auto px-4 pt-20 pb-10 space-y-5">
+        <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-20 pb-10 space-y-5">
 
           <Button variant="ghost" onClick={downloadTemplate} className="w-full">
             <Download className="w-4 h-4" />
@@ -442,10 +442,10 @@ export default function ImportarCupos() {
 
       {/* ── Estado 2: preview ─────────────────────────────────── */}
       {vista === 'preview' && (
-        <div className="max-w-mobile mx-auto px-4 pt-20 pb-44 space-y-4">
+        <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-20 pb-44 grid grid-cols-1 md:grid-cols-2 gap-4">
 
           {/* Cupo list with checkboxes */}
-          <div className="bg-white border border-gray-light rounded-2xl overflow-hidden">
+          <div className="md:col-span-2 bg-white border border-gray-light rounded-2xl overflow-hidden">
             <label className="flex items-center gap-3 px-4 py-3 border-b border-gray-light bg-gray-50 cursor-pointer">
               <input
                 ref={selectAllRef}
@@ -496,7 +496,7 @@ export default function ImportarCupos() {
           </div>
 
           {/* ── General ── */}
-          <SectionTitle>Grano / Especie</SectionTitle>
+          <SectionTitle className="md:col-span-2">Grano / Especie</SectionTitle>
           <SelectField label="Campo" value={campos.campo} onChange={set('campo')} options={CAMPOS} />
           <FormField   label="Localidad" value={campos.localidad} onChange={set('localidad')} />
           <SelectField label="Grano" value={campos.grano} onChange={set('grano')} options={GRANOS} />
@@ -506,12 +506,13 @@ export default function ImportarCupos() {
             value={campos.declaracion_calidad}
             onChange={set('declaracion_calidad')}
             options={['conforme', 'condicional']}
+            className="md:col-span-2"
           />
           <FormField label="Campaña" value={campos.campania} onChange={set('campania')} />
           <FormField label="RENSPA" value={campos.renspa} onChange={set('renspa')} />
 
           {/* ── Comercial ── */}
-          <SectionTitle>Intervinientes</SectionTitle>
+          <SectionTitle className="md:col-span-2">Intervinientes</SectionTitle>
 
           {/* Siempre visibles */}
           <CuitField  label="CUIT Titular"                  value={campos.titular_cuit}               onChange={set('titular_cuit')}               onRazonSocialFound={set('titular_nombre')} />
@@ -520,7 +521,7 @@ export default function ImportarCupos() {
           <VoiceInput label="Remitente Comercial Productor" value={campos.remitente_comercial_nombre} onChange={set('remitente_comercial_nombre')} />
 
           {/* Roles opcionales — toggles */}
-          <div>
+          <div className="md:col-span-2">
             <p className="font-mono text-xs font-medium text-text-muted uppercase tracking-wide px-0.5 mb-2">
               Roles opcionales
             </p>
@@ -559,7 +560,7 @@ export default function ImportarCupos() {
             <VoiceInput label="Rte. Comercial Venta Secundaria 2"      value={campos.rte_venta_secundaria2}      onChange={set('rte_venta_secundaria2')} />
           </>)}
           {rolesActivos.has('mercado') && (
-            <VoiceInput label="Mercado a Término" value={campos.mercado_termino} onChange={set('mercado_termino')} />
+            <VoiceInput label="Mercado a Término" value={campos.mercado_termino} onChange={set('mercado_termino')} className="md:col-span-2" />
           )}
           {rolesActivos.has('corredor_primario') && (<>
             <CuitField  label="CUIT Corredor Venta Primaria" value={campos.cuit_corredor_primario}    onChange={set('cuit_corredor_primario')}    onRazonSocialFound={set('corredor_primario')} />
@@ -585,13 +586,13 @@ export default function ImportarCupos() {
           <VoiceInput label="Destino"           value={campos.destino}           onChange={set('destino')} />
 
           {/* ── Flete ── */}
-          <SectionTitle>Procedencia</SectionTitle>
+          <SectionTitle className="md:col-span-2">Procedencia</SectionTitle>
           <FormField label="Kms. a recorrer" value={campos.km} onChange={set('km')} type="number" />
           <FormField label="Tarifa" value={campos.tarifa} onChange={set('tarifa')} type="number" />
           <FormField label="N° Turno" value={campos.nro_turno} onChange={set('nro_turno')} />
           <FormField label="Provincia Origen" value={campos.provincia_origen} onChange={set('provincia_origen')} />
           <FormField label="Provincia Destino" value={campos.provincia_destino} onChange={set('provincia_destino')} />
-          <div className="flex items-center gap-3 px-1">
+          <div className="md:col-span-2 flex items-center gap-3 px-1">
             <input
               type="checkbox"
               id="imp_es_campo_destino"
@@ -604,22 +605,21 @@ export default function ImportarCupos() {
               Es un campo (Destino)
             </label>
           </div>
-          <FormField label="Dirección" value={campos.direccion_destino} onChange={set('direccion_destino')} />
+          <FormField label="Dirección" value={campos.direccion_destino} onChange={set('direccion_destino')} className="md:col-span-2" />
           <FormField label="Flete Pagador" value={campos.pagador_flete} onChange={set('pagador_flete')} />
           <FormField label="Intermediario de Flete"     value={campos.intermediario_flete}    onChange={set('intermediario_flete')} />
           <FormField label="CUIT Intermediario de Flete" value={campos.cuit_intermediario}     onChange={set('cuit_intermediario')} />
           <FormField label="CUIT Flete Pagador"          value={campos.cuit_pagador_flete}     onChange={set('cuit_pagador_flete')} />
-          <FormField label="CUIT Rte. Venta Secundaria 2" value={campos.cuit_rte_venta_secundaria2} onChange={set('cuit_rte_venta_secundaria2')} />
           <FormField label="Localidad (Destino)"         value={campos.localidad_destino}      onChange={set('localidad_destino')} />
           <FormField label="N° Planta" value={campos.nro_planta} onChange={set('nro_planta')} />
-          <FormField label="Observaciones" value={campos.observaciones} onChange={set('observaciones')} multiline rows={3} />
+          <FormField label="Observaciones" value={campos.observaciones} onChange={set('observaciones')} multiline rows={3} className="md:col-span-2" />
         </div>
       )}
 
       {/* ── Bottom nav (preview only) ─────────────────────────── */}
       {vista === 'preview' && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-light px-4 py-3 pb-safe z-40">
-          <div className="max-w-mobile mx-auto space-y-2">
+          <div className="max-w-mobile md:max-w-desktop mx-auto space-y-2">
             <Button
               fullWidth
               size="lg"

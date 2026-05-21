@@ -17,6 +17,7 @@ export default {
       },
       maxWidth: {
         mobile: '430px',
+        desktop: '900px',
       },
     },
   },

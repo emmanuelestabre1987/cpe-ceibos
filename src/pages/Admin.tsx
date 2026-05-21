@@ -164,7 +164,7 @@ export default function Admin() {
     <div className="min-h-screen bg-gray-50 pb-8">
       <Header title="Panel Admin" showBack showLogout />
 
-      <div className="max-w-mobile mx-auto px-4 pt-20">
+      <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-20">
         {/* Tabs */}
         <div className="flex bg-gray-light rounded-xl p-1 mb-4 gap-1">
           {([
@@ -188,9 +188,9 @@ export default function Admin() {
 
         {/* Usuarios */}
         {tab === 'usuarios' && (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {/* Add email */}
-            <div className="bg-white border border-gray-light rounded-2xl p-4 space-y-3">
+            <div className="md:col-span-2 bg-white border border-gray-light rounded-2xl p-4 space-y-3">
               <p className="font-mono text-xs font-bold text-text-muted uppercase tracking-widest">Agregar email</p>
               <div className="flex gap-2">
                 <input
@@ -303,9 +303,9 @@ export default function Admin() {
 
         {/* Cupos */}
         {tab === 'cupos' && (
-          <div className="space-y-3">
+          <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-2 md:gap-3">
             {/* Filtros */}
-            <div className="flex items-center gap-2 bg-white border border-gray-light rounded-xl px-3 h-11">
+            <div className="md:col-span-2 flex items-center gap-2 bg-white border border-gray-light rounded-xl px-3 h-11">
               <Search className="w-4 h-4 text-text-muted shrink-0" />
               <input
                 type="search"
@@ -316,7 +316,7 @@ export default function Admin() {
               />
             </div>
 
-            <div className="flex gap-2">
+            <div className="md:col-span-2 flex gap-2">
               <select
                 value={cupoStatus}
                 onChange={e => setCupoStatus(e.target.value as CpeStatus | 'TODOS')}
@@ -342,7 +342,7 @@ export default function Admin() {
 
             {/* Lista */}
             {filteredCupos.length === 0 && (
-              <div className="text-center py-10">
+              <div className="md:col-span-2 text-center py-10">
                 <p className="font-sans text-text-muted text-sm">Sin resultados</p>
               </div>
             )}

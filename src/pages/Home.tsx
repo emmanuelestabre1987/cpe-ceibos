@@ -310,57 +310,59 @@ export default function Home() {
         onClick={(e) => e.stopPropagation()}
       >
 
-        {/* Row 1: Date pill + Status pill */}
-        <div className="flex items-center gap-2 px-4 pt-3 pb-2">
-          <button
-            onClick={() => setDateSheetOpen(true)}
-            className={`flex-1 flex items-center justify-center gap-1.5 h-10 rounded-xl font-sans font-medium transition-colors active:scale-[0.98] ${
-              dateFrom || dateTo ? 'bg-secondary text-white' : 'bg-white/10 text-white'
-            }`}
-          >
-            <Calendar className="w-3.5 h-3.5 shrink-0" />
-            <span className="truncate text-xs">{formatDatePill(dateFrom, dateTo)}</span>
-          </button>
+        <div className="max-w-mobile md:max-w-desktop mx-auto">
+          {/* Row 1: Date pill + Status pill */}
+          <div className="flex items-center gap-2 px-4 pt-3 pb-2">
+            <button
+              onClick={() => setDateSheetOpen(true)}
+              className={`flex-1 flex items-center justify-center gap-1.5 h-10 rounded-xl font-sans font-medium transition-colors active:scale-[0.98] ${
+                dateFrom || dateTo ? 'bg-secondary text-white' : 'bg-white/10 text-white'
+              }`}
+            >
+              <Calendar className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate text-xs">{formatDatePill(dateFrom, dateTo)}</span>
+            </button>
 
-          <button
-            onClick={() => setStatusSheetOpen(true)}
-            className={`flex-1 flex items-center justify-center gap-1.5 h-10 rounded-xl font-sans font-medium transition-colors active:scale-[0.98] ${
-              filterStatus.size > 0 ? 'bg-secondary text-white' : 'bg-white/10 text-white'
-            }`}
-          >
-            <span className="truncate text-xs">
-              {filterStatus.size === 0
-                ? 'Estado'
-                : filterStatus.size === 1
-                  ? Array.from(filterStatus)[0]
-                  : `${filterStatus.size} estados`}
-            </span>
-            <ChevronDown className="w-3.5 h-3.5 text-white/70 shrink-0" />
-          </button>
-        </div>
+            <button
+              onClick={() => setStatusSheetOpen(true)}
+              className={`flex-1 flex items-center justify-center gap-1.5 h-10 rounded-xl font-sans font-medium transition-colors active:scale-[0.98] ${
+                filterStatus.size > 0 ? 'bg-secondary text-white' : 'bg-white/10 text-white'
+              }`}
+            >
+              <span className="truncate text-xs">
+                {filterStatus.size === 0
+                  ? 'Estado'
+                  : filterStatus.size === 1
+                    ? Array.from(filterStatus)[0]
+                    : `${filterStatus.size} estados`}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-white/70 shrink-0" />
+            </button>
+          </div>
 
-        {/* Row 2: Search full-width */}
-        <div className="px-4 pb-3">
-          <div className="flex items-center gap-3 bg-white/15 rounded-xl px-4 h-11">
-            <Search className="w-4 h-4 text-white/60 shrink-0" />
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar código, destinatario, transporte…"
-              className="flex-1 bg-transparent font-sans text-white text-sm placeholder:text-white/40 focus:outline-none"
-            />
-            {query && (
-              <button onClick={() => setQuery('')} className="text-white/50 hover:text-white transition">
-                <X className="w-4 h-4" />
-              </button>
-            )}
+          {/* Row 2: Search full-width */}
+          <div className="px-4 pb-3">
+            <div className="flex items-center gap-3 bg-white/15 rounded-xl px-4 h-11">
+              <Search className="w-4 h-4 text-white/60 shrink-0" />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Buscar código, destinatario, transporte…"
+                className="flex-1 bg-transparent font-sans text-white text-sm placeholder:text-white/40 focus:outline-none"
+              />
+              {query && (
+                <button onClick={() => setQuery('')} className="text-white/50 hover:text-white transition">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {/* ── Count + active filter badges + controls ─────────── */}
-      <div className="max-w-mobile mx-auto px-4 pt-3 pb-1 flex items-center gap-2">
+      <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-3 pb-1 flex items-center gap-2">
         <div className="flex items-center gap-1.5 shrink-0">
           <span
             className="font-mono text-xs font-bold px-2 py-0.5 rounded-full text-white"
@@ -440,7 +442,7 @@ export default function Home() {
       </div>
 
       {/* ── Main content ─────────────────────────────────────── */}
-      <div className="max-w-mobile mx-auto px-4 pb-6">
+      <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pb-6">
 
         {loading && records.length === 0 && (
           <div className="space-y-3 mt-2">
@@ -466,7 +468,7 @@ export default function Home() {
             <p className="font-mono font-bold text-xs text-primary uppercase tracking-wide mb-2 px-0.5">
               {label}
             </p>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {items.map((r) => (
                 <CupoCard
                   key={r.id}
@@ -486,7 +488,7 @@ export default function Home() {
       {/* ── Selection action bar ─────────────────────────────── */}
       {selectMode && selectedIds.size > 0 && (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-light px-4 py-3 pb-safe">
-          <div className="max-w-mobile mx-auto space-y-2">
+          <div className="max-w-mobile md:max-w-desktop mx-auto space-y-2">
             <p className="font-mono text-sm font-bold text-primary">
               {selectedIds.size} {selectedIds.size === 1 ? 'cupo seleccionado' : 'cupos seleccionados'}
             </p>
@@ -534,7 +536,7 @@ export default function Home() {
       {/* ── Delete confirmation modal ────────────────────────── */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 px-4 pb-safe">
-          <div className="w-full max-w-mobile bg-white rounded-2xl p-5 space-y-3 mb-4">
+          <div className="w-full max-w-mobile md:max-w-desktop bg-white rounded-2xl p-5 space-y-3 mb-4">
             <p className="font-sans font-semibold text-primary text-base">
               ¿Eliminar {selectedIds.size} {selectedIds.size === 1 ? 'cupo' : 'cupos'}?
             </p>
@@ -563,7 +565,7 @@ export default function Home() {
       {/* ── Cancel confirmation modal ────────────────────────── */}
       {cancelConfirm && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 px-4 pb-safe">
-          <div className="w-full max-w-mobile bg-white rounded-2xl p-5 space-y-3 mb-4">
+          <div className="w-full max-w-mobile md:max-w-desktop bg-white rounded-2xl p-5 space-y-3 mb-4">
             <p className="font-sans font-semibold text-primary text-base">
               ¿Cancelar {selectedIds.size} {selectedIds.size === 1 ? 'cupo' : 'cupos'}?
             </p>

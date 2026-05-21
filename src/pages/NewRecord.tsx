@@ -325,38 +325,38 @@ export default function NewRecord() {
       <WizardProgress currentStep={step} />
 
       {/* Step content */}
-      <div className="max-w-mobile mx-auto px-4 pt-36 pb-32 space-y-4">
+      <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-36 pb-32 grid grid-cols-1 md:grid-cols-2 gap-4">
 
         {/* ── STEP 1: TRANSPORTE ── */}
         {step === 1 && (
           <>
-            <SectionTitle>Transporte</SectionTitle>
+            <SectionTitle className="md:col-span-2">Transporte</SectionTitle>
             <button
               type="button"
               onClick={() => setParserOpen(true)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-secondary text-secondary font-sans text-sm font-medium mb-4 active:bg-blue-50"
+              className="md:col-span-2 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-secondary text-secondary font-sans text-sm font-medium mb-4 active:bg-blue-50"
             >
               <MessageSquare className="w-4 h-4" />
               Pegar mensaje WA
             </button>
-            <FormField label="Cupo" value={str(form.cupo)} onChange={set('cupo')} required />
+            <FormField label="Cupo" value={str(form.cupo)} onChange={set('cupo')} required className="md:col-span-2" />
             <CuitField label="CUIT Empresa Transportista" value={str(form.cuit_transporte)} onChange={set('cuit_transporte')} onRazonSocialFound={set('transporte')} />
             <VoiceInput label="Empresa Transportista" value={str(form.transporte)} onChange={set('transporte')} />
             <CuitField label="CUIL Chofer" value={str(form.cuil_chofer)} onChange={set('cuil_chofer')} onRazonSocialFound={set('chofer')} />
             <VoiceInput label="Chofer" value={str(form.chofer)} onChange={set('chofer')} />
             <VoiceInput label="Chasis / Patente" value={str(form.chasis)} onChange={set('chasis')} />
             <VoiceInput label="Acoplado / Patente" value={str(form.acoplado)} onChange={set('acoplado')} />
-            <FormField label="Fecha Partida" value={str(form.fecha_partida)} onChange={set('fecha_partida')} type="datetime-local" />
+            <FormField label="Fecha Partida" value={str(form.fecha_partida)} onChange={set('fecha_partida')} type="datetime-local" className="md:col-span-2" />
             <FormField label="Kms. a recorrer" value={str(form.km)} onChange={set('km')} type="number" />
             <FormField label="Tarifa" value={str(form.tarifa)} onChange={set('tarifa')} type="number" />
-            <FormField label="N° RUCA" value={str(form.nro_ruca)} onChange={set('nro_ruca')} />
+            <FormField label="N° RUCA" value={str(form.nro_ruca)} onChange={set('nro_ruca')} className="md:col-span-2" />
           </>
         )}
 
         {/* ── STEP 2: INTERVINIENTES ── */}
         {step === 2 && (
           <>
-            <SectionTitle>Intervinientes (Sección A)</SectionTitle>
+            <SectionTitle className="md:col-span-2">Intervinientes (Sección A)</SectionTitle>
 
             {/* Siempre visibles */}
             <CuitField  label="CUIT Titular"                  value={str(form.titular_cuit)}               onChange={set('titular_cuit')}               onRazonSocialFound={set('titular_nombre')} />
@@ -365,7 +365,7 @@ export default function NewRecord() {
             <VoiceInput label="Remitente Comercial Productor" value={str(form.remitente_comercial_nombre)} onChange={set('remitente_comercial_nombre')} />
 
             {/* Roles opcionales — toggles */}
-            <div>
+            <div className="md:col-span-2">
               <p className="font-mono text-xs font-medium text-text-muted uppercase tracking-wide px-0.5 mb-2">
                 Roles opcionales
               </p>
@@ -438,7 +438,7 @@ export default function NewRecord() {
         {/* ── STEP 3: GRANO / ESPECIE ── */}
         {step === 3 && (
           <>
-            <SectionTitle>Grano / Especie (Sección B)</SectionTitle>
+            <SectionTitle className="md:col-span-2">Grano / Especie (Sección B)</SectionTitle>
             <SelectField label="Grano"    value={str(form.grano)}    onChange={set('grano')}    options={GRANOS} required />
             <SelectField label="Variedad" value={str(form.variedad)} onChange={set('variedad')} options={VARIEDADES} />
             <SelectField
@@ -446,21 +446,22 @@ export default function NewRecord() {
               value={str(form.declaracion_calidad)}
               onChange={set('declaracion_calidad')}
               options={['conforme', 'condicional']}
+              className="md:col-span-2"
             />
-            <FormField label="Campaña" value={str(form.campania)} onChange={set('campania')} />
+            <FormField label="Campaña" value={str(form.campania)} onChange={set('campania')} className="md:col-span-2" />
             <FormField label="Peso Bruto"   value={str(form.kg_bruto_cargados)} onChange={set('kg_bruto_cargados')} type="number" />
             <FormField label="Peso Tara"    value={str(form.kg_tara_cargados)}  onChange={set('kg_tara_cargados')}  type="number" />
-            <KgNetoDisplay label="Kg Neto cargados" bruto={str(form.kg_bruto_cargados)} tara={str(form.kg_tara_cargados)} />
-            <VoiceInput label="Observaciones" value={str(form.observaciones)} onChange={set('observaciones')} multiline rows={4} />
+            <div className="md:col-span-2"><KgNetoDisplay label="Kg Neto cargados" bruto={str(form.kg_bruto_cargados)} tara={str(form.kg_tara_cargados)} /></div>
+            <VoiceInput label="Observaciones" value={str(form.observaciones)} onChange={set('observaciones')} multiline rows={4} className="md:col-span-2" />
           </>
         )}
 
         {/* ── STEP 4: PROCEDENCIA ── */}
         {step === 4 && (
           <>
-            <SectionTitle>Procedencia — Origen (Sección C)</SectionTitle>
-            <FormField label="Fecha de carga" value={str(form.fecha_carga)} onChange={set('fecha_carga')} type="date" required />
-            <div className="flex items-center gap-3 px-1">
+            <SectionTitle className="md:col-span-2">Procedencia — Origen (Sección C)</SectionTitle>
+            <FormField label="Fecha de carga" value={str(form.fecha_carga)} onChange={set('fecha_carga')} type="date" required className="md:col-span-2" />
+            <div className="md:col-span-2 flex items-center gap-3 px-1">
               <input
                 type="checkbox"
                 id="new_es_campo_origen"
@@ -475,13 +476,13 @@ export default function NewRecord() {
             </div>
             <FormField   label="Localidad"        value={str(form.localidad)}       onChange={set('localidad')}       required />
             <FormField   label="Provincia Origen" value={str(form.provincia_origen)} onChange={set('provincia_origen')} />
-            <GPSInput latitud={form.latitud ?? null} longitud={form.longitud ?? null} onChangeCoords={setGps} />
-            <FormField label="Dirección" value={str(form.descripcion_origen)} onChange={set('descripcion_origen')} />
+            <div className="md:col-span-2"><GPSInput latitud={form.latitud ?? null} longitud={form.longitud ?? null} onChangeCoords={setGps} /></div>
+            <FormField label="Dirección" value={str(form.descripcion_origen)} onChange={set('descripcion_origen')} className="md:col-span-2" />
             <FormField label="RENSPA"      value={str(form.renspa)}             onChange={set('renspa')} />
             <SelectField label="Campo"     value={str(form.campo)}              onChange={set('campo')}  options={CAMPOS} required />
 
-            <SectionTitle className="mt-4">Destino de la Mercadería (Sección D)</SectionTitle>
-            <div className="flex items-center gap-3 px-1">
+            <SectionTitle className="mt-4 md:col-span-2">Destino de la Mercadería (Sección D)</SectionTitle>
+            <div className="md:col-span-2 flex items-center gap-3 px-1">
               <input
                 type="checkbox"
                 id="new_es_campo_destino"
@@ -504,7 +505,7 @@ export default function NewRecord() {
         {/* ── STEP 5: CONTINGENCIAS ── */}
         {step === 5 && (
           <>
-            <SectionTitle>Contingencias (Sección F)</SectionTitle>
+            <SectionTitle className="md:col-span-2">Contingencias (Sección F)</SectionTitle>
             <FormField label="Contingencia"  value={str(form.contingencia)}      onChange={set('contingencia')} />
             <FormField label="Otro"          value={str(form.contingencia_otro)} onChange={set('contingencia_otro')} />
             <FormField label="Desactivación" value={str(form.desactivacion)}     onChange={set('desactivacion')} />
@@ -515,13 +516,13 @@ export default function NewRecord() {
         {/* ── STEP 6: DESCARGA ── */}
         {step === 6 && (
           <>
-            <SectionTitle>Descarga (Sección G)</SectionTitle>
-            <FormField label="Fecha Arribo"   value={str(form.fecha_arribo)}   onChange={set('fecha_arribo')}   type="datetime-local" />
-            <FormField label="Fecha Descarga" value={str(form.fecha_descarga)} onChange={set('fecha_descarga')} type="datetime-local" />
+            <SectionTitle className="md:col-span-2">Descarga (Sección G)</SectionTitle>
+            <FormField label="Fecha Arribo"   value={str(form.fecha_arribo)}   onChange={set('fecha_arribo')}   type="datetime-local" className="md:col-span-2" />
+            <FormField label="Fecha Descarga" value={str(form.fecha_descarga)} onChange={set('fecha_descarga')} type="datetime-local" className="md:col-span-2" />
             <FormField label="N° Turno"        value={str(form.nro_turno)}        onChange={set('nro_turno')} />
             <FormField label="Peso Bruto (kg)" value={str(form.kg_bruto_descargados)} onChange={set('kg_bruto_descargados')} type="number" />
             <FormField label="Peso Tara (kg)"  value={str(form.kg_tara_descargados)}  onChange={set('kg_tara_descargados')}  type="number" />
-            <KgNetoDisplay label="Kg Neto descargados" bruto={str(form.kg_bruto_descargados)} tara={str(form.kg_tara_descargados)} />
+            <div className="md:col-span-2"><KgNetoDisplay label="Kg Neto descargados" bruto={str(form.kg_bruto_descargados)} tara={str(form.kg_tara_descargados)} /></div>
             <FormField label="Localidad (Descarga)"  value={str(form.localidad_descarga)}  onChange={set('localidad_descarga')} />
             <FormField label="Provincia (Descarga)"  value={str(form.provincia_descarga)}  onChange={set('provincia_descarga')} />
           </>
@@ -530,14 +531,14 @@ export default function NewRecord() {
         {/* ── STEP 7: RESUMEN ── */}
         {step === 7 && (
           <>
-            <SectionTitle>Resumen</SectionTitle>
+            <SectionTitle className="md:col-span-2">Resumen</SectionTitle>
             {cpeId && (
-              <div className="px-1 pb-1">
+              <div className="md:col-span-2 px-1 pb-1">
                 <span className="font-mono text-xs text-text-muted uppercase tracking-wide">CPE </span>
                 <span className="font-mono text-sm font-semibold text-secondary">{cpeId}</span>
               </div>
             )}
-            <div className="bg-white border border-gray-light rounded-2xl p-4 space-y-2">
+            <div className="md:col-span-2 bg-white border border-gray-light rounded-2xl p-4 space-y-2">
               {([
                 ['Cupo', form.cupo],
                 ['Campo', form.campo],
@@ -557,14 +558,14 @@ export default function NewRecord() {
             <button
               onClick={() => void handleGenerarCP()}
               disabled={generando || !recordSnap}
-              className="w-full h-12 rounded-xl font-sans font-semibold text-white text-sm active:opacity-80 transition mt-2 disabled:opacity-50"
+              className="md:col-span-2 w-full h-12 rounded-xl font-sans font-semibold text-white text-sm active:opacity-80 transition mt-2 disabled:opacity-50"
               style={{ backgroundColor: '#1E3252' }}
             >
               {generando ? 'Enviando…' : 'Generar CP'}
             </button>
             <button
               onClick={() => navigate('/')}
-              className="w-full h-12 rounded-xl font-sans text-sm text-text-muted border border-gray-light active:bg-gray-50 transition"
+              className="md:col-span-2 w-full h-12 rounded-xl font-sans text-sm text-text-muted border border-gray-light active:bg-gray-50 transition"
             >
               Ir al inicio
             </button>
@@ -575,7 +576,7 @@ export default function NewRecord() {
       {/* Draft restore bar — only before record is created */}
       {hasDraft && !recordId && (
         <div className="fixed bottom-20 left-0 right-0 z-50 px-4">
-          <div className="max-w-mobile mx-auto flex items-center justify-between gap-3 rounded-2xl px-4 py-3 shadow-lg text-white"
+          <div className="max-w-mobile md:max-w-desktop mx-auto flex items-center justify-between gap-3 rounded-2xl px-4 py-3 shadow-lg text-white"
             style={{ backgroundColor: '#FF6C02' }}>
             <span className="font-sans text-sm font-medium">Borrador guardado</span>
             <div className="flex items-center gap-4">
@@ -592,7 +593,7 @@ export default function NewRecord() {
 
       {/* Bottom nav */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-light px-4 py-3 pb-safe z-40">
-        <div className="max-w-mobile mx-auto flex gap-3">
+        <div className="max-w-mobile md:max-w-desktop mx-auto flex gap-3">
           {step > 1 && (
             <Button variant="ghost" onClick={() => setStep(s => (s - 1) as typeof s)} className="flex-1">
               <ChevronLeft className="w-4 h-4" /> Anterior
@@ -612,7 +613,7 @@ export default function NewRecord() {
           onClick={() => { setParserOpen(false); setParserText('') }}
         >
           <div
-            className="bg-white rounded-t-2xl w-full max-w-mobile p-4 space-y-3 pb-safe"
+            className="bg-white rounded-t-2xl w-full max-w-mobile md:max-w-desktop p-4 space-y-3 pb-safe"
             onClick={e => e.stopPropagation()}
           >
             <p className="font-mono text-xs text-text-muted uppercase tracking-widest px-1 pb-1">
@@ -644,7 +645,7 @@ export default function NewRecord() {
           onClick={() => setCpModalOpen(false)}
         >
           <div
-            className="bg-white rounded-t-2xl w-full max-w-mobile p-5 space-y-4 pb-safe"
+            className="bg-white rounded-t-2xl w-full max-w-mobile md:max-w-desktop p-5 space-y-4 pb-safe"
             onClick={e => e.stopPropagation()}
           >
             <p className="font-mono text-xs text-text-muted uppercase tracking-widest">

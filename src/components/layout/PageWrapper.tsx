@@ -13,7 +13,7 @@ export default function PageWrapper({
 }: PageWrapperProps) {
   return (
     <div className={`min-h-screen bg-gray-50 ${topOffset === 'top-14' ? 'pt-14' : 'pt-28'} ${className}`}>
-      <div className="max-w-mobile mx-auto px-4 pb-32">
+      <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pb-32">
         {children}
       </div>
     </div>

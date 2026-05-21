@@ -30,9 +30,10 @@ export default function Header({
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 pt-safe border-b-[3px]"
+      className="fixed top-0 left-0 right-0 z-40 h-14 pt-safe border-b-[3px]"
       style={{ backgroundColor: accentColor, borderBottomColor: '#FF6C02' }}
     >
+      <div className="max-w-mobile md:max-w-desktop mx-auto px-4 h-full flex items-center justify-between">
       <div className="flex items-center gap-2 flex-1 min-w-0">
         {showBack && (
           <button
@@ -65,6 +66,7 @@ export default function Header({
             </button>
           </div>
         )}
+      </div>
       </div>
     </header>
   )

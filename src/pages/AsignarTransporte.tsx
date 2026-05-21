@@ -126,7 +126,7 @@ export default function AsignarTransporte() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Asignación masiva" showBack />
-        <div className="max-w-mobile mx-auto px-4 pt-20 space-y-3">
+        <div className="max-w-mobile md:max-w-desktop mx-auto px-4 pt-20 space-y-3">
           {[1, 2, 3].map(i => (
             <div key={i} className="h-14 bg-white rounded-xl border border-gray-light animate-pulse" />
           ))}
@@ -141,7 +141,7 @@ export default function AsignarTransporte() {
     <div className="min-h-screen bg-gray-50 pb-28">
       <Header title="Asignación masiva" showBack />
 
-      <div className="max-w-mobile mx-auto px-4 space-y-4 pt-20">
+      <div className="max-w-mobile md:max-w-desktop mx-auto px-4 space-y-4 pt-20">
 
         {/* Summary of selected cupos */}
         <SectionTitle>
@@ -204,7 +204,7 @@ export default function AsignarTransporte() {
 
       {/* Fixed bottom bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-light px-4 py-3 pb-safe z-40">
-        <div className="max-w-mobile mx-auto">
+        <div className="max-w-mobile md:max-w-desktop mx-auto">
           <Button
             fullWidth
             size="lg"
@@ -226,7 +226,7 @@ export default function AsignarTransporte() {
           onClick={() => { setParserOpen(false); setParserText('') }}
         >
           <div
-            className="bg-white rounded-t-2xl w-full max-w-mobile p-4 space-y-3 pb-safe"
+            className="bg-white rounded-t-2xl w-full max-w-mobile md:max-w-desktop p-4 space-y-3 pb-safe"
             onClick={e => e.stopPropagation()}
           >
             <p className="font-mono text-xs text-text-muted uppercase tracking-widest px-1 pb-1">
