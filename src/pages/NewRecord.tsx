@@ -287,6 +287,7 @@ export default function NewRecord() {
 
   const dispararWebhook = async (snap: CpeRecord) => {
     const webhookUrl = (import.meta.env.VITE_N8N_WEBHOOK_CP_URL as string | undefined)?.trim()
+      || 'https://coder2026.app.n8n.cloud/webhook/7570394e-23cf-4973-980b-3db48c90c933'
     if (!webhookUrl) { show('URL del webhook no configurada', 'error'); return }
     setGenerando(true)
     try {
