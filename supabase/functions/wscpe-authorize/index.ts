@@ -99,11 +99,21 @@ async function wsaaGetToken(certPem: string, keyPem: string): Promise<{ token: s
   </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>`;
 
-  const res  = await fetch(WSAA_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/xml; charset=UTF-8", SOAPAction: '""' },
-    body: envelope,
-  });
+  const wsaaAbort = new AbortController();
+  const wsaaTimer = setTimeout(() => wsaaAbort.abort(), 20000);
+  let res: Response;
+  try {
+    res = await fetch(WSAA_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/xml; charset=UTF-8", SOAPAction: '""' },
+      body: envelope,
+      signal: wsaaAbort.signal,
+    });
+  } catch (e) {
+    throw new Error(`WSAA timeout/network: ${e}`);
+  } finally {
+    clearTimeout(wsaaTimer);
+  }
   const text = await res.text();
   if (!res.ok) throw new Error(`WSAA HTTP ${res.status}: ${text}`);
 
@@ -126,14 +136,14 @@ async function wsaaGetToken(certPem: string, keyPem: string): Promise<{ token: s
 // Mapeo método SOAP → SOAPAction correcto (según documentación ARCA)
 const SOAP_ACTIONS: Record<string, string> = {
   "ConsultarUltNroOrdenReq":  "consultarUltNroOrden",
-  "AutorizarAutomotorReq":    "autorizarAutomotor",
+  "AutorizarCPEAutomotorReq": "autorizarCPEAutomotor",
   "ConfirmarArriboReq":       "confirmarArribo",
   "ConfirmarDefinitivoReq":   "confirmarDefinitivo",
   "AnularCPEReq":             "anularCPE",
   "ConsultarCPEReq":          "consultarCPE",
 };
 
-async function wscpeSoap(method: string, innerXml: string): Promise<{ xml: string; sentEnvelope: string }> {
+async function wscpeSoap(method: string, innerXml: string): Promise<{ xml: string; sentEnvelope: string; status: number }> {
   const envelope = `<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope
   xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
@@ -145,16 +155,27 @@ async function wscpeSoap(method: string, innerXml: string): Promise<{ xml: strin
 
   const soapActionName = SOAP_ACTIONS[method] ?? method;
 
-  const res = await fetch(WSCPE_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "text/xml; charset=UTF-8",
-      SOAPAction: `"${WSCPE_NS}${soapActionName}"`,
-    },
-    body: envelope,
-  });
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), 20000);
+  let soapRes: Response;
+  try {
+    soapRes = await fetch(WSCPE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/xml; charset=UTF-8",
+        SOAPAction: `"${WSCPE_NS}${soapActionName}"`,
+      },
+      body: envelope,
+      signal: abort.signal,
+    });
+  } catch (e) {
+    throw new Error(`wscpe timeout/network [${method}]: ${e}`);
+  } finally {
+    clearTimeout(timer);
+  }
 
-  return { xml: await res.text(), sentEnvelope: envelope };
+  const xml = await soapRes.text();
+  return { xml, sentEnvelope: envelope, status: soapRes.status };
 }
 
 function authXml(token: string, sign: string, cuit: number): string {
@@ -204,7 +225,7 @@ Deno.serve(async (req) => {
     const { token, sign } = await wsaaGetToken(certPem, keyPem);
 
     // 2. consultarUltNroOrden → nroOrden
-    const { xml: ultXml, sentEnvelope: ultSent } = await wscpeSoap(
+    const { xml: ultXml, sentEnvelope: ultSent, status: ultStatus } = await wscpeSoap(
       "ConsultarUltNroOrdenReq",
       `${authXml(token, sign, cuit)}
     <solicitud>
@@ -251,8 +272,13 @@ Deno.serve(async (req) => {
       ["mercaderiaFumigada",     "false"],
     ]);
 
-    const { xml: authResXml, sentEnvelope: authSent } = await wscpeSoap(
-      "AutorizarAutomotorReq",
+    const renspaTag = sol.renspa ? "<nroRenspa>" + sol.renspa + "</nroRenspa>" : "";
+    const origenXml = sol.es_campo_origen
+      ? "<origen><productor><codProvincia>" + sol.cod_provincia_origen + "</codProvincia><codLocalidad>" + (sol.cod_localidad_origen ?? 0) + "</codLocalidad>" + renspaTag + "</productor></origen>"
+      : "<origen><operador><codProvincia>" + sol.cod_provincia_origen + "</codProvincia><codLocalidad>" + (sol.cod_localidad_origen ?? 0) + "</codLocalidad><planta>" + (sol.nro_planta ?? 0) + "</planta></operador></origen>";
+
+    const { xml: authResXml, sentEnvelope: authSent, status: authStatus } = await wscpeSoap(
+      "AutorizarCPEAutomotorReq",
       `${authXml(token, sign, cuit)}
     <solicitud>
       <cabecera>
@@ -261,13 +287,7 @@ Deno.serve(async (req) => {
         <sucursal>${sucursal}</sucursal>
         <nroOrden>${nroOrden}</nroOrden>
       </cabecera>
-      <origen>
-        <productor>
-          <codProvincia>${sol.cod_provincia_origen}</codProvincia>
-          <codLocalidad>0</codLocalidad>
-          <nroRenspa>${sol.renspa}</nroRenspa>
-        </productor>
-      </origen>
+      ${origenXml}
       <correspondeRetiroProductor>false</correspondeRetiroProductor>
       <esSolicitanteCampo>${sol.es_campo_origen ?? false}</esSolicitanteCampo>
       ${intervinientesXml ? `<intervinientes>${intervinientesXml}</intervinientes>` : ""}
@@ -281,7 +301,7 @@ Deno.serve(async (req) => {
         <cuit>${sol.cuit_destino}</cuit>
         <esDestinoCampo>${sol.es_campo_destino ?? false}</esDestinoCampo>
         <codProvincia>${sol.cod_provincia_destino}</codProvincia>
-        <codLocalidad>0</codLocalidad>
+        <codLocalidad>${sol.cod_localidad_destino ?? 0}</codLocalidad>
         <planta>${sol.nro_planta ?? 0}</planta>
       </destino>
       <destinatario>
@@ -301,6 +321,7 @@ Deno.serve(async (req) => {
       return jsonRes({
         ok: false,
         error: "AutorizarAutomotorReq: nroCTG no encontrado en la respuesta",
+        http_status: authStatus,
         request_xml: authSent,
         response_xml: authResXml,
       }, 500);
