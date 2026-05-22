@@ -123,6 +123,16 @@ async function wsaaGetToken(certPem: string, keyPem: string): Promise<{ token: s
 
 // ── wscpe SOAP ────────────────────────────────────────────────────────────────
 
+// Mapeo método SOAP → SOAPAction correcto (según documentación ARCA)
+const SOAP_ACTIONS: Record<string, string> = {
+  "ConsultarUltNroOrdenReq":  "consultarUltNroOrden",
+  "AutorizarAutomotorReq":    "autorizarAutomotor",
+  "ConfirmarArriboReq":       "confirmarArribo",
+  "ConfirmarDefinitivoReq":   "confirmarDefinitivo",
+  "AnularCPEReq":             "anularCPE",
+  "ConsultarCPEReq":          "consultarCPE",
+};
+
 async function wscpeSoap(method: string, innerXml: string): Promise<{ xml: string; sentEnvelope: string }> {
   const envelope = `<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope
@@ -133,11 +143,13 @@ async function wscpeSoap(method: string, innerXml: string): Promise<{ xml: strin
   </soapenv:Body>
 </soapenv:Envelope>`;
 
+  const soapActionName = SOAP_ACTIONS[method] ?? method;
+
   const res = await fetch(WSCPE_URL, {
     method: "POST",
     headers: {
       "Content-Type": "text/xml; charset=UTF-8",
-      SOAPAction: `"${WSCPE_NS}${method}"`,
+      SOAPAction: `"${WSCPE_NS}${soapActionName}"`,
     },
     body: envelope,
   });
