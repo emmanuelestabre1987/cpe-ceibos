@@ -266,7 +266,7 @@ Deno.serve(async (req) => {
       ["fechaHoraPartida",       sol.fecha_partida],
       ["kmRecorrer",             sol.km],
       ["cuitChofer",             sol.cuil_chofer],
-      ["tarifa",                 sol.tarifa],
+      ["tarifa",                 sol.tarifa ?? 0],          // requerido por schema ARCA
       ["cuitPagadorFlete",       sol.cuit_pagador_flete],
       ["cuitIntermediarioFlete", sol.cuit_intermediario],
       ["mercaderiaFumigada",     "false"],
