@@ -57,7 +57,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        environment: 'prod',
+        environment: 'homo',
         tax_id: afipCuit,
         wsid: 'ws_sr_constancia_inscripcion',
         cert: afipCert,
@@ -80,7 +80,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        environment: 'prod',
+        environment: 'homo',
         method: 'getPersona_v2',
         wsid: 'ws_sr_constancia_inscripcion',
         params: {
