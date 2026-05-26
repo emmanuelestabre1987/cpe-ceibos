@@ -168,10 +168,10 @@ export default function EditRecord() {
         {/* ── TRANSPORTE ── */}
         <SectionTitle className="md:col-span-2">Transporte</SectionTitle>
         <FormField label="Cupo" value={str(form.cupo)} onChange={set('cupo')} className="md:col-span-2" />
+        <CuitField label="CUIT Empresa Transportista" value={str(form.cuit_transporte)} onChange={set('cuit_transporte')} onRazonSocialFound={set('transporte')} />
         <FormField label="Empresa Transportista" value={str(form.transporte)} onChange={set('transporte')} />
-        <FormField label="CUIT Empresa Transportista" value={str(form.cuit_transporte)} onChange={set('cuit_transporte')} />
+        <CuitField label="CUIL Chofer" value={str(form.cuil_chofer)} onChange={set('cuil_chofer')} onRazonSocialFound={set('chofer')} />
         <FormField label="Chofer" value={str(form.chofer)} onChange={set('chofer')} />
-        <FormField label="CUIL Chofer" value={str(form.cuil_chofer)} onChange={set('cuil_chofer')} />
         <FormField label="Chasis / Patente" value={str(form.chasis)} onChange={set('chasis')} />
         <FormField label="Acoplado / Patente" value={str(form.acoplado)} onChange={set('acoplado')} />
         <FormField label="Fecha Partida" value={str(form.fecha_partida)} onChange={set('fecha_partida')} type="datetime-local" className="md:col-span-2" />
