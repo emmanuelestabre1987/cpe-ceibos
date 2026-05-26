@@ -605,10 +605,10 @@ export default function ImportarCupos() {
             </label>
           </div>
           <FormField label="Dirección" value={campos.direccion_destino} onChange={set('direccion_destino')} className="md:col-span-2" />
-          <FormField label="Flete Pagador" value={campos.pagador_flete} onChange={set('pagador_flete')} />
-          <FormField label="Intermediario de Flete"     value={campos.intermediario_flete}    onChange={set('intermediario_flete')} />
-          <FormField label="CUIT Intermediario de Flete" value={campos.cuit_intermediario}     onChange={set('cuit_intermediario')} />
-          <FormField label="CUIT Flete Pagador"          value={campos.cuit_pagador_flete}     onChange={set('cuit_pagador_flete')} />
+          <CuitField label="CUIT Flete Pagador"          value={campos.cuit_pagador_flete}     onChange={set('cuit_pagador_flete')}  onRazonSocialFound={set('pagador_flete')} />
+          <FormField label="Flete Pagador"               value={campos.pagador_flete}          onChange={set('pagador_flete')} />
+          <CuitField label="CUIT Intermediario de Flete" value={campos.cuit_intermediario}     onChange={set('cuit_intermediario')} onRazonSocialFound={set('intermediario_flete')} />
+          <FormField label="Intermediario de Flete"      value={campos.intermediario_flete}    onChange={set('intermediario_flete')} />
           <FormField label="Localidad (Destino)"         value={campos.localidad_destino}      onChange={set('localidad_destino')} />
           <FormField label="N° Planta" value={campos.nro_planta} onChange={set('nro_planta')} />
           <FormField label="Observaciones" value={campos.observaciones} onChange={set('observaciones')} multiline rows={3} className="md:col-span-2" />
