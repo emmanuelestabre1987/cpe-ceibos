@@ -295,7 +295,7 @@ export default function EditRecord() {
         <div className="md:col-span-2"><GPSInput latitud={form.latitud ?? null} longitud={form.longitud ?? null} onChangeCoords={setGps} /></div>
         <FormField label="Dirección" value={str(form.descripcion_origen)} onChange={set('descripcion_origen')} className="md:col-span-2" />
         <FormField label="RENSPA"      value={str(form.renspa)}             onChange={set('renspa')} />
-        <SelectField label="Campo"     value={str(form.campo)}              onChange={set('campo')}  options={CAMPOS} />
+        <FormField   label="Campo"     value={str(form.campo)}              onChange={set('campo')} />
 
         {/* ── DESTINO (D) ── */}
         <SectionTitle className="mt-4 md:col-span-2">Destino de la Mercadería (Sección D)</SectionTitle>

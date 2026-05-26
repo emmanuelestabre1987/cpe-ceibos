@@ -480,7 +480,7 @@ export default function NewRecord() {
             <div className="md:col-span-2"><GPSInput latitud={form.latitud ?? null} longitud={form.longitud ?? null} onChangeCoords={setGps} /></div>
             <FormField label="Dirección" value={str(form.descripcion_origen)} onChange={set('descripcion_origen')} className="md:col-span-2" />
             <FormField label="RENSPA"      value={str(form.renspa)}             onChange={set('renspa')} />
-            <SelectField label="Campo"     value={str(form.campo)}              onChange={set('campo')}  options={CAMPOS} required />
+            <FormField   label="Campo"     value={str(form.campo)}              onChange={set('campo')}  required />
 
             <SectionTitle className="mt-4 md:col-span-2">Destino de la Mercadería (Sección D)</SectionTitle>
             <div className="md:col-span-2 flex items-center gap-3 px-1">
