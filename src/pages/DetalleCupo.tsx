@@ -1100,7 +1100,6 @@ export default function DetalleCupo() {
               Pegar mensaje WA
             </button>
             <FormField label="Cupo" value={transporteF.cupo} onChange={setT('cupo')} className="md:col-span-2" />
-            <FormField label="Empresa Transportista" value={transporteF.transporte} onChange={setT('transporte')} />
             <CuitField
               label="CUIT Empresa Transportista"
               value={transporteF.cuit_transporte}
@@ -1109,7 +1108,7 @@ export default function DetalleCupo() {
               onRazonSocialFound={setT('transporte')}
               error={cuitErrors.cuit_transporte}
             />
-            <FormField label="Chofer" value={transporteF.chofer} onChange={setT('chofer')} />
+            <FormField label="Empresa Transportista" value={transporteF.transporte} onChange={setT('transporte')} />
             <CuitField
               label="CUIL Chofer"
               value={transporteF.cuil_chofer}
@@ -1118,6 +1117,7 @@ export default function DetalleCupo() {
               onRazonSocialFound={setT('chofer')}
               error={cuitErrors.cuil_chofer}
             />
+            <FormField label="Chofer" value={transporteF.chofer} onChange={setT('chofer')} />
             <FormField label="Chasis / Patente" value={transporteF.chasis} onChange={setT('chasis')} />
             <FormField label="Acoplado / Patente" value={transporteF.acoplado} onChange={setT('acoplado')} />
             <FormField label="Fecha Partida" value={transporteF.fecha_partida} onChange={setT('fecha_partida')} type="datetime-local" className="md:col-span-2" />
