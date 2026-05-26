@@ -7,7 +7,6 @@ import Button from '../components/ui/Button'
 import SectionTitle from '../components/ui/SectionTitle'
 import { FormField, SelectField } from '../components/forms/FormField'
 import CuitField from '../components/forms/CuitField'
-import VoiceInput from '../components/forms/VoiceInput'
 import { useToast } from '../components/ui/Toast'
 import { createImportBatch, createCuposEnLote } from '../lib/storage'
 import { useAuth } from '../hooks/useAuth'
@@ -516,9 +515,9 @@ export default function ImportarCupos() {
 
           {/* Siempre visibles */}
           <CuitField  label="CUIT Titular"                  value={campos.titular_cuit}               onChange={set('titular_cuit')}               onRazonSocialFound={set('titular_nombre')} />
-          <VoiceInput label="Titular Carta de Porte"        value={campos.titular_nombre}             onChange={set('titular_nombre')} />
+          <FormField  label="Titular Carta de Porte"        value={campos.titular_nombre}             onChange={set('titular_nombre')} />
           <CuitField  label="CUIT Remitente Comercial"      value={campos.remitente_comercial_cuit}   onChange={set('remitente_comercial_cuit')}    onRazonSocialFound={set('remitente_comercial_nombre')} />
-          <VoiceInput label="Remitente Comercial Productor" value={campos.remitente_comercial_nombre} onChange={set('remitente_comercial_nombre')} />
+          <FormField  label="Remitente Comercial Productor" value={campos.remitente_comercial_nombre} onChange={set('remitente_comercial_nombre')} />
 
           {/* Roles opcionales — toggles */}
           <div className="md:col-span-2">
@@ -549,41 +548,41 @@ export default function ImportarCupos() {
           {/* Campos condicionales por rol */}
           {rolesActivos.has('rte_primaria') && (<>
             <CuitField  label="CUIT Rte. Comercial Venta Primaria"     value={campos.cuit_rte_venta_primaria}    onChange={set('cuit_rte_venta_primaria')}    onRazonSocialFound={set('rte_venta_primaria')} />
-            <VoiceInput label="Rte. Comercial Venta Primaria"          value={campos.rte_venta_primaria}         onChange={set('rte_venta_primaria')} />
+            <FormField  label="Rte. Comercial Venta Primaria"          value={campos.rte_venta_primaria}         onChange={set('rte_venta_primaria')} />
           </>)}
           {rolesActivos.has('rte_secundaria') && (<>
             <CuitField  label="CUIT Rte. Comercial Venta Secundaria"   value={campos.cuit_rte_venta_secundaria}  onChange={set('cuit_rte_venta_secundaria')}   onRazonSocialFound={set('rte_venta_secundaria')} />
-            <VoiceInput label="Rte. Comercial Venta Secundaria"        value={campos.rte_venta_secundaria}       onChange={set('rte_venta_secundaria')} />
+            <FormField  label="Rte. Comercial Venta Secundaria"        value={campos.rte_venta_secundaria}       onChange={set('rte_venta_secundaria')} />
           </>)}
           {rolesActivos.has('rte_secundaria2') && (<>
             <CuitField  label="CUIT Rte. Comercial Venta Secundaria 2" value={campos.cuit_rte_venta_secundaria2} onChange={set('cuit_rte_venta_secundaria2')}  onRazonSocialFound={set('rte_venta_secundaria2')} />
-            <VoiceInput label="Rte. Comercial Venta Secundaria 2"      value={campos.rte_venta_secundaria2}      onChange={set('rte_venta_secundaria2')} />
+            <FormField  label="Rte. Comercial Venta Secundaria 2"      value={campos.rte_venta_secundaria2}      onChange={set('rte_venta_secundaria2')} />
           </>)}
           {rolesActivos.has('mercado') && (
-            <VoiceInput label="Mercado a Término" value={campos.mercado_termino} onChange={set('mercado_termino')} className="md:col-span-2" />
+            <FormField  label="Mercado a Término" value={campos.mercado_termino} onChange={set('mercado_termino')} className="md:col-span-2" />
           )}
           {rolesActivos.has('corredor_primario') && (<>
             <CuitField  label="CUIT Corredor Venta Primaria" value={campos.cuit_corredor_primario}    onChange={set('cuit_corredor_primario')}    onRazonSocialFound={set('corredor_primario')} />
-            <VoiceInput label="Corredor Venta Primaria"      value={campos.corredor_primario}         onChange={set('corredor_primario')} />
+            <FormField  label="Corredor Venta Primaria"      value={campos.corredor_primario}         onChange={set('corredor_primario')} />
           </>)}
           {rolesActivos.has('corredor_secundario') && (<>
             <CuitField  label="CUIT Corredor Venta Secundaria" value={campos.cuit_corredor_secundario}  onChange={set('cuit_corredor_secundario')}  onRazonSocialFound={set('corredor_secundario')} />
-            <VoiceInput label="Corredor Venta Secundaria"      value={campos.corredor_secundario}       onChange={set('corredor_secundario')} />
+            <FormField  label="Corredor Venta Secundaria"      value={campos.corredor_secundario}       onChange={set('corredor_secundario')} />
           </>)}
           {rolesActivos.has('repr_entregador') && (<>
             <CuitField  label="CUIT Representante Entregador" value={campos.cuit_repr_entregador} onChange={set('cuit_repr_entregador')} onRazonSocialFound={set('repr_entregador')} />
-            <VoiceInput label="Representante Entregador"      value={campos.repr_entregador}      onChange={set('repr_entregador')} />
+            <FormField  label="Representante Entregador"      value={campos.repr_entregador}      onChange={set('repr_entregador')} />
           </>)}
           {rolesActivos.has('repr_recibidor') && (<>
             <CuitField  label="CUIT Representante Recibidor" value={campos.cuit_repr_recibidor}  onChange={set('cuit_repr_recibidor')}  onRazonSocialFound={set('repr_recibidor')} />
-            <VoiceInput label="Representante Recibidor"      value={campos.repr_recibidor}       onChange={set('repr_recibidor')} />
+            <FormField  label="Representante Recibidor"      value={campos.repr_recibidor}       onChange={set('repr_recibidor')} />
           </>)}
 
           {/* Siempre visibles — parte inferior */}
           <CuitField  label="CUIT Destinatario" value={campos.cuit_destinatario} onChange={set('cuit_destinatario')} onRazonSocialFound={set('destinatario')} />
-          <VoiceInput label="Destinatario"      value={campos.destinatario}      onChange={set('destinatario')} />
+          <FormField  label="Destinatario"      value={campos.destinatario}      onChange={set('destinatario')} />
           <CuitField  label="CUIT Destino"      value={campos.cuit_destino}      onChange={set('cuit_destino')}      onRazonSocialFound={set('destino')} />
-          <VoiceInput label="Destino"           value={campos.destino}           onChange={set('destino')} />
+          <FormField  label="Destino"           value={campos.destino}           onChange={set('destino')} />
 
           {/* ── Flete ── */}
           <SectionTitle className="md:col-span-2">Procedencia</SectionTitle>

@@ -5,7 +5,6 @@ import Header from '../components/layout/Header'
 import Button from '../components/ui/Button'
 import { FormField, SelectField } from '../components/forms/FormField'
 import CuitField from '../components/forms/CuitField'
-import VoiceInput from '../components/forms/VoiceInput'
 import GPSInput from '../components/forms/GPSInput'
 import SectionTitle from '../components/ui/SectionTitle'
 import { useToast } from '../components/ui/Toast'
@@ -169,12 +168,12 @@ export default function EditRecord() {
         {/* ── TRANSPORTE ── */}
         <SectionTitle className="md:col-span-2">Transporte</SectionTitle>
         <FormField label="Cupo" value={str(form.cupo)} onChange={set('cupo')} className="md:col-span-2" />
-        <VoiceInput label="Empresa Transportista" value={str(form.transporte)} onChange={set('transporte')} />
+        <FormField label="Empresa Transportista" value={str(form.transporte)} onChange={set('transporte')} />
         <FormField label="CUIT Empresa Transportista" value={str(form.cuit_transporte)} onChange={set('cuit_transporte')} />
-        <VoiceInput label="Chofer" value={str(form.chofer)} onChange={set('chofer')} />
+        <FormField label="Chofer" value={str(form.chofer)} onChange={set('chofer')} />
         <FormField label="CUIL Chofer" value={str(form.cuil_chofer)} onChange={set('cuil_chofer')} />
-        <VoiceInput label="Chasis / Patente" value={str(form.chasis)} onChange={set('chasis')} />
-        <VoiceInput label="Acoplado / Patente" value={str(form.acoplado)} onChange={set('acoplado')} />
+        <FormField label="Chasis / Patente" value={str(form.chasis)} onChange={set('chasis')} />
+        <FormField label="Acoplado / Patente" value={str(form.acoplado)} onChange={set('acoplado')} />
         <FormField label="Fecha Partida" value={str(form.fecha_partida)} onChange={set('fecha_partida')} type="datetime-local" className="md:col-span-2" />
         <FormField label="Kms. a recorrer" value={str(form.km)} onChange={set('km')} type="number" />
         <FormField label="Tarifa" value={str(form.tarifa)} onChange={set('tarifa')} type="number" />
@@ -185,9 +184,9 @@ export default function EditRecord() {
 
         {/* Siempre visibles */}
         <CuitField  label="CUIT Titular"                  value={str(form.titular_cuit)}               onChange={set('titular_cuit')}               onRazonSocialFound={set('titular_nombre')} />
-        <VoiceInput label="Titular Carta de Porte"        value={str(form.titular_nombre)}             onChange={set('titular_nombre')} />
+        <FormField  label="Titular Carta de Porte"        value={str(form.titular_nombre)}             onChange={set('titular_nombre')} />
         <CuitField  label="CUIT Remitente Comercial"      value={str(form.remitente_comercial_cuit)}   onChange={set('remitente_comercial_cuit')}    onRazonSocialFound={set('remitente_comercial_nombre')} />
-        <VoiceInput label="Remitente Comercial Productor" value={str(form.remitente_comercial_nombre)} onChange={set('remitente_comercial_nombre')} />
+        <FormField  label="Remitente Comercial Productor" value={str(form.remitente_comercial_nombre)} onChange={set('remitente_comercial_nombre')} />
 
         {/* Roles opcionales — toggles */}
         <div className="md:col-span-2">
@@ -218,45 +217,45 @@ export default function EditRecord() {
         {/* Campos condicionales por rol */}
         {rolesActivos.has('rte_primaria') && (<>
           <CuitField  label="CUIT Rte. Comercial Venta Primaria"     value={str(form.cuit_rte_venta_primaria)}    onChange={set('cuit_rte_venta_primaria')}    onRazonSocialFound={set('rte_venta_primaria')} />
-          <VoiceInput label="Rte. Comercial Venta Primaria"          value={str(form.rte_venta_primaria)}         onChange={set('rte_venta_primaria')} />
+          <FormField  label="Rte. Comercial Venta Primaria"          value={str(form.rte_venta_primaria)}         onChange={set('rte_venta_primaria')} />
         </>)}
         {rolesActivos.has('rte_secundaria') && (<>
           <CuitField  label="CUIT Rte. Comercial Venta Secundaria"   value={str(form.cuit_rte_venta_secundaria)}  onChange={set('cuit_rte_venta_secundaria')}   onRazonSocialFound={set('rte_venta_secundaria')} />
-          <VoiceInput label="Rte. Comercial Venta Secundaria"        value={str(form.rte_venta_secundaria)}       onChange={set('rte_venta_secundaria')} />
+          <FormField  label="Rte. Comercial Venta Secundaria"        value={str(form.rte_venta_secundaria)}       onChange={set('rte_venta_secundaria')} />
         </>)}
         {rolesActivos.has('rte_secundaria2') && (<>
           <CuitField  label="CUIT Rte. Comercial Venta Secundaria 2" value={str(form.cuit_rte_venta_secundaria2)} onChange={set('cuit_rte_venta_secundaria2')}  onRazonSocialFound={set('rte_venta_secundaria2')} />
-          <VoiceInput label="Rte. Comercial Venta Secundaria 2"      value={str(form.rte_venta_secundaria2)}      onChange={set('rte_venta_secundaria2')} />
+          <FormField  label="Rte. Comercial Venta Secundaria 2"      value={str(form.rte_venta_secundaria2)}      onChange={set('rte_venta_secundaria2')} />
         </>)}
         {rolesActivos.has('mercado') && (
-          <VoiceInput label="Mercado a Término" value={str(form.mercado_termino)} onChange={set('mercado_termino')} className="md:col-span-2" />
+          <FormField  label="Mercado a Término" value={str(form.mercado_termino)} onChange={set('mercado_termino')} className="md:col-span-2" />
         )}
         {rolesActivos.has('corredor_primario') && (<>
           <CuitField  label="CUIT Corredor Venta Primaria" value={str(form.cuit_corredor_primario)}    onChange={set('cuit_corredor_primario')}    onRazonSocialFound={set('corredor_primario')} />
-          <VoiceInput label="Corredor Venta Primaria"      value={str(form.corredor_primario)}         onChange={set('corredor_primario')} />
+          <FormField  label="Corredor Venta Primaria"      value={str(form.corredor_primario)}         onChange={set('corredor_primario')} />
         </>)}
         {rolesActivos.has('corredor_secundario') && (<>
           <CuitField  label="CUIT Corredor Venta Secundaria" value={str(form.cuit_corredor_secundario)}  onChange={set('cuit_corredor_secundario')}  onRazonSocialFound={set('corredor_secundario')} />
-          <VoiceInput label="Corredor Venta Secundaria"      value={str(form.corredor_secundario)}       onChange={set('corredor_secundario')} />
+          <FormField  label="Corredor Venta Secundaria"      value={str(form.corredor_secundario)}       onChange={set('corredor_secundario')} />
         </>)}
         {rolesActivos.has('repr_entregador') && (<>
           <CuitField  label="CUIT Representante Entregador" value={str(form.cuit_repr_entregador)} onChange={set('cuit_repr_entregador')} onRazonSocialFound={set('repr_entregador')} />
-          <VoiceInput label="Representante Entregador"      value={str(form.repr_entregador)}      onChange={set('repr_entregador')} />
+          <FormField  label="Representante Entregador"      value={str(form.repr_entregador)}      onChange={set('repr_entregador')} />
         </>)}
         {rolesActivos.has('repr_recibidor') && (<>
           <CuitField  label="CUIT Representante Recibidor" value={str(form.cuit_repr_recibidor)}  onChange={set('cuit_repr_recibidor')}  onRazonSocialFound={set('repr_recibidor')} />
-          <VoiceInput label="Representante Recibidor"      value={str(form.repr_recibidor)}       onChange={set('repr_recibidor')} />
+          <FormField  label="Representante Recibidor"      value={str(form.repr_recibidor)}       onChange={set('repr_recibidor')} />
         </>)}
 
         {/* Siempre visibles — parte inferior */}
         <CuitField  label="CUIT Destinatario"           value={str(form.cuit_destinatario)}   onChange={set('cuit_destinatario')}   onRazonSocialFound={set('destinatario')} />
-        <VoiceInput label="Destinatario"                value={str(form.destinatario)}        onChange={set('destinatario')} />
+        <FormField  label="Destinatario"                value={str(form.destinatario)}        onChange={set('destinatario')} />
         <CuitField  label="CUIT Destino"                value={str(form.cuit_destino)}        onChange={set('cuit_destino')}        onRazonSocialFound={set('destino')} />
-        <VoiceInput label="Destino"                     value={str(form.destino)}             onChange={set('destino')} />
+        <FormField  label="Destino"                     value={str(form.destino)}             onChange={set('destino')} />
         <CuitField  label="CUIT Flete Pagador"          value={str(form.cuit_pagador_flete)}  onChange={set('cuit_pagador_flete')}  onRazonSocialFound={set('pagador_flete')} />
-        <VoiceInput label="Flete Pagador"               value={str(form.pagador_flete)}       onChange={set('pagador_flete')} />
+        <FormField  label="Flete Pagador"               value={str(form.pagador_flete)}       onChange={set('pagador_flete')} />
         <CuitField  label="CUIT Intermediario de Flete" value={str(form.cuit_intermediario)}  onChange={set('cuit_intermediario')}  onRazonSocialFound={set('intermediario_flete')} />
-        <VoiceInput label="Intermediario de Flete"      value={str(form.intermediario_flete)} onChange={set('intermediario_flete')} />
+        <FormField  label="Intermediario de Flete"      value={str(form.intermediario_flete)} onChange={set('intermediario_flete')} />
 
         {/* ── GRANO / ESPECIE ── */}
         <SectionTitle className="mt-4 md:col-span-2">Grano / Especie (Sección B)</SectionTitle>
@@ -272,7 +271,7 @@ export default function EditRecord() {
         <FormField label="Campaña"      value={str(form.campania)}          onChange={set('campania')} className="md:col-span-2" />
         <FormField label="Peso Bruto"   value={str(form.kg_bruto_cargados)} onChange={set('kg_bruto_cargados')} type="number" />
         <FormField label="Peso Tara"    value={str(form.kg_tara_cargados)}  onChange={set('kg_tara_cargados')}  type="number" />
-        <VoiceInput label="Observaciones" value={str(form.observaciones)} onChange={set('observaciones')} multiline rows={4} className="md:col-span-2" />
+        <FormField  label="Observaciones" value={str(form.observaciones)} onChange={set('observaciones')} className="md:col-span-2" />
 
         {/* ── PROCEDENCIA (C) ── */}
         <SectionTitle className="mt-4 md:col-span-2">Procedencia — Origen (Sección C)</SectionTitle>

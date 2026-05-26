@@ -5,7 +5,6 @@ import Header from '../components/layout/Header'
 import Button from '../components/ui/Button'
 import SectionTitle from '../components/ui/SectionTitle'
 import { FormField } from '../components/forms/FormField'
-import VoiceInput from '../components/forms/VoiceInput'
 import { useToast } from '../components/ui/Toast'
 import { getRecord, updateRecord, updateCupoStatus } from '../lib/storage'
 import { useAuth } from '../hooks/useAuth'
@@ -181,7 +180,7 @@ export default function AsignarTransporte() {
           Pegar mensaje WA
         </button>
 
-        <VoiceInput label="Transporte" value={transporte} onChange={setTransporte} />
+        <FormField label="Transporte" value={transporte} onChange={setTransporte} />
         <FormField
           label="CUIT Transporte"
           value={cuit_transporte}
@@ -189,7 +188,7 @@ export default function AsignarTransporte() {
           onBlur={validateCuitTransporte}
           error={cuitErrors.cuit_transporte}
         />
-        <VoiceInput label="Chofer" value={chofer} onChange={setChofer} />
+        <FormField label="Chofer" value={chofer} onChange={setChofer} />
         <FormField
           label="CUIL Chofer"
           value={cuil_chofer}
@@ -197,8 +196,8 @@ export default function AsignarTransporte() {
           onBlur={validateCuilChofer}
           error={cuitErrors.cuil_chofer}
         />
-        <VoiceInput label="Chasis / Patente" value={chasis} onChange={setChasis} />
-        <VoiceInput label="Acoplado / Patente" value={acoplado} onChange={setAcoplado} />
+        <FormField label="Chasis / Patente" value={chasis} onChange={setChasis} />
+        <FormField label="Acoplado / Patente" value={acoplado} onChange={setAcoplado} />
 
       </div>
 

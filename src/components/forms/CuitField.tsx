@@ -26,9 +26,9 @@ export default function CuitField({
   const [loading, setLoading] = useState(false)
 
   const handleChange = (v: string) => {
-    onChange(v)
-    // Si el CUIT queda vacío, limpiar la razón social
-    if (onRazonSocialFound && v.replace(/\D/g, '').length === 0) {
+    const clean = v.replace(/-/g, '')
+    onChange(clean)
+    if (onRazonSocialFound && clean.replace(/\D/g, '').length === 0) {
       onRazonSocialFound('')
     }
   }
@@ -54,7 +54,7 @@ export default function CuitField({
         value={value}
         onChange={handleChange}
         onBlur={() => void handleBlur()}
-        placeholder={placeholder ?? '00-00000000-0'}
+        placeholder={placeholder ?? '00000000000'}
         inputMode="numeric"
         error={error}
       />

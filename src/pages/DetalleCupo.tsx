@@ -7,7 +7,6 @@ import Badge from '../components/ui/Badge'
 import SectionTitle from '../components/ui/SectionTitle'
 import { FormField, SelectField } from '../components/forms/FormField'
 import CuitField from '../components/forms/CuitField'
-import VoiceInput from '../components/forms/VoiceInput'
 import GPSInput from '../components/forms/GPSInput'
 import { useToast } from '../components/ui/Toast'
 import {
@@ -1101,7 +1100,7 @@ export default function DetalleCupo() {
               Pegar mensaje WA
             </button>
             <FormField label="Cupo" value={transporteF.cupo} onChange={setT('cupo')} className="md:col-span-2" />
-            <VoiceInput label="Empresa Transportista" value={transporteF.transporte} onChange={setT('transporte')} />
+            <FormField label="Empresa Transportista" value={transporteF.transporte} onChange={setT('transporte')} />
             <CuitField
               label="CUIT Empresa Transportista"
               value={transporteF.cuit_transporte}
@@ -1110,7 +1109,7 @@ export default function DetalleCupo() {
               onRazonSocialFound={setT('transporte')}
               error={cuitErrors.cuit_transporte}
             />
-            <VoiceInput label="Chofer" value={transporteF.chofer} onChange={setT('chofer')} />
+            <FormField label="Chofer" value={transporteF.chofer} onChange={setT('chofer')} />
             <CuitField
               label="CUIL Chofer"
               value={transporteF.cuil_chofer}
@@ -1119,8 +1118,8 @@ export default function DetalleCupo() {
               onRazonSocialFound={setT('chofer')}
               error={cuitErrors.cuil_chofer}
             />
-            <VoiceInput label="Chasis / Patente" value={transporteF.chasis} onChange={setT('chasis')} />
-            <VoiceInput label="Acoplado / Patente" value={transporteF.acoplado} onChange={setT('acoplado')} />
+            <FormField label="Chasis / Patente" value={transporteF.chasis} onChange={setT('chasis')} />
+            <FormField label="Acoplado / Patente" value={transporteF.acoplado} onChange={setT('acoplado')} />
             <FormField label="Fecha Partida" value={transporteF.fecha_partida} onChange={setT('fecha_partida')} type="datetime-local" className="md:col-span-2" />
             <FormField label="Kms. a recorrer" value={transporteF.km} onChange={setT('km')} type="number" />
             <FormField label="Tarifa" value={transporteF.tarifa} onChange={setT('tarifa')} type="number" />
@@ -1134,9 +1133,9 @@ export default function DetalleCupo() {
             <SectionTitle className="md:col-span-2">Intervinientes (Sección A)</SectionTitle>
             <div className="md:col-span-2"><ResponsableChip label="Comercial / Log Central" /></div>
             <CuitField  label="CUIT Titular"                  value={intervinientesF.titular_cuit}              onChange={setI('titular_cuit')}              onRazonSocialFound={setI('titular_nombre')} />
-            <VoiceInput label="Titular Carta de Porte"        value={intervinientesF.titular_nombre}            onChange={setI('titular_nombre')} />
+            <FormField  label="Titular Carta de Porte"        value={intervinientesF.titular_nombre}            onChange={setI('titular_nombre')} />
             <CuitField  label="CUIT Remitente Comercial"      value={intervinientesF.remitente_comercial_cuit}  onChange={setI('remitente_comercial_cuit')}  onRazonSocialFound={setI('remitente_comercial_nombre')} />
-            <VoiceInput label="Remitente Comercial Productor" value={intervinientesF.remitente_comercial_nombre} onChange={setI('remitente_comercial_nombre')} />
+            <FormField  label="Remitente Comercial Productor" value={intervinientesF.remitente_comercial_nombre} onChange={setI('remitente_comercial_nombre')} />
             {/* Roles opcionales — toggles */}
             <div className="md:col-span-2">
               <p className="font-mono text-xs font-medium text-text-muted uppercase tracking-wide px-0.5 mb-2">
@@ -1166,43 +1165,43 @@ export default function DetalleCupo() {
             {/* Campos condicionales por rol */}
             {rolesActivos.has('rte_primaria') && (<>
               <CuitField  label="CUIT Rte. Comercial Venta Primaria"     value={intervinientesF.cuit_rte_venta_primaria}    onChange={setI('cuit_rte_venta_primaria')}    onRazonSocialFound={setI('rte_venta_primaria')} />
-              <VoiceInput label="Rte. Comercial Venta Primaria"          value={intervinientesF.rte_venta_primaria}         onChange={setI('rte_venta_primaria')} />
+              <FormField  label="Rte. Comercial Venta Primaria"          value={intervinientesF.rte_venta_primaria}         onChange={setI('rte_venta_primaria')} />
             </>)}
             {rolesActivos.has('rte_secundaria') && (<>
               <CuitField  label="CUIT Rte. Comercial Venta Secundaria"   value={intervinientesF.cuit_rte_venta_secundaria}  onChange={setI('cuit_rte_venta_secundaria')}  onRazonSocialFound={setI('rte_venta_secundaria')} />
-              <VoiceInput label="Rte. Comercial Venta Secundaria"        value={intervinientesF.rte_venta_secundaria}       onChange={setI('rte_venta_secundaria')} />
+              <FormField  label="Rte. Comercial Venta Secundaria"        value={intervinientesF.rte_venta_secundaria}       onChange={setI('rte_venta_secundaria')} />
             </>)}
             {rolesActivos.has('rte_secundaria2') && (<>
               <CuitField  label="CUIT Rte. Comercial Venta Secundaria 2" value={intervinientesF.cuit_rte_venta_secundaria2} onChange={setI('cuit_rte_venta_secundaria2')} onRazonSocialFound={setI('rte_venta_secundaria2')} />
-              <VoiceInput label="Rte. Comercial Venta Secundaria 2"      value={intervinientesF.rte_venta_secundaria2}      onChange={setI('rte_venta_secundaria2')} />
+              <FormField  label="Rte. Comercial Venta Secundaria 2"      value={intervinientesF.rte_venta_secundaria2}      onChange={setI('rte_venta_secundaria2')} />
             </>)}
             {rolesActivos.has('mercado') && (
-              <VoiceInput label="Mercado a Término" value={intervinientesF.mercado_termino} onChange={setI('mercado_termino')} />
+              <FormField  label="Mercado a Término" value={intervinientesF.mercado_termino} onChange={setI('mercado_termino')} />
             )}
             {rolesActivos.has('corredor_primario') && (<>
               <CuitField  label="CUIT Corredor Venta Primaria" value={intervinientesF.cuit_corredor_primario}    onChange={setI('cuit_corredor_primario')}    onRazonSocialFound={setI('corredor_primario')} />
-              <VoiceInput label="Corredor Venta Primaria"      value={intervinientesF.corredor_primario}         onChange={setI('corredor_primario')} />
+              <FormField  label="Corredor Venta Primaria"      value={intervinientesF.corredor_primario}         onChange={setI('corredor_primario')} />
             </>)}
             {rolesActivos.has('corredor_secundario') && (<>
               <CuitField  label="CUIT Corredor Venta Secundaria" value={intervinientesF.cuit_corredor_secundario}  onChange={setI('cuit_corredor_secundario')}  onRazonSocialFound={setI('corredor_secundario')} />
-              <VoiceInput label="Corredor Venta Secundaria"      value={intervinientesF.corredor_secundario}       onChange={setI('corredor_secundario')} />
+              <FormField  label="Corredor Venta Secundaria"      value={intervinientesF.corredor_secundario}       onChange={setI('corredor_secundario')} />
             </>)}
             {rolesActivos.has('repr_entregador') && (<>
               <CuitField  label="CUIT Representante Entregador" value={intervinientesF.cuit_repr_entregador} onChange={setI('cuit_repr_entregador')} onRazonSocialFound={setI('repr_entregador')} />
-              <VoiceInput label="Representante Entregador"      value={intervinientesF.repr_entregador}      onChange={setI('repr_entregador')} />
+              <FormField  label="Representante Entregador"      value={intervinientesF.repr_entregador}      onChange={setI('repr_entregador')} />
             </>)}
             {rolesActivos.has('repr_recibidor') && (<>
               <CuitField  label="CUIT Representante Recibidor" value={intervinientesF.cuit_repr_recibidor}  onChange={setI('cuit_repr_recibidor')}  onRazonSocialFound={setI('repr_recibidor')} />
-              <VoiceInput label="Representante Recibidor"      value={intervinientesF.repr_recibidor}       onChange={setI('repr_recibidor')} />
+              <FormField  label="Representante Recibidor"      value={intervinientesF.repr_recibidor}       onChange={setI('repr_recibidor')} />
             </>)}
             <CuitField  label="CUIT Destinatario" value={intervinientesF.cuit_destinatario} onChange={setI('cuit_destinatario')} onRazonSocialFound={setI('destinatario')} />
-            <VoiceInput label="Destinatario"      value={intervinientesF.destinatario}      onChange={setI('destinatario')} />
+            <FormField  label="Destinatario"      value={intervinientesF.destinatario}      onChange={setI('destinatario')} />
             <CuitField  label="CUIT Destino" value={intervinientesF.cuit_destino} onChange={setI('cuit_destino')} onRazonSocialFound={setI('destino')} />
-            <VoiceInput label="Destino"      value={intervinientesF.destino}      onChange={setI('destino')} />
+            <FormField  label="Destino"      value={intervinientesF.destino}      onChange={setI('destino')} />
             <CuitField  label="CUIT Flete Pagador"   value={intervinientesF.cuit_pagador_flete} onChange={setI('cuit_pagador_flete')} onRazonSocialFound={setI('pagador_flete')} />
-            <VoiceInput label="Flete Pagador"        value={intervinientesF.pagador_flete}      onChange={setI('pagador_flete')} />
+            <FormField  label="Flete Pagador"        value={intervinientesF.pagador_flete}      onChange={setI('pagador_flete')} />
             <CuitField  label="CUIT Intermediario de Flete" value={intervinientesF.cuit_intermediario}  onChange={setI('cuit_intermediario')}  onRazonSocialFound={setI('intermediario_flete')} />
-            <VoiceInput label="Intermediario de Flete"     value={intervinientesF.intermediario_flete} onChange={setI('intermediario_flete')} />
+            <FormField  label="Intermediario de Flete"     value={intervinientesF.intermediario_flete} onChange={setI('intermediario_flete')} />
           </>
         )}
 
@@ -1224,7 +1223,7 @@ export default function DetalleCupo() {
             <FormField label="Peso Bruto"       value={granoF.kg_bruto_cargados} onChange={setG('kg_bruto_cargados')} type="number" />
             <FormField label="Peso Tara"        value={granoF.kg_tara_cargados}  onChange={setG('kg_tara_cargados')}  type="number" />
             <div className="md:col-span-2"><KgNetoField label="Kg Neto cargados" bruto={granoF.kg_bruto_cargados} tara={granoF.kg_tara_cargados} /></div>
-            <VoiceInput label="Observaciones"   value={granoF.observaciones}       onChange={setG('observaciones')} multiline rows={3} className="md:col-span-2" />
+            <FormField  label="Observaciones"   value={granoF.observaciones}       onChange={setG('observaciones')} className="md:col-span-2" />
           </>
         )}
 
