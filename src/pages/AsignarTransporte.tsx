@@ -5,6 +5,7 @@ import Header from '../components/layout/Header'
 import Button from '../components/ui/Button'
 import SectionTitle from '../components/ui/SectionTitle'
 import { FormField } from '../components/forms/FormField'
+import CuitField from '../components/forms/CuitField'
 import { useToast } from '../components/ui/Toast'
 import { getRecord, updateRecord, updateCupoStatus } from '../lib/storage'
 import { useAuth } from '../hooks/useAuth'
@@ -180,22 +181,20 @@ export default function AsignarTransporte() {
           Pegar mensaje WA
         </button>
 
-        <FormField label="Transporte" value={transporte} onChange={setTransporte} />
-        <FormField
+        <CuitField
           label="CUIT Transporte"
           value={cuit_transporte}
           onChange={setCuitTransporte}
-          onBlur={validateCuitTransporte}
-          error={cuitErrors.cuit_transporte}
+          onRazonSocialFound={setTransporte}
         />
-        <FormField label="Chofer" value={chofer} onChange={setChofer} />
-        <FormField
+        <FormField label="Transporte" value={transporte} onChange={setTransporte} />
+        <CuitField
           label="CUIL Chofer"
           value={cuil_chofer}
           onChange={setCuilChofer}
-          onBlur={validateCuilChofer}
-          error={cuitErrors.cuil_chofer}
+          onRazonSocialFound={setChofer}
         />
+        <FormField label="Chofer" value={chofer} onChange={setChofer} />
         <FormField label="Chasis / Patente" value={chasis} onChange={setChasis} />
         <FormField label="Acoplado / Patente" value={acoplado} onChange={setAcoplado} />
 
