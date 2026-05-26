@@ -43,8 +43,10 @@ serve(async (req) => {
   const afipKey   = Deno.env.get('AFIP_KEY')?.replace(/\|/g, '\n')
 
   if (!afipToken || !afipCuit || !afipCert || !afipKey) {
+    console.error(`[afip-padron] Missing credentials — token:${!!afipToken} cuit:${!!afipCuit} cert:${!!afipCert} key:${!!afipKey}`)
     return json({ error: 'Missing AFIP credentials' }, 500)
   }
+  console.log(`[afip-padron] Consultando CUIT ${cuit} en AfipSDK...`)
 
   try {
     // Paso 1: obtener token y sign con certificado propio
