@@ -1250,7 +1250,7 @@ export default function DetalleCupo() {
             <div className="md:col-span-2"><GPSInput latitud={procedenciaF.latitud} longitud={procedenciaF.longitud} onChangeCoords={setGpsP} /></div>
             <FormField label="Dirección"    value={procedenciaF.descripcion_origen} onChange={setP('descripcion_origen')} className="md:col-span-2" />
             <FormField label="RENSPA"       value={procedenciaF.renspa}             onChange={setP('renspa')} />
-            <SelectField label="Campo"      value={procedenciaF.campo}              onChange={setP('campo')}  options={CAMPOS} />
+            <FormField   label="Campo"      value={procedenciaF.campo}              onChange={setP('campo')} />
 
             <SectionTitle className="mt-2 md:col-span-2">Destino de la Mercadería (Sección D)</SectionTitle>
             <div className="md:col-span-2 flex items-center gap-3 px-1">

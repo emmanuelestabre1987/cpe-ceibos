@@ -497,7 +497,7 @@ export default function ImportarCupos() {
 
           {/* ── General ── */}
           <SectionTitle className="md:col-span-2">Grano / Especie</SectionTitle>
-          <SelectField label="Campo" value={campos.campo} onChange={set('campo')} options={CAMPOS} />
+          <FormField   label="Campo" value={campos.campo} onChange={set('campo')} />
           <FormField   label="Localidad" value={campos.localidad} onChange={set('localidad')} />
           <SelectField label="Grano" value={campos.grano} onChange={set('grano')} options={GRANOS} />
           <SelectField label="Variedad" value={campos.variedad} onChange={set('variedad')} options={VARIEDADES} />
