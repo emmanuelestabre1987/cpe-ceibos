@@ -15,6 +15,7 @@ const HOMO_CUIT_REPRESENTADA = 30715660802
 const HOMO_COD_PROVINCIA      = 1
 const HOMO_COD_LOCALIDAD      = 6904
 const HOMO_NRO_PLANTA         = 526725
+const HOMO_COD_GRANO          = 23   // Grano configurado por ARCA en homo (no usar código real)
 
 // Normaliza campaña "2025/26" | "25/26" | "2526" → "2526"
 function normalizarCosecha(campania: string | null): string {
@@ -60,7 +61,8 @@ export async function generarCPE(record: CpeRecord): Promise<CpeResult> {
     throw new Error(`Faltan datos requeridos: ${faltantes.join(', ')}`)
   }
 
-  const codGrano = GRAIN_CODES[record.grano ?? ''] ?? 2
+  // En homo ARCA solo acepta grano 23 (código de prueba configurado en la planta)
+  const codGrano = HOMO_COD_GRANO
 
   const payload = {
     cuitRepresentada: HOMO_CUIT_REPRESENTADA,
