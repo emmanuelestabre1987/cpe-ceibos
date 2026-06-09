@@ -61,13 +61,6 @@ export async function generarCPE(record: CpeRecord): Promise<CpeResult> {
     throw new Error(`Faltan datos requeridos: ${faltantes.join(', ')}`)
   }
 
-  // Usar el token de sesión del usuario autenticado (no la anon key)
-  const { data: { session } } = await supabase.auth.getSession()
-  const accessToken = session?.access_token
-  if (!accessToken) throw new Error('No hay sesión activa. Por favor volvé a iniciar sesión.')
-
-  const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string).trim()
-
   const payload = {
     cuitRepresentada: HOMO_CUIT_REPRESENTADA,
     sucursal: 1,
@@ -112,16 +105,14 @@ export async function generarCPE(record: CpeRecord): Promise<CpeResult> {
     },
   }
 
-  const res = await fetch(`${supabaseUrl}/functions/v1/wscpe-authorize`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
+  // supabase.functions.invoke maneja el Authorization header automáticamente
+  const { data, error: invokeError } = await supabase.functions.invoke('wscpe-authorize', {
+    body: payload,
   })
 
-  const data = await res.json() as {
+  if (invokeError) throw new Error(`Error de red: ${invokeError.message}`)
+
+  const result = data as {
     ok: boolean
     nroCTG?: string
     nroOrden?: number
@@ -129,26 +120,24 @@ export async function generarCPE(record: CpeRecord): Promise<CpeResult> {
     fechaVencimiento?: string
     error?: string
     response_xml?: string
-    request_xml?: string
   }
 
-  if (!data.ok) {
-    // Extraer código y descripción del XML de respuesta ARCA si existe
-    let detail = data.error ?? 'Error al generar CPE en ARCA'
-    if (data.response_xml) {
-      const code = data.response_xml.match(/<codigo>(\d+)<\/codigo>/)?.[1]
-      const desc = data.response_xml.match(/<descripcion>([^<]+)<\/descripcion>/)?.[1]
+  if (!result.ok) {
+    let detail = result.error ?? 'Error al generar CPE en ARCA'
+    if (result.response_xml) {
+      const code = result.response_xml.match(/<codigo>(\d+)<\/codigo>/)?.[1]
+      const desc = result.response_xml.match(/<descripcion>([^<]+)<\/descripcion>/)?.[1]
       if (code && desc) detail = `ARCA error ${code}: ${desc}`
       else if (desc)    detail = `ARCA: ${desc}`
-      console.error('[cpe] ARCA response_xml:', data.response_xml)
+      console.error('[cpe] ARCA response_xml:', result.response_xml)
     }
     throw new Error(detail)
   }
 
   return {
-    nroCTG:           data.nroCTG!,
-    nroOrden:         data.nroOrden!,
-    fechaEmision:     data.fechaEmision!,
-    fechaVencimiento: data.fechaVencimiento!,
+    nroCTG:           result.nroCTG!,
+    nroOrden:         result.nroOrden!,
+    fechaEmision:     result.fechaEmision!,
+    fechaVencimiento: result.fechaVencimiento!,
   }
 }
