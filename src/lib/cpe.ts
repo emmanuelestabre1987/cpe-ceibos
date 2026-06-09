@@ -1,4 +1,5 @@
 import type { CpeRecord } from '../types'
+import { supabase } from './supabase'
 
 // ── Mapeo grano → código AFIP ─────────────────────────────────────────────────
 const GRAIN_CODES: Record<string, number> = {
@@ -16,6 +17,9 @@ const HOMO_COD_PROVINCIA      = 1
 const HOMO_COD_LOCALIDAD      = 6904
 const HOMO_NRO_PLANTA         = 526725
 const HOMO_COD_GRANO          = 23   // Grano configurado por ARCA en homo (no usar código real)
+
+// Silencia el warning del linter sobre GRAIN_CODES no usado en homo
+void GRAIN_CODES
 
 // Normaliza campaña "2025/26" | "25/26" | "2526" → "2526"
 function normalizarCosecha(campania: string | null): string {
@@ -51,18 +55,18 @@ export function validarCamposRequeridos(record: CpeRecord): string[] {
 }
 
 export async function generarCPE(record: CpeRecord): Promise<CpeResult> {
-  const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim()
-  const supabaseKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim()
-  if (!supabaseUrl || !supabaseKey) throw new Error('Supabase no configurado')
-
   // Validar campos mínimos antes de llamar a ARCA
   const faltantes = validarCamposRequeridos(record)
   if (faltantes.length > 0) {
     throw new Error(`Faltan datos requeridos: ${faltantes.join(', ')}`)
   }
 
-  // En homo ARCA solo acepta grano 23 (código de prueba configurado en la planta)
-  const codGrano = HOMO_COD_GRANO
+  // Usar el token de sesión del usuario autenticado (no la anon key)
+  const { data: { session } } = await supabase.auth.getSession()
+  const accessToken = session?.access_token
+  if (!accessToken) throw new Error('No hay sesión activa. Por favor volvé a iniciar sesión.')
+
+  const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string).trim()
 
   const payload = {
     cuitRepresentada: HOMO_CUIT_REPRESENTADA,
@@ -79,7 +83,7 @@ export async function generarCPE(record: CpeRecord): Promise<CpeResult> {
       cuit_pagador_flete:  cuitNum(record.cuit_pagador_flete) || cuitNum(record.cuit_transporte),
       cuit_intermediario:  cuitNum(record.cuit_intermediario) || undefined,
       // Carga
-      cod_grano:    codGrano,
+      cod_grano:    HOMO_COD_GRANO,
       cosecha:      normalizarCosecha(record.campania),
       peso_bruto:   record.kg_bruto_cargados,
       peso_tara:    record.kg_tara_cargados,
@@ -111,7 +115,7 @@ export async function generarCPE(record: CpeRecord): Promise<CpeResult> {
   const res = await fetch(`${supabaseUrl}/functions/v1/wscpe-authorize`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${supabaseKey}`,
+      Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(payload),
