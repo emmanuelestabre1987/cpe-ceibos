@@ -21,6 +21,7 @@ import { isAdmin } from '../lib/auth'
 import { formatDateTime } from '../lib/dateUtils'
 import { validarCuit, formatearCuit, normalizarCuit } from '../lib/validarCuit'
 import { parseTransporteMsg } from '../lib/transporteParser'
+import { generarCPE } from '../lib/cpe'
 import {
   CAMPOS,
   GRANOS,
@@ -750,6 +751,30 @@ export default function DetalleCupo() {
       .filter(({ missing }) => missing.length > 0)
   }
 
+  const _doGenerarCP = async () => {
+    if (!record || !id || !user?.email) return
+    setGenerando(true)
+    try {
+      const result = await generarCPE(record)
+      // Guardar CTG en el registro
+      await updateRecord(id, record.cpe_id, {
+        nro_ctg:           result.nroCTG,
+        nro_orden_cpe:     result.nroOrden,
+        fecha_emision_cpe: result.fechaEmision,
+        fecha_vencimiento_cpe: result.fechaVencimiento,
+      }, record, user.email)
+      await updateCupoStatus(record.cpe_id, 'ENVIADO', user.email)
+      show(`CPE generada correctamente — CTG: ${result.nroCTG}`, 'success')
+      // Recargar el registro para mostrar el CTG
+      const updated = await getRecord(id)
+      if (updated) setRecord(updated)
+    } catch (err) {
+      show((err as Error).message || 'Error al generar la CPE', 'error')
+    } finally {
+      setGenerando(false)
+    }
+  }
+
   const handleGenerarCP = async () => {
     if (!record) return
     const errors = validateForCP(record)
@@ -758,49 +783,12 @@ export default function DetalleCupo() {
       setCpModalOpen(true)
       return
     }
-    setGenerando(true)
-    try {
-      const webhookUrl = (import.meta.env.VITE_N8N_WEBHOOK_CP_URL as string | undefined)?.trim()
-        || 'https://coder2026.app.n8n.cloud/webhook/ceibos-solicitud-cp'
-      if (!webhookUrl) {
-        show('URL del webhook no configurada (VITE_N8N_WEBHOOK_CP_URL)', 'error')
-        return
-      }
-      await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(record),
-      })
-      show('Solicitud de CP enviada correctamente', 'success')
-    } catch {
-      show('Error al enviar la solicitud. Intentá de nuevo.', 'error')
-    } finally {
-      setGenerando(false)
-    }
+    await _doGenerarCP()
   }
 
   const handleGenerarIgual = async () => {
     setCpModalOpen(false)
-    if (!record) return
-    setGenerando(true)
-    try {
-      const webhookUrl = (import.meta.env.VITE_N8N_WEBHOOK_CP_URL as string | undefined)?.trim()
-        || 'https://coder2026.app.n8n.cloud/webhook/ceibos-solicitud-cp'
-      if (!webhookUrl) {
-        show('URL del webhook no configurada (VITE_N8N_WEBHOOK_CP_URL)', 'error')
-        return
-      }
-      await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(record),
-      })
-      show('Solicitud de CP enviada correctamente', 'success')
-    } catch {
-      show('Error al enviar la solicitud. Intentá de nuevo.', 'error')
-    } finally {
-      setGenerando(false)
-    }
+    await _doGenerarCP()
   }
 
   // ── Save handlers ─────────────────────────────────────────────
@@ -1083,8 +1071,21 @@ export default function DetalleCupo() {
       {/* ── Tab bar ──────────────────────────────────────────── */}
       <TabBar activeTab={activeTab} onSelect={handleTabSelect} />
 
+      {/* ── Banner CTG ───────────────────────────────────────── */}
+      {record?.nro_ctg && (
+        <div className="fixed top-[100px] left-0 right-0 z-30 flex justify-center px-4">
+          <div className="max-w-mobile md:max-w-desktop w-full bg-green-600 text-white rounded-xl px-4 py-2.5 flex items-center justify-between shadow">
+            <span className="font-mono text-xs font-semibold uppercase tracking-wide">CTG</span>
+            <span className="font-mono text-lg font-bold">{record.nro_ctg}</span>
+            <span className="font-mono text-xs text-green-200">
+              Vence: {record.fecha_vencimiento_cpe ? new Date(record.fecha_vencimiento_cpe).toLocaleDateString('es-AR') : '–'}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* ── Content area (offset: header 56px + tabbar 44px) ─── */}
-      <div className="max-w-mobile md:max-w-desktop mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-4" style={{ paddingTop: '128px' }}>
+      <div className="max-w-mobile md:max-w-desktop mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-4" style={{ paddingTop: record?.nro_ctg ? '176px' : '128px' }}>
 
         {/* ── TAB 1: TRANSPORTE ────────────────────────────── */}
         {activeTab === 'transporte' && (

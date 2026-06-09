@@ -96,6 +96,11 @@ export interface CpeRecord {
   gps: string | null
   latitud: number | null
   longitud: number | null
+  // CPE / ARCA
+  nro_ctg: string | null
+  nro_orden_cpe: number | null
+  fecha_emision_cpe: string | null
+  fecha_vencimiento_cpe: string | null
 }
 
 export interface AuditEntry {
