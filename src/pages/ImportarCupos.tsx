@@ -369,6 +369,10 @@ export default function ImportarCupos() {
           gps: null,
           latitud: null,
           longitud: null,
+          nro_ctg: null,
+          nro_orden_cpe: null,
+          fecha_emision_cpe: null,
+          fecha_vencimiento_cpe: null,
         }))
 
       await createCuposEnLote(batch.id, records, email)

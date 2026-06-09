@@ -49,6 +49,7 @@ const empty: RecordFormData = {
   localidad_descarga: null, provincia_descarga: null,
   nro_ruca: '', gps: '',
   latitud: null, longitud: null,
+  nro_ctg: null, nro_orden_cpe: null, fecha_emision_cpe: null, fecha_vencimiento_cpe: null,
 }
 
 function str(val: string | number | null | undefined) {
