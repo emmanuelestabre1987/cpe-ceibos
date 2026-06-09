@@ -36,10 +36,29 @@ export interface CpeResult {
   fechaVencimiento: string
 }
 
+// ── Validación de campos mínimos requeridos por ARCA ─────────────────────────
+export function validarCamposRequeridos(record: CpeRecord): string[] {
+  const faltantes: string[] = []
+  if (!cuitNum(record.cuit_transporte)) faltantes.push('CUIT Transportista')
+  if (!record.chasis?.trim())           faltantes.push('Patente / Chasis')
+  if (!record.fecha_partida)            faltantes.push('Fecha de Partida')
+  if (record.km == null)                faltantes.push('Km a recorrer')
+  if (!cuitNum(record.cuil_chofer))     faltantes.push('CUIL Chofer')
+  if (record.kg_bruto_cargados == null) faltantes.push('Peso Bruto cargado')
+  if (record.kg_tara_cargados == null)  faltantes.push('Peso Tara cargado')
+  return faltantes
+}
+
 export async function generarCPE(record: CpeRecord): Promise<CpeResult> {
   const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim()
   const supabaseKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim()
   if (!supabaseUrl || !supabaseKey) throw new Error('Supabase no configurado')
+
+  // Validar campos mínimos antes de llamar a ARCA
+  const faltantes = validarCamposRequeridos(record)
+  if (faltantes.length > 0) {
+    throw new Error(`Faltan datos requeridos: ${faltantes.join(', ')}`)
+  }
 
   const codGrano = GRAIN_CODES[record.grano ?? ''] ?? 2
 
@@ -96,8 +115,29 @@ export async function generarCPE(record: CpeRecord): Promise<CpeResult> {
     body: JSON.stringify(payload),
   })
 
-  const data = await res.json() as { ok: boolean; nroCTG?: string; nroOrden?: number; fechaEmision?: string; fechaVencimiento?: string; error?: string }
-  if (!data.ok) throw new Error(data.error ?? 'Error al generar CPE en ARCA')
+  const data = await res.json() as {
+    ok: boolean
+    nroCTG?: string
+    nroOrden?: number
+    fechaEmision?: string
+    fechaVencimiento?: string
+    error?: string
+    response_xml?: string
+    request_xml?: string
+  }
+
+  if (!data.ok) {
+    // Extraer código y descripción del XML de respuesta ARCA si existe
+    let detail = data.error ?? 'Error al generar CPE en ARCA'
+    if (data.response_xml) {
+      const code = data.response_xml.match(/<codigo>(\d+)<\/codigo>/)?.[1]
+      const desc = data.response_xml.match(/<descripcion>([^<]+)<\/descripcion>/)?.[1]
+      if (code && desc) detail = `ARCA error ${code}: ${desc}`
+      else if (desc)    detail = `ARCA: ${desc}`
+      console.error('[cpe] ARCA response_xml:', data.response_xml)
+    }
+    throw new Error(detail)
+  }
 
   return {
     nroCTG:           data.nroCTG!,

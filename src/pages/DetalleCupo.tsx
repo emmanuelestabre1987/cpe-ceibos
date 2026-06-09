@@ -722,23 +722,27 @@ export default function DetalleCupo() {
   const CP_REQUIRED: { section: string; fields: (keyof CpeRecord)[]; labels: Record<string, string> }[] = [
     {
       section: 'Transporte',
-      fields: ['cupo', 'transporte', 'cuit_transporte', 'chofer', 'cuil_chofer', 'chasis'],
-      labels: { cupo: 'Cupo', transporte: 'Empresa Transportista', cuit_transporte: 'CUIT Empresa Transportista', chofer: 'Chofer', cuil_chofer: 'CUIL Chofer', chasis: 'Patente Chasis' },
+      fields: ['cuit_transporte', 'cuil_chofer', 'chasis', 'fecha_partida', 'km'],
+      labels: {
+        cuit_transporte: 'CUIT Empresa Transportista',
+        cuil_chofer:     'CUIL Chofer',
+        chasis:          'Patente Chasis',
+        fecha_partida:   'Fecha de Partida',
+        km:              'Km a recorrer',
+      },
     },
     {
-      section: 'Intervinientes',
-      fields: ['destinatario', 'cuit_destinatario', 'destino', 'cuit_destino'],
-      labels: { destinatario: 'Destinatario', cuit_destinatario: 'CUIT Destinatario', destino: 'Destino', cuit_destino: 'CUIT Destino' },
+      section: 'Pesaje',
+      fields: ['kg_bruto_cargados', 'kg_tara_cargados'],
+      labels: {
+        kg_bruto_cargados: 'Peso Bruto cargado',
+        kg_tara_cargados:  'Peso Tara cargado',
+      },
     },
     {
       section: 'Grano',
-      fields: ['grano', 'campania', 'kg_estimados'],
-      labels: { grano: 'Grano', campania: 'Campaña', kg_estimados: 'Kg Estimados' },
-    },
-    {
-      section: 'Procedencia',
-      fields: ['localidad', 'provincia_origen', 'renspa', 'provincia_destino'],
-      labels: { localidad: 'Localidad', provincia_origen: 'Provincia Origen', renspa: 'RENSPA', provincia_destino: 'Provincia Destino' },
+      fields: ['grano', 'campania'],
+      labels: { grano: 'Grano', campania: 'Campaña' },
     },
   ]
 
