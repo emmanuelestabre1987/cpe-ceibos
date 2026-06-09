@@ -93,14 +93,15 @@ export async function generarCPE(record: CpeRecord): Promise<CpeResult> {
       cod_localidad_destino: HOMO_COD_LOCALIDAD,
       nro_planta_destino:    HOMO_NRO_PLANTA,
       cuit_destinatario:     HOMO_CUIT_REPRESENTADA,
-      // Intervinientes opcionales
-      cuit_rte_venta_primaria:    cuitNum(record.cuit_rte_venta_primaria)   || undefined,
-      cuit_rte_venta_secundaria:  cuitNum(record.cuit_rte_venta_secundaria) || undefined,
-      cuit_rte_venta_secundaria2: cuitNum(record.cuit_rte_venta_secundaria2)|| undefined,
-      cuit_corredor_primario:     cuitNum(record.cuit_corredor_primario)    || undefined,
-      cuit_corredor_secundario:   cuitNum(record.cuit_corredor_secundario)  || undefined,
-      cuit_repr_entregador:       cuitNum(record.cuit_repr_entregador)      || undefined,
-      cuit_repr_recibidor:        cuitNum(record.cuit_repr_recibidor)       || undefined,
+      // Intervinientes opcionales — omitidos en homo (los CUITs no están en SISA de prueba)
+      // En producción descomentar:
+      // cuit_rte_venta_primaria:    cuitNum(record.cuit_rte_venta_primaria)   || undefined,
+      // cuit_rte_venta_secundaria:  cuitNum(record.cuit_rte_venta_secundaria) || undefined,
+      // cuit_rte_venta_secundaria2: cuitNum(record.cuit_rte_venta_secundaria2)|| undefined,
+      // cuit_corredor_primario:     cuitNum(record.cuit_corredor_primario)    || undefined,
+      // cuit_corredor_secundario:   cuitNum(record.cuit_corredor_secundario)  || undefined,
+      // cuit_repr_entregador:       cuitNum(record.cuit_repr_entregador)      || undefined,
+      // cuit_repr_recibidor:        cuitNum(record.cuit_repr_recibidor)       || undefined,
       observaciones: record.observaciones || undefined,
     },
   }
