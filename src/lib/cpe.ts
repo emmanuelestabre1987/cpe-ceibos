@@ -80,8 +80,8 @@ export async function generarCPE(record: CpeRecord): Promise<CpeResult> {
       cosecha:      normalizarCosecha(record.campania),
       peso_bruto:   record.kg_bruto_cargados,
       peso_tara:    record.kg_tara_cargados,
-      // Origen (homo: códigos hardcodeados)
-      es_campo_origen:      record.es_campo_origen ?? false,
+      // Origen (homo: siempre operador — el CUIT de prueba no tiene actividad de productor)
+      es_campo_origen:      false,
       cod_provincia_origen: HOMO_COD_PROVINCIA,
       cod_localidad_origen: HOMO_COD_LOCALIDAD,
       nro_planta:           HOMO_NRO_PLANTA,
