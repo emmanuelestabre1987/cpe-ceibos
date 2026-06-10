@@ -4,7 +4,7 @@ import forge from "npm:node-forge@1.3.1";
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 const jsonRes = (data: unknown, status = 200) =>
@@ -302,7 +302,7 @@ Deno.serve(async (req) => {
         <esDestinoCampo>${sol.es_campo_destino ?? false}</esDestinoCampo>
         <codProvincia>${sol.cod_provincia_destino}</codProvincia>
         <codLocalidad>${sol.cod_localidad_destino ?? 0}</codLocalidad>
-        <planta>${sol.nro_planta ?? 0}</planta>
+        <planta>${sol.nro_planta_destino ?? sol.nro_planta ?? 0}</planta>
       </destino>
       <destinatario>
         <cuit>${sol.cuit_destinatario}</cuit>
