@@ -1359,7 +1359,7 @@ export default function DetalleCupo() {
       </div>
 
       {/* ── Bottom action bar (wizard unificado) ─────────────── */}
-      {activeTab !== 'historial' && !descargaReadOnly && (
+      {activeTab !== 'historial' && !(descargaReadOnly && activeTab === 'descarga') && (
         <BottomBar>
           <div className="flex gap-3">
             {activeTab !== 'transporte' && (
