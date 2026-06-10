@@ -22,6 +22,7 @@ import { formatDateTime } from '../lib/dateUtils'
 import { validarCuit, formatearCuit, normalizarCuit } from '../lib/validarCuit'
 import { parseTransporteMsg } from '../lib/transporteParser'
 import { generarCPE } from '../lib/cpe'
+import { supabase } from '../lib/supabase'
 import {
   CAMPOS,
   GRANOS,
@@ -776,17 +777,18 @@ export default function DetalleCupo() {
       const updated = await getRecord(id)
       if (updated) setRecord(updated)
 
-      // Llamar a n8n para PDF + email (fire and forget)
-      fetch(N8N_WEBHOOK, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...(updated ?? record),
-          nro_ctg:              result.nroCTG,
-          nro_orden_cpe:        result.nroOrden,
-          fecha_emision_cpe:    result.fechaEmision,
-          fecha_vencimiento_cpe: result.fechaVencimiento,
-        }),
+      // Llamar a n8n via proxy Edge Function (evita CORS)
+      supabase.functions.invoke('n8n-proxy', {
+        body: {
+          webhook_url: N8N_WEBHOOK,
+          payload: {
+            ...(updated ?? record),
+            nro_ctg:               result.nroCTG,
+            nro_orden_cpe:         result.nroOrden,
+            fecha_emision_cpe:     result.fechaEmision,
+            fecha_vencimiento_cpe: result.fechaVencimiento,
+          },
+        },
       }).catch(() => { /* no bloquear si n8n falla */ })
 
       show(`CPE generada — CTG: ${result.nroCTG}`, 'success')

@@ -10,6 +10,7 @@ import GPSInput from '../components/forms/GPSInput'
 import SectionTitle from '../components/ui/SectionTitle'
 import { useToast } from '../components/ui/Toast'
 import { createRecord, updateRecord } from '../lib/storage'
+import { supabase } from '../lib/supabase'
 import { parseTransporteMsg } from '../lib/transporteParser'
 import { useAuth } from '../hooks/useAuth'
 import { CAMPOS, GRANOS, VARIEDADES, FIELD_LABELS, type CpeRecord, type RecordFormData } from '../types'
@@ -288,13 +289,10 @@ export default function NewRecord() {
   const dispararWebhook = async (snap: CpeRecord) => {
     const webhookUrl = (import.meta.env.VITE_N8N_WEBHOOK_CP_URL as string | undefined)?.trim()
       || 'https://coder2026.app.n8n.cloud/webhook/ceibos-solicitud-cp'
-    if (!webhookUrl) { show('URL del webhook no configurada', 'error'); return }
     setGenerando(true)
     try {
-      await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(snap),
+      await supabase.functions.invoke('n8n-proxy', {
+        body: { webhook_url: webhookUrl, payload: snap },
       })
       show('Solicitud de CP enviada correctamente', 'success')
     } catch {
