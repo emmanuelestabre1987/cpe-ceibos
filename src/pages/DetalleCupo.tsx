@@ -1452,14 +1452,12 @@ export default function DetalleCupo() {
             >
               Forzar estado
             </button>
-            {record?.nro_ctg && (
-              <button
-                className="w-full text-left px-4 py-3 rounded-xl font-sans text-sm text-primary hover:bg-gray-50 transition"
-                onClick={() => void handleReenviarN8n()}
-              >
-                Reenviar a n8n
-              </button>
-            )}
+            <button
+              className="w-full text-left px-4 py-3 rounded-xl font-sans text-sm text-primary hover:bg-gray-50 transition"
+              onClick={() => void handleReenviarN8n()}
+            >
+              Reenviar a n8n
+            </button>
             {status !== 'CANCELADO' && (
               <button
                 className="w-full text-left px-4 py-3.5 font-sans text-sm text-orange-600 font-medium border-t border-gray-100"
