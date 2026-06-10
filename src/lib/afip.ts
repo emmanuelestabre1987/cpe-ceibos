@@ -1,3 +1,5 @@
+import { supabase } from './supabase'
+
 /**
  * Consulta el padrón público de AFIP/ARCA via Supabase Edge Function (proxy CORS).
  * - Personas jurídicas: razonSocial
@@ -13,14 +15,17 @@ export async function fetchRazonSocial(cuit: string): Promise<string | null> {
   if (!supabaseUrl || !anonKey) return null
 
   try {
+    // apikey identifica el proyecto; Authorization usa el JWT del usuario autenticado
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token ?? anonKey
+
     const res = await fetch(
       `${supabaseUrl}/functions/v1/afip-padron?cuit=${clean}`,
       {
         headers: {
           Accept: 'application/json',
-          // Supabase API gateway requiere ambos headers
           apikey: anonKey,
-          Authorization: `Bearer ${anonKey}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     )
