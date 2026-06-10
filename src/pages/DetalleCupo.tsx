@@ -84,6 +84,13 @@ function str(v: string | number | null | undefined): string {
   return v === null || v === undefined ? '' : String(v)
 }
 
+// Normaliza un valor datetime para usar en <input type="datetime-local">
+// Convierte "2026-06-11T11:34:00+00:00" o "2026-06-11T11:34:00Z" → "2026-06-11T11:34"
+function toDateTimeLocal(v: string | null | undefined): string {
+  if (!v) return ''
+  return String(v).replace(/(T\d{2}:\d{2}):\d{2}(\.\d+)?([+-]\d{2}:\d{2}|Z)?$/, '$1').substring(0, 16)
+}
+
 // ── Form types ───────────────────────────────────────────────
 
 interface TransporteForm {
@@ -156,7 +163,7 @@ function initTransporte(r: CpeRecord): TransporteForm {
     transporte: str(r.transporte), cuit_transporte: str(r.cuit_transporte),
     chofer: str(r.chofer), cuil_chofer: str(r.cuil_chofer),
     chasis: str(r.chasis), acoplado: str(r.acoplado),
-    fecha_partida: str(r.fecha_partida),
+    fecha_partida: toDateTimeLocal(r.fecha_partida),
     km: str(r.km), tarifa: str(r.tarifa),
     nro_ruca: str(r.nro_ruca),
   }
@@ -212,7 +219,7 @@ function initContingencias(r: CpeRecord): ContingenciasForm {
 }
 function initDescarga(r: CpeRecord): DescargaForm {
   return {
-    fecha_arribo: str(r.fecha_arribo), fecha_descarga: str(r.fecha_descarga),
+    fecha_arribo: toDateTimeLocal(r.fecha_arribo), fecha_descarga: toDateTimeLocal(r.fecha_descarga),
     nro_turno: str(r.nro_turno),
     kg_bruto_descargados: str(r.kg_bruto_descargados),
     kg_tara_descargados: str(r.kg_tara_descargados),
