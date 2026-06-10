@@ -758,6 +758,20 @@ export default function DetalleCupo() {
 
   const N8N_WEBHOOK = 'https://coder2026.app.n8n.cloud/webhook-test/6050aed1-fb32-479a-8036-f5b74dab392a'
 
+  const handleReenviarN8n = async () => {
+    if (!record) return
+    try {
+      const { error } = await supabase.functions.invoke('n8n-proxy', {
+        body: { webhook_url: N8N_WEBHOOK, payload: record },
+      })
+      if (error) throw error
+      show('Webhook enviado a n8n ✓', 'success')
+    } catch (e) {
+      show(`Error al enviar webhook: ${(e as Error).message}`, 'error')
+    }
+    setMenuOpen(false)
+  }
+
   const _doGenerarCP = async () => {
     if (!record || !id || !user?.email) return
     setGenerando(true)
@@ -1438,6 +1452,14 @@ export default function DetalleCupo() {
             >
               Forzar estado
             </button>
+            {record?.nro_ctg && (
+              <button
+                className="w-full text-left px-4 py-3 rounded-xl font-sans text-sm text-primary hover:bg-gray-50 transition"
+                onClick={() => void handleReenviarN8n()}
+              >
+                Reenviar a n8n
+              </button>
+            )}
             {status !== 'CANCELADO' && (
               <button
                 className="w-full text-left px-4 py-3.5 font-sans text-sm text-orange-600 font-medium border-t border-gray-100"
