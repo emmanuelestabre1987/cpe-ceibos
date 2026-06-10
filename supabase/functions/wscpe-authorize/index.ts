@@ -7,9 +7,10 @@ const CORS = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const jsonRes = (data: unknown, status = 200) =>
+// Siempre HTTP 200 — el cliente chequea data.ok para saber si hubo error
+const jsonRes = (data: unknown) =>
   new Response(JSON.stringify(data, null, 2), {
-    status,
+    status: 200,
     headers: { "Content-Type": "application/json", ...CORS },
   });
 
