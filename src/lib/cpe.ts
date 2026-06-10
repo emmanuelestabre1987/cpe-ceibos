@@ -69,7 +69,7 @@ export async function generarCPE(record: CpeRecord): Promise<CpeResult> {
       // Transporte
       cuit_transporte:     cuitNum(record.cuit_transporte),
       dominio:             record.chasis,
-      fecha_partida:       record.fecha_partida,
+      fecha_partida:       record.fecha_partida?.replace(/([T\d:]{16}).*/, '$1') ?? record.fecha_partida,
       km:                  record.km,
       cuil_chofer:         cuitNum(record.cuil_chofer),
       tarifa:              record.tarifa ?? 0,
