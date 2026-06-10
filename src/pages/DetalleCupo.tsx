@@ -755,23 +755,41 @@ export default function DetalleCupo() {
       .filter(({ missing }) => missing.length > 0)
   }
 
+  const N8N_WEBHOOK = 'https://coder2026.app.n8n.cloud/webhook-test/6050aed1-fb32-479a-8036-f5b74dab392a'
+
   const _doGenerarCP = async () => {
     if (!record || !id || !user?.email) return
     setGenerando(true)
     try {
       const result = await generarCPE(record)
+
       // Guardar CTG en el registro
       await updateRecord(id, record.cpe_id, {
-        nro_ctg:           result.nroCTG,
-        nro_orden_cpe:     result.nroOrden,
-        fecha_emision_cpe: result.fechaEmision,
+        nro_ctg:              result.nroCTG,
+        nro_orden_cpe:        result.nroOrden,
+        fecha_emision_cpe:    result.fechaEmision,
         fecha_vencimiento_cpe: result.fechaVencimiento,
       }, record, user.email)
       await updateCupoStatus(record.cpe_id, 'ENVIADO', user.email)
-      show(`CPE generada correctamente — CTG: ${result.nroCTG}`, 'success')
+
       // Recargar el registro para mostrar el CTG
       const updated = await getRecord(id)
       if (updated) setRecord(updated)
+
+      // Llamar a n8n para PDF + email (fire and forget)
+      fetch(N8N_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...(updated ?? record),
+          nro_ctg:              result.nroCTG,
+          nro_orden_cpe:        result.nroOrden,
+          fecha_emision_cpe:    result.fechaEmision,
+          fecha_vencimiento_cpe: result.fechaVencimiento,
+        }),
+      }).catch(() => { /* no bloquear si n8n falla */ })
+
+      show(`CPE generada — CTG: ${result.nroCTG}`, 'success')
     } catch (err) {
       show((err as Error).message || 'Error al generar la CPE', 'error')
     } finally {
