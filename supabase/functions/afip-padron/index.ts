@@ -4,7 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
 const json = (data: unknown, status = 200) =>
@@ -57,7 +57,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        environment: 'dev',
+        environment: 'prod',
         tax_id: afipCuit,
         wsid: 'ws_sr_constancia_inscripcion',
         cert: afipCert,
@@ -80,7 +80,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        environment: 'dev',
+        environment: 'prod',
         method: 'getPersona_v2',
         wsid: 'ws_sr_constancia_inscripcion',
         params: {
